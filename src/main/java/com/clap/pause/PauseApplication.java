@@ -11,5 +11,4 @@ public class PauseApplication {
     public static void main(String[] args) {
         SpringApplication.run(PauseApplication.class, args);
     }
-
 }
