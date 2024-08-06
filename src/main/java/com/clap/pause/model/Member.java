@@ -29,7 +29,7 @@ public class Member extends BaseEntity {
     @Column(name = "profile_image")
     private String profileImage;
     @NotNull
-    @Column(name = "birth", unique = true)
+    @Column(name = "birth")
     private LocalDate birth;
     @NotNull
     @Enumerated(value = EnumType.STRING)
@@ -38,6 +38,10 @@ public class Member extends BaseEntity {
     @NotNull
     @Column(name = "job")
     private String job;
+    @NotNull
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "member_role")
+    private MemberRole memberRole;
     @NotNull
     @Column(name = "certified")
     private Boolean certified = Boolean.FALSE;
@@ -48,13 +52,25 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
-    public Member(String email, OauthType oauthType) {
+    public Member(String name, String email, OauthType oauthType, String profileImage, LocalDate birth, Gender gender, String job) {
+        this.name = name;
         this.email = email;
         this.password = oauthType.name();
+        this.profileImage = profileImage;
+        this.birth = birth;
+        this.gender = gender;
+        this.job = job;
+        this.memberRole = MemberRole.MEMBER;
     }
 
-    public Member(String email, String password) {
+    public Member(String name, String email, String password, String profileImage, LocalDate birth, Gender gender, String job) {
+        this.name = name;
         this.email = email;
         this.password = password;
+        this.profileImage = profileImage;
+        this.birth = birth;
+        this.gender = gender;
+        this.job = job;
+        this.memberRole = MemberRole.MEMBER;
     }
 }
