@@ -42,24 +42,27 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const reviewers = ["YunJungHun", "Jeong Bo Yun", "clap-pause"];
-            function getRandomIndices(arr, num) {
+            const reviewers = ["yunjunghun0116", "boyunee", "clap-pause"];
+            
+            function getRandomIndices(author, arr, num) {
               const indices = [];
               while (indices.length < num) {
                 const index = Math.floor(Math.random() * arr.length);
-                if (!indices.includes(index)) {
-                  indices.push(index);
+                if (arr[index] === author || indices.includes(index)) {
+                  continue;
                 }
+                indices.push(index);
               }
               return indices;
             }
             
-            const randomIndexes = getRandomIndices(reviewers, 2);
-            const selectedReviewers = randomIndexes.map(index => reviewers[index]);
+            const prAuthor = context.payload.pull_request.user.login;
+            const randomIndices = getRandomIndices(prAuthor, reviewers, 2);
+            const selectedReviewers = randomIndices.map(index => reviewers[index]);
             
-            github.pulls.requestReviewers({
+            await github.rest.pulls.requestReviewers({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
+              pull_number: context.issue.number,
               reviewers: selectedReviewers
             });
