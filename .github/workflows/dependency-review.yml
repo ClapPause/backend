@@ -10,7 +10,7 @@
 name: '랜덤으로 리뷰어 2명 할당하는 Actions'
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [ opened, reopened ]
     branches: [ "develop" ]
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
@@ -39,8 +39,9 @@ jobs:
         #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
         #   retry-on-snapshot-warnings: true
       - name: '리뷰어 랜덤 할당'
+        uses: actions/github-script@v6
         with:
-         script: |
+          script: |
             const reviewers = ["YunJungHun", "Jeong Bo Yun", "clap-pause"];
             function getRandomIndices(arr, num) {
               const indices = [];
@@ -54,7 +55,7 @@ jobs:
             }
             
             const randomIndexes = getRandomIndices(reviewers, 2);
-            const selectedReviewers = randomIndices.map(index => reviewers[index]);
+            const selectedReviewers = randomIndexes.map(index => reviewers[index]);
             
             github.pulls.requestReviewers({
               owner: context.repo.owner,
