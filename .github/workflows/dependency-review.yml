@@ -57,9 +57,9 @@ jobs:
             const randomIndexes = getRandomIndices(reviewers, 2);
             const selectedReviewers = randomIndexes.map(index => reviewers[index]);
             
-            github.pulls.requestReviewers({
+            await github.rest.pulls.requestReviewers({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
+              pull_number: context.issue.number,
               reviewers: selectedReviewers
             });
