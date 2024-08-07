@@ -1,0 +1,68 @@
+# Dependency Review Action
+#
+# This Action will scan dependency manifest files that change as part of a Pull Request,
+# surfacing known-vulnerable versions of the packages declared or updated in the PR.
+# Once installed, if the workflow run is marked as required, PRs introducing known-vulnerable
+# packages will be blocked from merging.
+#
+# Source repository: https://github.com/actions/dependency-review-action
+# Public documentation: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review#dependency-review-enforcement
+name: '랜덤으로 리뷰어 2명 할당하는 Actions'
+on:
+  pull_request:
+    types: [ opened, reopened ]
+    branches: [ "main", "develop" ]
+
+# If using a dependency submission action in this workflow this permission will need to be set to:
+#
+# permissions:
+#   contents: write
+#
+# https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
+permissions:
+  contents: read
+  # Write permissions for pull-requests are required for using the `comment-summary-in-pr` option, comment out if you aren't using this option
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4
+        # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
+        with:
+          comment-summary-in-pr: always
+        #   fail-on-severity: moderate
+        #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
+        #   retry-on-snapshot-warnings: true
+      - name: '리뷰어 랜덤 할당'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const reviewers = ["yunjunghun0116", "boyunee", "clap-pause"];
+            
+            function getRandomIndices(author, arr, num) {
+              const indices = [];
+              while (indices.length < num) {
+                const index = Math.floor(Math.random() * arr.length);
+                if (arr[index] === author || indices.includes(index)) {
+                  continue;
+                }
+                indices.push(index);
+              }
+              return indices;
+            }
+            
+            const prAuthor = context.payload.pull_request.user.login;
+            const randomIndices = getRandomIndices(prAuthor, reviewers, 2);
+            const selectedReviewers = randomIndices.map(index => reviewers[index]);
+            
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: selectedReviewers
+            });
