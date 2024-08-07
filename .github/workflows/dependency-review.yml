@@ -11,7 +11,7 @@ name: '랜덤으로 리뷰어 2명 할당하는 Actions'
 on:
   pull_request:
     types: [ opened, reopened ]
-    branches: [ "develop" ]
+    branches: [ "main", "develop" ]
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
