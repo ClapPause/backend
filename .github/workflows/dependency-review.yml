@@ -42,7 +42,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const reviewers = ["YunJungHun", "Jeong Bo Yun", "clap-pause"];
+            const reviewers = ["yunjunghun0116", "boyunee", "clap-pause"];
             function getRandomIndices(arr, num) {
               const indices = [];
               while (indices.length < num) {
