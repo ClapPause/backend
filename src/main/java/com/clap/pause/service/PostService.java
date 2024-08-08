@@ -1,11 +1,9 @@
 package com.clap.pause.service;
 
-import com.clap.pause.dto.post.DefaultPostRequest;
-import com.clap.pause.dto.post.DefaultPostResponse;
-import com.clap.pause.exception.InvalidPostTypeException;
+import com.clap.pause.dto.post.PostRequest;
+import com.clap.pause.dto.post.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Post;
-import com.clap.pause.model.PostType;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
@@ -22,24 +20,21 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final DepartmentGroupRepository departmentGroupRepository;
 
-    public DefaultPostResponse saveDefaultPost(Long memberId, DefaultPostRequest defaultPostRequest) {
-        var post = saveDefaultPostWithDefaultPostRequest(memberId, defaultPostRequest);
-        return getDefaultPostResponse(post);
+    public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest) {
+        var post = savePostWithPostRequest(memberId, postRequest);
+        return getPostResponse(post);
     }
 
-    private Post saveDefaultPostWithDefaultPostRequest(Long memberId, DefaultPostRequest defaultPostRequest) {
-        if (!defaultPostRequest.postType().equals(PostType.DEFAULT)) {
-            throw new InvalidPostTypeException("잘못된 글 타입입니다.");
-        }
+    private Post savePostWithPostRequest(Long memberId, PostRequest postRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
-        var departmentGroup = departmentGroupRepository.findById(defaultPostRequest.departmentGroupId())
+        var departmentGroup = departmentGroupRepository.findById(postRequest.departmentGroupId())
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
-        var post = new Post(member, departmentGroup, defaultPostRequest.title(), defaultPostRequest.contents(), defaultPostRequest.postCategory(), defaultPostRequest.postType());
+        var post = new Post(member, departmentGroup, postRequest.title(), postRequest.contents(), postRequest.postCategory(), postRequest.postType());
         return postRepository.save(post);
     }
 
-    private DefaultPostResponse getDefaultPostResponse(Post post) {
-        return DefaultPostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getCreatedAt());
+    private PostResponse getPostResponse(Post post) {
+        return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt());
     }
 }
