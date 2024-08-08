@@ -2,6 +2,8 @@ package com.clap.pause.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,6 +25,10 @@ public class MemberUniversityDepartment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_department_id", referencedColumnName = "id")
     private UniversityDepartment universityDepartment;
+    @NotNull
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "department_type")
+    private DepartmentType departmentType;
     @NotNull
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
