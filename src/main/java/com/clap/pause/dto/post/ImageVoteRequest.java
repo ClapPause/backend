@@ -3,7 +3,10 @@ package com.clap.pause.dto.post;
 import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 public record ImageVoteRequest(
         @NotNull(message = "학과 그룹은 반드시 선택되어야 합니다.")
@@ -15,6 +18,8 @@ public record ImageVoteRequest(
         @NotNull(message = "카테고리는 반드시 선택되어야 합니다.")
         PostCategory postCategory,
         @NotNull(message = "글 타입은 반드시 선택되어야 합니다.")
-        PostType postType
+        PostType postType,
+        @NotEmpty(message = "이미지 투표 항목은 최소 하나 이상 존재해야 합니다.")
+        List<ImageVoteOptionRequest> options
 ) {
 }
