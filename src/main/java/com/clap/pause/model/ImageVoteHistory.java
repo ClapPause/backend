@@ -17,8 +17,8 @@ import org.hibernate.annotations.SQLRestriction;
 public class ImageVoteHistory extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_vote_item_id", referencedColumnName = "id")
-    private ImageVoteItem imageVoteItem;
+    @JoinColumn(name = "image_vote_option_id", referencedColumnName = "id")
+    private ImageVoteOption imageVoteOption;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
@@ -30,8 +30,8 @@ public class ImageVoteHistory extends BaseEntity {
     protected ImageVoteHistory() {
     }
 
-    public ImageVoteHistory(ImageVoteItem imageVoteItem, Member member) {
-        this.imageVoteItem = imageVoteItem;
+    public ImageVoteHistory(ImageVoteOption imageVoteOption, Member member) {
+        this.imageVoteOption = imageVoteOption;
         this.member = member;
     }
 }

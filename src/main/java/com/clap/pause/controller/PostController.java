@@ -24,6 +24,7 @@ public class PostController {
     @PostMapping("/default")
     public ResponseEntity<PostResponse> saveDefaultPost(@RequestAttribute("memberId") Long memberId, @Valid @RequestBody PostRequest postRequest) {
         var post = postService.saveDefaultPost(memberId, postRequest);
-        return ResponseEntity.created(URI.create("/api/post/default/" + post.id())).body(post);
+        return ResponseEntity.created(URI.create("/api/post/default/" + post.id()))
+                .body(post);
     }
 }

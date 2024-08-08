@@ -11,10 +11,10 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "image_vote_item")
-@SQLDelete(sql = "update image_vote_item set deleted = true where id = ?")
+@Table(name = "image_vote_option")
+@SQLDelete(sql = "update image_vote_option set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
-public class ImageVoteItem extends BaseEntity {
+public class ImageVoteOption extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
@@ -29,10 +29,10 @@ public class ImageVoteItem extends BaseEntity {
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
 
-    protected ImageVoteItem() {
+    protected ImageVoteOption() {
     }
 
-    public ImageVoteItem(Post post, String imageUrl, String description) {
+    public ImageVoteOption(Post post, String imageUrl, String description) {
         this.post = post;
         this.imageUrl = imageUrl;
         this.description = description;
