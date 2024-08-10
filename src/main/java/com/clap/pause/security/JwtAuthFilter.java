@@ -18,7 +18,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.util.List;
 
@@ -68,7 +67,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private Long getMemberIdWithToken(HttpServletRequest request, String token) {
         try {
             var claims = Jwts.parser()
-                    .verifyWith(getSecretKey())
+                    .verifyWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
@@ -91,11 +90,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return null;
         }
         return header[1];
-    }
-
-    private SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.secretKey()
-                .getBytes());
     }
 
     private boolean canSkipFilter(HttpServletRequest request) {
