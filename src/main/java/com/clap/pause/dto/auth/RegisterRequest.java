@@ -1,9 +1,7 @@
 package com.clap.pause.dto.auth;
 
 import com.clap.pause.dto.validation.GenderValidation;
-import com.clap.pause.dto.validation.MemberRoleValidation;
 import com.clap.pause.model.Gender;
-import com.clap.pause.model.MemberRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -27,9 +25,6 @@ public record RegisterRequest(
         @GenderValidation
         Gender gender,
         @NotBlank(message = "직업은 반드시 입력되어야 합니다.")
-        String job,
-        @NotNull(message = "역할은 반드시 입력되어야 합니다.")
-        @MemberRoleValidation
-        MemberRole memberRole
+        String job
 ) {
 }
