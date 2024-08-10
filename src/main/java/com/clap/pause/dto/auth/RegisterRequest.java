@@ -1,6 +1,5 @@
 package com.clap.pause.dto.auth;
 
-import com.clap.pause.dto.validation.GenderValidation;
 import com.clap.pause.model.Gender;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +21,6 @@ public record RegisterRequest(
         @Past(message = "유효하지 않은 생일입니다.")
         LocalDate birth,
         @NotNull(message = "성별은 반드시 입력되어야 합니다.")
-        @GenderValidation
         Gender gender,
         @NotBlank(message = "직업은 반드시 입력되어야 합니다.")
         String job

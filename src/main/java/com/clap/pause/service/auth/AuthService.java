@@ -35,8 +35,9 @@ public class AuthService {
     public AuthResponse login(LoginRequest loginRequest) {
         var member = memberRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new NotFoundElementException(loginRequest.email() + "를 가진 이용자가 존재하지 않습니다."));
+
         var isMatched = passwordEncoder.matches(loginRequest.password(), member.getPassword());
-        if (isMatched) {
+        if (!isMatched) {
             throw new InvalidLoginInfoException("로그인 정보가 유효하지 않습니다.");
         }
         return createAuthResponseWithMember(member);
@@ -61,7 +62,8 @@ public class AuthService {
 
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         emailValidation(registerRequest.email());
-        var member = new Member(registerRequest.name(), registerRequest.email(), registerRequest.password(), registerRequest.profileImage(), registerRequest.birth(), registerRequest.gender(), registerRequest.job());
+        var encodedPassword = passwordEncoder.encode(registerRequest.password());
+        var member = new Member(registerRequest.name(), registerRequest.email(), encodedPassword, registerRequest.profileImage(), registerRequest.birth(), registerRequest.gender(), registerRequest.job());
         return memberRepository.save(member);
     }
 }
