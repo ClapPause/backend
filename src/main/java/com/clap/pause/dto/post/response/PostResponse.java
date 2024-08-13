@@ -1,4 +1,4 @@
-package com.clap.pause.dto.post;
+package com.clap.pause.dto.post.response;
 
 import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
