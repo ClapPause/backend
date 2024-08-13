@@ -25,7 +25,6 @@ public class JwtProvider {
     public String generateToken(Member member) {
         return Jwts.builder()
                 .subject(member.getId().toString())
-                .claim("role", member.getMemberRole().name())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiredTime()))
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
