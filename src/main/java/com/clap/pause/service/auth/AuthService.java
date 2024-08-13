@@ -27,12 +27,23 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private static final String DEFAULT_PROFILE_IMAGE_URL = "https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg";
 
-
+    /**
+     * 회원가입을 처리하는 메서드
+     *
+     * @param registerRequest
+     * @return authResponse
+     */
     public AuthResponse register(RegisterRequest registerRequest) {
         var member = saveMemberWithMemberRequest(registerRequest);
         return createAuthResponseWithMember(member);
     }
 
+    /**
+     * 로그인을 처리하는 메서드
+     *
+     * @param loginRequest
+     * @return authResponse
+     */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest loginRequest) {
         var member = memberRepository.findByEmail(loginRequest.email())
@@ -45,6 +56,12 @@ public class AuthService {
         return createAuthResponseWithMember(member);
     }
 
+    /**
+     * JWT 를 생성하는 메서드
+     *
+     * @param member
+     * @return authResponse
+     */
     private AuthResponse createAuthResponseWithMember(Member member) {
         var token = Jwts.builder()
                 .subject(member.getId().toString())
@@ -56,12 +73,23 @@ public class AuthService {
         return AuthResponse.of(token);
     }
 
+    /**
+     * 중복된 이메일을 검증하는 메서드
+     *
+     * @param email
+     */
     private void emailValidation(String email) {
         if (memberRepository.existsByEmail(email)) {
             throw new DuplicatedEmailException("이미 존재하는 이메일입니다.");
         }
     }
 
+    /**
+     * Member 객체를 생성하는 메서드
+     *
+     * @param registerRequest
+     * @return member
+     */
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         emailValidation(registerRequest.email());
         var encodedPassword = passwordEncoder.encode(registerRequest.password());
