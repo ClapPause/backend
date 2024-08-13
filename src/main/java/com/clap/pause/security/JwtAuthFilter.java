@@ -1,10 +1,8 @@
 package com.clap.pause.security;
 
-import com.clap.pause.config.properties.JwtProperties;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.repository.MemberRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import com.clap.pause.service.auth.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtProperties jwtProperties;
+    private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
 
     @Override
@@ -66,14 +64,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private Long getMemberIdWithToken(HttpServletRequest request, String token) {
         try {
-            var claims = Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes()))
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-            return Long.parseLong(claims.getSubject());
+            return jwtProvider.getMemberIdWithToken(token);
         } catch (Exception exception) {
-            request.setAttribute("exception", "토큰 정보가 만료되었습니다.");
+            request.setAttribute("exception", "토큰이 만료되었습니다.");
             return null;
         }
     }
