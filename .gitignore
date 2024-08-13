@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ## Q파일 ##
-/src/main/generated/
+target/generated-sources/java

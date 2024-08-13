@@ -56,17 +56,37 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// Querydsl 설정부
-def generated = 'src/main/generated'
-// querydsl QClass 파일 생성 위치를 지정
-tasks.withType(JavaCompile) {
-    options.generatedSourceOutputDirectory = file(generated)
-}
-// java source set 에 querydsl QClass 위치 추가
-sourceSets {
-    main.java.srcDirs += "$projectDir/build/generated"
-}
+//// Querydsl 설정부
+//def generated = 'src/main/generated'
+//// querydsl QClass 파일 생성 위치를 지정
+//tasks.withType(JavaCompile) {
+//    options.generatedSourceOutputDirectory = file(generated)
+//}
+//// java source set 에 querydsl QClass 위치 추가
+//sourceSets {
+//    main.java.srcDirs += "$projectDir/build/generated"
+//}
+
 // gradle clean 시에 QClass 디렉토리 삭제
 clean {
     delete file('src/main/generated')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'target/generated-sources/java']
+        }
+    }
+}
+
+compileJava {
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorPath = configurations.annotationProcessor
+    options.compilerArgs += [
+            "-s", file("target/generated-sources/java").absolutePath
+    ]
 }
