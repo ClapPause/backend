@@ -25,6 +25,8 @@ public class AuthService {
     private final JwtProperties jwtProperties;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg";
+
 
     public AuthResponse register(RegisterRequest registerRequest) {
         var member = saveMemberWithMemberRequest(registerRequest);
@@ -63,7 +65,7 @@ public class AuthService {
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         emailValidation(registerRequest.email());
         var encodedPassword = passwordEncoder.encode(registerRequest.password());
-        var member = new Member(registerRequest.name(), registerRequest.email(), encodedPassword, registerRequest.profileImage(), registerRequest.birth(), registerRequest.gender(), registerRequest.job());
+        var member = new Member(registerRequest.name(), registerRequest.email(), encodedPassword, DEFAULT_PROFILE_IMAGE_URL, registerRequest.birth(), registerRequest.gender(), registerRequest.job());
         return memberRepository.save(member);
     }
 }

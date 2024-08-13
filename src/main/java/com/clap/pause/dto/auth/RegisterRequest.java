@@ -16,8 +16,6 @@ public record RegisterRequest(
         String email,
         @Pattern(regexp = "^[0-9a-zA-Z\\-\\_\\+\\!\\*\\@\\#\\$\\%\\^\\&\\(\\)\\.]{8,}$", message = "허용되지 않은 형식의 패스워드입니다.")
         String password,
-        @NotBlank(message = "프로필 이미지는 반드시 입력되어야 합니다.")
-        String profileImage,
         @Past(message = "유효하지 않은 생일입니다.")
         LocalDate birth,
         @NotNull(message = "성별은 반드시 입력되어야 합니다.")

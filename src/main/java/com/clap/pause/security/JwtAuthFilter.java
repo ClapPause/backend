@@ -54,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             var member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자 입니다."));
             var authorities = List.of(new SimpleGrantedAuthority(member.getMemberRole().name()));
-            var authToken = new UsernamePasswordAuthenticationToken(member.getId(), null, authorities);
+            var authToken = new UsernamePasswordAuthenticationToken(member.getId(), member.getEmail(), authorities);
             var authDetails = new WebAuthenticationDetailsSource().buildDetails(request);
             authToken.setDetails(authDetails);
 
