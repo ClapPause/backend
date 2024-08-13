@@ -1,4 +1,4 @@
-package com.clap.pause.security;
+package com.clap.pause.config.security;
 
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.repository.MemberRepository;

@@ -1,7 +1,7 @@
 package com.clap.pause.config;
 
-import com.clap.pause.security.InvalidAuthEntryPoint;
-import com.clap.pause.security.JwtAuthFilter;
+import com.clap.pause.config.security.InvalidAuthEntryPoint;
+import com.clap.pause.config.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
