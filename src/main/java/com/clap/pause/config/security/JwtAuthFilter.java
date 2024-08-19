@@ -1,10 +1,8 @@
-package com.clap.pause.security;
+package com.clap.pause.config.security;
 
-import com.clap.pause.config.properties.JwtProperties;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.repository.MemberRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import com.clap.pause.service.auth.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +16,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtProperties jwtProperties;
+    private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
 
     @Override
@@ -55,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             var member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자 입니다."));
             var authorities = List.of(new SimpleGrantedAuthority(member.getMemberRole().name()));
-            var authToken = new UsernamePasswordAuthenticationToken(member.getId(), null, authorities);
+            var authToken = new UsernamePasswordAuthenticationToken(member.getId(), member.getEmail(), authorities);
             var authDetails = new WebAuthenticationDetailsSource().buildDetails(request);
             authToken.setDetails(authDetails);
 
@@ -67,14 +64,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private Long getMemberIdWithToken(HttpServletRequest request, String token) {
         try {
-            var claims = Jwts.parser()
-                    .verifyWith(getSecretKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-            return Long.parseLong(claims.getSubject());
+            return jwtProvider.getMemberIdWithToken(token);
         } catch (Exception exception) {
-            request.setAttribute("exception", "토큰 정보가 만료되었습니다.");
+            request.setAttribute("exception", "토큰이 만료되었습니다.");
             return null;
         }
     }
@@ -91,11 +83,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return null;
         }
         return header[1];
-    }
-
-    private SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.secretKey()
-                .getBytes());
     }
 
     private boolean canSkipFilter(HttpServletRequest request) {
