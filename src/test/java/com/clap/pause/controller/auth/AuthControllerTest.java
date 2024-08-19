@@ -42,7 +42,7 @@ class AuthControllerTest {
     @DisplayName("안내에 맞게 회원가입을 요청하면 성공한다")
     void register_success() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var postRequest = post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
@@ -61,7 +61,7 @@ class AuthControllerTest {
     @DisplayName("이름의 길이가 8글자를 넘어가면 회원가입을 실패한다.")
     void register_fail_nameLengthOver() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트테스트테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트테스트테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var postRequest = post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
@@ -80,7 +80,7 @@ class AuthControllerTest {
     @DisplayName("허용되지 않는 형식의 이메일로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidEmail() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@test", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@test", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var postRequest = post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
@@ -99,7 +99,7 @@ class AuthControllerTest {
     @DisplayName("허용되지 않는 형식의 패스워드로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidPassword() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "wrongpw", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "wrongpw", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var postRequest = post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
@@ -118,7 +118,7 @@ class AuthControllerTest {
     @DisplayName("유효하지 않은 생일로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidBirth() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(2099, 12, 25), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(2099, 12, 25), Gender.MALE, "직업", "010-1234-1234");
         var postRequest = post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
@@ -137,7 +137,7 @@ class AuthControllerTest {
     @DisplayName("직업이 비어있는 상태로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidGender() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "", "010-1234-1234");
         var postRequest = post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
