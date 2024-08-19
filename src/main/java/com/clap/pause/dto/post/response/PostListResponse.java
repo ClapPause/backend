@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 
 public record PostListResponse(
         Long id,
-        String memberName,
-        String university,
         String title,
         String contents,
         PostCategory postCategory,
         PostType postType,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String memberName,
+        String university
 ) {
 }
