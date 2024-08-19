@@ -152,6 +152,25 @@ class AuthControllerTest {
         Assertions.assertThat(response.message()).isEqualTo("직업은 반드시 입력되어야 합니다.");
     }
 
+    @Test
+    @DisplayName("연락처가 잘못된 형식으로 회원가입을 요청하면 회원가입을 실패한다.")
+    void register_fail_invalidPhone() throws Exception {
+        //given
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234");
+        var postRequest = post("/api/members/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest));
+        //when
+        var result = mockMvc.perform(postRequest)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        //then
+        var response = getExceptionResponseMessage(result);
+
+        Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        Assertions.assertThat(response.message()).isEqualTo("허용되지 않은 형식의 연락처입니다.");
+    }
+
     private AuthResponse getResponse(MvcResult mvcResult) throws Exception {
         var response = mvcResult.getResponse().getContentAsString();
         return objectMapper.readValue(response, AuthResponse.class);
