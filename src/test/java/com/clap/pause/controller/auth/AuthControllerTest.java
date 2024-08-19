@@ -1,10 +1,12 @@
 package com.clap.pause.controller.auth;
 
 import com.clap.pause.dto.auth.AuthResponse;
+import com.clap.pause.dto.auth.LoginRequest;
 import com.clap.pause.dto.auth.RegisterRequest;
 import com.clap.pause.exception.ExceptionResponse;
 import com.clap.pause.model.Gender;
 import com.clap.pause.service.MemberService;
+import com.clap.pause.service.auth.AuthService;
 import com.clap.pause.service.auth.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
@@ -32,6 +34,8 @@ class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
+    private AuthService authService;
+    @Autowired
     private MemberService memberService;
     @Autowired
     private ObjectMapper objectMapper;
@@ -47,11 +51,10 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isOk())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getResponse(result);
+        var postResult = result.andExpect(status().isOk()).andReturn();
+        var response = getResponse(postResult);
 
         var memberId = jwtProvider.getMemberIdWithToken(response.token());
         memberService.deleteMember(memberId);
@@ -66,11 +69,10 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getExceptionResponseMessage(result);
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message()).isEqualTo("이름은 최소 1글자, 최대 8글자까지 가능합니다.");
@@ -85,11 +87,10 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getExceptionResponseMessage(result);
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message()).isEqualTo("허용되지 않은 형식의 이메일입니다.");
@@ -104,11 +105,10 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getExceptionResponseMessage(result);
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message()).isEqualTo("허용되지 않은 형식의 패스워드입니다.");
@@ -123,11 +123,10 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getExceptionResponseMessage(result);
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message()).isEqualTo("유효하지 않은 생일입니다.");
@@ -142,11 +141,10 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getExceptionResponseMessage(result);
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message()).isEqualTo("직업은 반드시 입력되어야 합니다.");
@@ -161,14 +159,66 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest));
         //when
-        var result = mockMvc.perform(postRequest)
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        var result = mockMvc.perform(postRequest);
         //then
-        var response = getExceptionResponseMessage(result);
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message()).isEqualTo("허용되지 않은 형식의 연락처입니다.");
+    }
+
+    @Test
+    @DisplayName("안내에 맞게 회원가입을 요청하면 성공한다")
+    void login_success() throws Exception {
+        //given
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        authService.register(registerRequest);
+
+        var loginRequest = new LoginRequest("test@naver.com", "testPassword");
+        var postRequest = post("/api/members/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest));
+        //when
+        var result = mockMvc.perform(postRequest);
+        //then
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("허용되지 않는 형식의 이메일로 로그인을 요청하면 실패한다.")
+    void login_fail_invalidEmail() throws Exception {
+        //given
+        var loginRequest = new LoginRequest("test@test", "testPassword");
+        var postRequest = post("/api/members/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest));
+        //when
+        var result = mockMvc.perform(postRequest);
+        //then
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
+
+        Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        Assertions.assertThat(response.message()).isEqualTo("허용되지 않은 형식의 이메일입니다.");
+    }
+
+    @Test
+    @DisplayName("허용되지 않는 형식의 패스워드로 로그인을 요청하면 실패한다.")
+    void login_fail_invalidPassword() throws Exception {
+        //given
+        var loginRequest = new LoginRequest("test@naver.com", "wrongpw");
+        var postRequest = post("/api/members/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest));
+        //when
+        var result = mockMvc.perform(postRequest);
+        //then
+        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var response = getExceptionResponseMessage(postResult);
+
+        Assertions.assertThat(response.status()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        Assertions.assertThat(response.message()).isEqualTo("허용되지 않은 형식의 패스워드입니다.");
     }
 
     private AuthResponse getResponse(MvcResult mvcResult) throws Exception {
