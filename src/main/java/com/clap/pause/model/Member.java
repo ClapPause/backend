@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -13,8 +14,8 @@ import org.hibernate.annotations.SQLRestriction;
 import java.time.LocalDate;
 
 @Entity
-@Getter
 @Table(name = "member")
+@Getter
 @SQLDelete(sql = "update member set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
 public class Member extends BaseEntity {
@@ -52,6 +53,7 @@ public class Member extends BaseEntity {
     private Boolean certified = Boolean.FALSE;
     @NotNull
     @Column(name = "deleted")
+    @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
     protected Member() {
