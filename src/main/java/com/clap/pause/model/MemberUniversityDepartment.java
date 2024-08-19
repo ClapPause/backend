@@ -36,8 +36,9 @@ public class MemberUniversityDepartment extends BaseEntity {
     protected MemberUniversityDepartment() {
     }
 
-    public MemberUniversityDepartment(Member member, UniversityDepartment universityDepartment) {
+    public MemberUniversityDepartment(Member member, UniversityDepartment universityDepartment, DepartmentType departmentType) {
         this.member = member;
         this.universityDepartment = universityDepartment;
+        this.departmentType = departmentType;
     }
 }

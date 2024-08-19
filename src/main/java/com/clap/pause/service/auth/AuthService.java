@@ -81,7 +81,7 @@ public class AuthService {
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         emailValidation(registerRequest.email());
         var encodedPassword = passwordEncoder.encode(registerRequest.password());
-        var member = new Member(registerRequest.name(), registerRequest.email(), encodedPassword, DEFAULT_PROFILE_IMAGE_URL, registerRequest.birth(), registerRequest.gender(), registerRequest.job());
+        var member = new Member(registerRequest.name(), registerRequest.email(), encodedPassword, DEFAULT_PROFILE_IMAGE_URL, registerRequest.birth(), registerRequest.gender(), registerRequest.job(), registerRequest.phoneNumber());
         return memberRepository.save(member);
     }
 }

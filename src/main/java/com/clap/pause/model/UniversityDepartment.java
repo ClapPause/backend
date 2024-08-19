@@ -23,8 +23,8 @@ public class UniversityDepartment extends BaseEntity {
     @Column(name = "university")
     private String university;
     @NotNull
-    @Column(name = "department")
-    private String department;
+    @Column(name = "university_department")
+    private String universityDepartment;
     @NotNull
     @Column(name = "deleted")
     private Boolean deleted = Boolean.FALSE;
@@ -32,8 +32,9 @@ public class UniversityDepartment extends BaseEntity {
     protected UniversityDepartment() {
     }
 
-    public UniversityDepartment(String university, String department) {
+    public UniversityDepartment(DepartmentGroup departmentGroup, String university, String universityDepartment) {
+        this.departmentGroup = departmentGroup;
         this.university = university;
-        this.department = department;
+        this.universityDepartment = universityDepartment;
     }
 }

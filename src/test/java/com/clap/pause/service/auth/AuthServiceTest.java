@@ -31,7 +31,7 @@ class AuthServiceTest {
     @DisplayName("안내에 맞게 회원가입을 요청하면 성공한다")
     void register_success() {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         //when
         var auth = authService.register(registerRequest);
         // then
@@ -45,7 +45,7 @@ class AuthServiceTest {
     @DisplayName("중복된 이메일로 회원가입을 요청하면 실패한다")
     void register_fail_duplicatedEmail() {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var auth = authService.register(registerRequest);
         //when, then
         Assertions.assertThatThrownBy(() -> authService.register(registerRequest)).isInstanceOf(DuplicatedEmailException.class);
@@ -58,7 +58,7 @@ class AuthServiceTest {
     @DisplayName("안내에 맞게 로그인을 요청하면 성공한다")
     void login_success() {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         authService.register(registerRequest);
         var loginRequest = new LoginRequest("test@naver.com", "testPassword");
         //when
@@ -74,7 +74,7 @@ class AuthServiceTest {
     @DisplayName("존재하지 않는 이메일로 로그인을 요청하면 실패한다")
     void login_fail_noExistEmail() {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var auth = authService.register(registerRequest);
         var loginRequest = new LoginRequest("test1@naver.com", "testPassword");
         //when, then
@@ -88,7 +88,7 @@ class AuthServiceTest {
     @DisplayName("잘못된 패스워드로 로그인을 요청하면 실패한다")
     void login_fail_invalidPassword() {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
+        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
         var auth = authService.register(registerRequest);
         var loginRequest = new LoginRequest("test@naver.com", "testPassword2");
         //when, then
