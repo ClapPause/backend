@@ -6,11 +6,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -27,6 +26,9 @@ public class Member extends BaseEntity {
     @NotNull
     @Column(name = "password")
     private String password;
+    @NotNull
+    @Column(name = "phone_number")
+    private String phoneNumber;
     @NotNull
     @Column(name = "profile_image")
     private String profileImage;
@@ -54,9 +56,11 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
-    public Member(String name, String email, OauthType oauthType, String profileImage, LocalDate birth, Gender gender, String job) {
+    public Member(String name, String email, OauthType oauthType, String phoneNumber, String profileImage,
+                  LocalDate birth, Gender gender, String job) {
         this.name = name;
         this.email = email;
+        this.phoneNumber = phoneNumber;
         this.password = oauthType.name();
         this.profileImage = profileImage;
         this.birth = birth;
@@ -65,10 +69,12 @@ public class Member extends BaseEntity {
         this.memberRole = MemberRole.MEMBER;
     }
 
-    public Member(String name, String email, String password, String profileImage, LocalDate birth, Gender gender, String job) {
+    public Member(String name, String email, String password, String phoneNumber, String profileImage, LocalDate birth,
+                  Gender gender, String job) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.phoneNumber = phoneNumber;
         this.profileImage = profileImage;
         this.birth = birth;
         this.gender = gender;
