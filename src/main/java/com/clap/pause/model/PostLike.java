@@ -7,11 +7,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "post_like")
+@Getter
 @SQLDelete(sql = "update post_like set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
 public class PostLike extends BaseEntity {
@@ -25,6 +28,7 @@ public class PostLike extends BaseEntity {
     private Member member;
     @NotNull
     @Column(name = "deleted")
+    @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
     protected PostLike() {

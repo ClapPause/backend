@@ -21,6 +21,8 @@ public record RegisterRequest(
         @NotNull(message = "성별은 반드시 입력되어야 합니다.")
         Gender gender,
         @NotBlank(message = "직업은 반드시 입력되어야 합니다.")
-        String job
+        String job,
+        @Pattern(regexp = "^(010|011|016|017|018|019)-([0-9]{3,4})-([0-9]{4})", message = "허용되지 않은 형식의 연락처입니다.")
+        String phoneNumber
 ) {
 }

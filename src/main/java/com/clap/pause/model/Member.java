@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import java.time.LocalDate;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Getter
 @Table(name = "member")
+@Getter
 @SQLDelete(sql = "update member set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
 public class Member extends BaseEntity {
@@ -40,6 +42,9 @@ public class Member extends BaseEntity {
     @Column(name = "job")
     private String job;
     @NotNull
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    @NotNull
     @Enumerated(value = EnumType.STRING)
     @Column(name = "member_role")
     private MemberRole memberRole;
@@ -48,13 +53,13 @@ public class Member extends BaseEntity {
     private Boolean certified = Boolean.FALSE;
     @NotNull
     @Column(name = "deleted")
+    @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
     protected Member() {
     }
 
-    public Member(String name, String email, OauthType oauthType, String profileImage,
-                  LocalDate birth, Gender gender, String job) {
+    public Member(String name, String email, OauthType oauthType, String profileImage, LocalDate birth, Gender gender, String job, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.password = oauthType.name();
@@ -62,11 +67,11 @@ public class Member extends BaseEntity {
         this.birth = birth;
         this.gender = gender;
         this.job = job;
+        this.phoneNumber = phoneNumber;
         this.memberRole = MemberRole.MEMBER;
     }
 
-    public Member(String name, String email, String password, String profileImage, LocalDate birth,
-                  Gender gender, String job) {
+    public Member(String name, String email, String password, String profileImage, LocalDate birth, Gender gender, String job, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -74,6 +79,7 @@ public class Member extends BaseEntity {
         this.birth = birth;
         this.gender = gender;
         this.job = job;
+        this.phoneNumber = phoneNumber;
         this.memberRole = MemberRole.MEMBER;
     }
 }

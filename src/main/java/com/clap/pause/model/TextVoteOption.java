@@ -7,11 +7,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "text_vote_option")
+@Getter
 @SQLDelete(sql = "update text_vote_option set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
 public class TextVoteOption extends BaseEntity {
@@ -24,6 +27,7 @@ public class TextVoteOption extends BaseEntity {
     private String text;
     @NotNull
     @Column(name = "deleted")
+    @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
     protected TextVoteOption() {
