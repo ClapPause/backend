@@ -1,6 +1,5 @@
 package com.clap.pause.service;
 
-import com.clap.pause.dto.post.request.PostListRequest;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
@@ -43,10 +42,10 @@ public class PostService {
                 post.getPostType(), post.getCreatedAt());
     }
 
-    public List<PostListResponse> getAllPosts(PostListRequest postListRequest) {
+    public List<PostListResponse> getAllPosts(Long departmentId) {
         //departmentId로 Post,Member,UniversityDepartment등의 정보를 얻음
 
-        return postRepository.getPostListsByDepartmentGroup(postListRequest.departmentGroupId());
+        return postRepository.getPostListsByDepartmentGroup(departmentId);
     }
 
 
