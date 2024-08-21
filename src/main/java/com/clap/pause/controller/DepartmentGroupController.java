@@ -6,7 +6,6 @@ import com.clap.pause.service.DepartmentGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,11 +46,5 @@ public class DepartmentGroupController {
     public ResponseEntity<List<DepartmentGroupResponse>> getDepartmentGroups() {
         var departmentGroups = departmentGroupService.getDepartmentGroups();
         return ResponseEntity.ok(departmentGroups);
-    }
-
-    private Long getMemberId() {
-        var authentication = SecurityContextHolder.getContext()
-                .getAuthentication();
-        return (Long) authentication.getPrincipal();
     }
 }
