@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -23,11 +25,35 @@ public class UniversityDepartmentService {
         return getUniversityDepartmentResponse(universityDepartment);
     }
 
+    public void updateUniversityDepartment(Long id, UniversityDepartmentRequest universityDepartmentRequest) {
+        var universityDepartment = universityDepartmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundElementException(id + "를 가진 대학교의 학과가 존재하지 않습니다."));
+        updateUniversityDepartmentWithUniversityDepartmentRequest(universityDepartment, universityDepartmentRequest);
+    }
+
+    public UniversityDepartmentResponse getUniversityDepartment(Long id) {
+        var universityDepartment = universityDepartmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundElementException(id + "를 가진 대학교의 학과가 존재하지 않습니다."));
+        return getUniversityDepartmentResponse(universityDepartment);
+    }
+
+    public List<UniversityDepartmentResponse> getUniversityDepartments(String university) {
+        var UniversityDepartments = universityDepartmentRepository.findAllByUniversity(university);
+        return UniversityDepartments.stream()
+                .map(this::getUniversityDepartmentResponse)
+                .toList();
+    }
+
     private UniversityDepartment saveUniversityDepartmentWithUniversityDepartmentRequest(UniversityDepartmentRequest universityDepartmentRequest) {
         var departmentGroup = departmentGroupRepository.findById(universityDepartmentRequest.departmentGroupId())
-                .orElseThrow(() -> new NotFoundElementException(universityDepartmentRequest.departmentGroupId() + "를 가진 학과그룹이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundElementException(universityDepartmentRequest.departmentGroupId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
         var universityDepartment = new UniversityDepartment(departmentGroup, universityDepartmentRequest.university(), universityDepartmentRequest.universityDepartment());
         return universityDepartmentRepository.save(universityDepartment);
+    }
+
+    private void updateUniversityDepartmentWithUniversityDepartmentRequest(UniversityDepartment universityDepartment, UniversityDepartmentRequest universityDepartmentRequest) {
+        universityDepartment.updateUniversityDepartment(universityDepartmentRequest.university(), universityDepartmentRequest.universityDepartment());
+        universityDepartmentRepository.save(universityDepartment);
     }
 
     private UniversityDepartmentResponse getUniversityDepartmentResponse(UniversityDepartment universityDepartment) {

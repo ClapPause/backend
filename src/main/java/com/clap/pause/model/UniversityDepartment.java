@@ -41,4 +41,9 @@ public class UniversityDepartment extends BaseEntity {
         this.university = university;
         this.universityDepartment = universityDepartment;
     }
+
+    public void updateUniversityDepartment(String university, String universityDepartment) {
+        this.university = university;
+        this.universityDepartment = universityDepartment;
+    }
 }
