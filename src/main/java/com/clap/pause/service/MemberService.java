@@ -33,7 +33,7 @@ public class MemberService {
      * @param memberId
      * @return member
      */
-    public Member findMember(Long memberId) {
+    public Member getMember(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(
                 () -> new MemberNotFoundException("해당 멤버가 존재하지 않습니다.")
         );
