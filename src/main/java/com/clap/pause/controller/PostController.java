@@ -18,33 +18,46 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/departments/{departmentId}/posts")
+@RequestMapping("/api/departmentgroups/{departmentgroupId}/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
 
-
+    /**
+     * 기본 게시글을 생성
+     *
+     * @param postRequest
+     * @return postResponse
+     */
     @PostMapping
     public ResponseEntity<PostResponse> saveDefaultPost(@Valid @RequestBody PostRequest postRequest) {
         var memberId = getMemberId();
         var post = postService.saveDefaultPost(memberId, postRequest);
-        return ResponseEntity.created(URI.create("/api/post/default/" + post.id()))
+        return ResponseEntity.created(URI.create("/api/departmentgroups/" + post.departmentGroupId()
+                        + "/posts" + post.id()))
                 .body(post);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable Long departmentId) {
+    /**
+     * 기본 게시글을 불러옴
+     *
+     * @param departmentId
+     * @return List<PostListResponse>
+     */
+    @GetMapping
+    public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable("departmentgroupId") Long departmentId) {
         var posts = postService.getAllPosts(departmentId);
-        return ResponseEntity.created(URI.create("/api/post/default")).body(posts);
+        return ResponseEntity.ok().body(posts);
 
     }
 
-//    @DeleteMapping()
-//    public updatePost(@Valid @RequestBody PostRequest postRequest) {
-//
-//    }
 
+    /**
+     * Header의 Authorization 으로 memberId를 return함
+     *
+     * @return
+     */
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
                 .getAuthentication();

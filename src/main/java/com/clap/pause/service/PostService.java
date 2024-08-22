@@ -22,11 +22,25 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final DepartmentGroupRepository departmentGroupRepository;
 
+    /**
+     * 게시글 저장하는 메소드
+     *
+     * @param memberId
+     * @param postRequest
+     * @return postResponse
+     */
     public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest) {
         var post = savePostWithPostRequest(memberId, postRequest);
         return getPostResponse(post);
     }
 
+    /**
+     * 기본 post 생성
+     *
+     * @param memberId
+     * @param postRequest
+     * @return
+     */
     private Post savePostWithPostRequest(Long memberId, PostRequest postRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
@@ -37,11 +51,23 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    /**
+     * postResponse 생성
+     *
+     * @param post
+     * @return
+     */
     private PostResponse getPostResponse(Post post) {
         return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
-                post.getPostType(), post.getCreatedAt());
+                post.getPostType(), post.getDepartmentGroup().getId(), post.getCreatedAt());
     }
 
+    /**
+     * 모든 기본 게시글 가져옴
+     *
+     * @param departmentId
+     * @return postListResponse
+     */
     public List<PostListResponse> getAllPosts(Long departmentId) {
         //departmentId로 Post,Member,UniversityDepartment등의 정보를 얻음
 

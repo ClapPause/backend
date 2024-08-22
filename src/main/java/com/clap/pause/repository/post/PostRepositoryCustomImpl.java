@@ -1,6 +1,5 @@
 package com.clap.pause.repository.post;
 
-import static com.clap.pause.model.QDepartmentGroup.departmentGroup;
 import static com.clap.pause.model.QMemberUniversityDepartment.memberUniversityDepartment;
 import static com.clap.pause.model.QPost.post;
 import static com.clap.pause.model.QUniversityDepartment.universityDepartment;
@@ -29,11 +28,14 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         post.member.name,
                         universityDepartment.university))
                 .from(post)
-                .join(post.departmentGroup, departmentGroup)
-                .join(post.member, memberUniversityDepartment.member)
-                .join(universityDepartment, memberUniversityDepartment.universityDepartment)
-                .where(departmentGroup.id.eq(departmentGroupId)
-                        .and(post.postType.eq(PostType.DEFAULT)))
+                .join(memberUniversityDepartment).on(post.member.eq(memberUniversityDepartment.member))
+                .join(universityDepartment).on(memberUniversityDepartment.universityDepartment.eq(universityDepartment))
+                //post type이 default이고 deleted가 false 임
+                .where(post.departmentGroup.id.eq(departmentGroupId)
+                        .and(post.postType.eq(PostType.DEFAULT))
+                        .and(post.deleted.eq(false)))
+                //최신 시간 순
+                .orderBy(post.createdAt.desc())
                 .fetch();
 
 
