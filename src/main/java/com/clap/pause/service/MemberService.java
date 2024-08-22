@@ -1,6 +1,5 @@
 package com.clap.pause.service;
 
-import com.clap.pause.exception.MemberNotFoundException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Member;
 import com.clap.pause.repository.MemberRepository;
@@ -35,7 +34,7 @@ public class MemberService {
      */
     public Member getMember(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(
-                () -> new MemberNotFoundException("해당 멤버가 존재하지 않습니다.")
+                () -> new NotFoundElementException("존재하지 않는 멤버입니다.")
         );
     }
 }
