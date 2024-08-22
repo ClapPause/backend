@@ -70,7 +70,6 @@ public class PostService {
      */
     public List<PostListResponse> getAllPosts(Long departmentId) {
         //departmentId로 Post,Member,UniversityDepartment등의 정보를 얻음
-
         return postRepository.getPostListsByDepartmentGroup(departmentId);
     }
 

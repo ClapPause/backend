@@ -52,7 +52,6 @@ public class PostController {
 
     }
 
-
     /**
      * Header의 Authorization 으로 memberId를 return함
      *
