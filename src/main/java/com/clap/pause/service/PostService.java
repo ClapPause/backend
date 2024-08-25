@@ -1,14 +1,12 @@
 package com.clap.pause.service;
 
 import com.clap.pause.dto.post.request.PostRequest;
-import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Post;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.post.PostRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,13 +63,19 @@ public class PostService {
     /**
      * 모든 기본 게시글 가져옴
      *
-     * @param departmentId
+     * @param departmentGroupId
      * @return postListResponse
      */
-    public List<PostListResponse> getAllPosts(Long departmentId) {
-        //departmentId로 Post,Member,UniversityDepartment등의 정보를 얻음
-        return postRepository.getPostListsByDepartmentGroup(departmentId);
-    }
+//    public List<PostListResponse> getAllPosts(Long departmentGroupId) {
+//        //departmentId로 Post,Member,UniversityDepartment등의 정보를 얻음
+//
+//        var postList = postRepository.getPostListsByDepartmentGroup(departmentGroupId);
+//        for(Post post: postList){
+//
+//
+//        }
+//        return
+//    }
 
 
 }

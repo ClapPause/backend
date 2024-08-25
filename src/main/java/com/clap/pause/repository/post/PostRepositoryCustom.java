@@ -1,8 +1,8 @@
 package com.clap.pause.repository.post;
 
-import com.clap.pause.dto.post.response.PostListResponse;
+import com.clap.pause.model.Post;
 import java.util.List;
 
 public interface PostRepositoryCustom {
-    List<PostListResponse> getPostListsByDepartmentGroup(Long departmentGroupId);
+    List<Post> getPostListsByDepartmentGroup(Long departmentGroupId);
 }

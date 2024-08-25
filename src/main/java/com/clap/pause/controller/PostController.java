@@ -1,24 +1,20 @@
 package com.clap.pause.controller;
 
 import com.clap.pause.dto.post.request.PostRequest;
-import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/departmentgroups/{departmentgroupId}/posts")
+@RequestMapping("/api/department-groups/{departmentgroupId}/posts")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -42,15 +38,18 @@ public class PostController {
     /**
      * 기본 게시글을 불러옴
      *
-     * @param departmentId
+     * @param departmentGroupId
      * @return List<PostListResponse>
      */
-    @GetMapping
-    public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable("departmentgroupId") Long departmentId) {
-        var posts = postService.getAllPosts(departmentId);
-        return ResponseEntity.ok().body(posts);
+//    @GetMapping
+//    public ResponseEntity<List<PostListResponse>> getAllPosts(Long departmentGroupId) {
+////        var posts = postService.getAllPosts(departmentGroupId);
+////        return ResponseEntity.ok().body(posts);
+//    }
 
-    }
+
+//    @PostMapping
+//    public ResponseEntity<PostResponse> updatePost()
 
     /**
      * Header의 Authorization 으로 memberId를 return함
