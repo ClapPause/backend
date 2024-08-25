@@ -34,8 +34,8 @@ public class PostController {
     public ResponseEntity<PostResponse> saveDefaultPost(@Valid @RequestBody PostRequest postRequest) {
         var memberId = getMemberId();
         var post = postService.saveDefaultPost(memberId, postRequest);
-        return ResponseEntity.created(URI.create("/api/departmentgroups/" + post.departmentGroupId()
-                        + "/posts" + post.id()))
+        return ResponseEntity.created(
+                        URI.create("/api/departmentgroups/" + post.departmentGroupId() + "/posts" + post.id()))
                 .body(post);
     }
 

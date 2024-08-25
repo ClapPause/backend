@@ -44,5 +44,4 @@ public class MemberUniversityDepartmentController {
                 .body(certificateResponse);
     }
 
-
 }

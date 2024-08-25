@@ -37,7 +37,5 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 //최신 시간 순
                 .orderBy(post.createdAt.desc())
                 .fetch();
-
-
     }
 }

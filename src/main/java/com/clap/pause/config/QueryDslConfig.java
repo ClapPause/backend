@@ -15,6 +15,4 @@ public class QueryDslConfig {
     public JPAQueryFactory jpaQueryFactory() {
         return new JPAQueryFactory(em);
     }
-
-
 }
