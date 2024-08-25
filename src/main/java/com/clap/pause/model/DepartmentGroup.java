@@ -16,7 +16,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted is false")
 public class DepartmentGroup extends BaseEntity {
     @NotNull
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
     @NotNull
     @Column(name = "deleted")

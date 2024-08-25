@@ -27,13 +27,15 @@ public class DepartmentGroupController {
     @PostMapping
     public ResponseEntity<DepartmentGroupResponse> saveDepartmentGroup(@Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
         var departmentGroup = departmentGroupService.saveDepartmentGroup(departmentGroupRequest);
-        return ResponseEntity.created(URI.create("/api/departmentGroups/" + departmentGroup.id())).body(departmentGroup);
+        return ResponseEntity.created(URI.create("/api/departmentGroups/" + departmentGroup.id()))
+                .body(departmentGroup);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateDepartmentGroup(@PathVariable Long id, @Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
         departmentGroupService.updateDepartmentGroup(id, departmentGroupRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent()
+                .build();
     }
 
     @GetMapping("/{id}")

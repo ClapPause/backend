@@ -1,5 +1,6 @@
 package com.clap.pause.service;
 
+import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentRequest;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
 import com.clap.pause.exception.NotFoundElementException;
@@ -57,6 +58,7 @@ public class MemberUniversityDepartmentService {
     }
 
     private MemberUniversityDepartmentResponse getMemberUniversityDepartmentResponse(MemberUniversityDepartment memberUniversityDepartment) {
-        return MemberUniversityDepartmentResponse.of(memberUniversityDepartment.getId(), memberUniversityDepartment.getUniversityDepartment().getUniversity(), memberUniversityDepartment.getUniversityDepartment().getDepartment(), memberUniversityDepartment.getDepartmentType());
+        var departmentGroupResponse = new DepartmentGroupResponse(memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getId(), memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getName());
+        return MemberUniversityDepartmentResponse.of(memberUniversityDepartment.getId(), departmentGroupResponse, memberUniversityDepartment.getUniversityDepartment().getUniversity(), memberUniversityDepartment.getUniversityDepartment().getDepartment(), memberUniversityDepartment.getDepartmentType());
     }
 }

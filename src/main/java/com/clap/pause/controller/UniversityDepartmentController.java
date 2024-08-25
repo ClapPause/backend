@@ -28,13 +28,15 @@ public class UniversityDepartmentController {
     @PostMapping
     public ResponseEntity<UniversityDepartmentResponse> saveUniversityDepartment(@Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
         var universityDepartment = universityDepartmentService.saveUniversityDepartment(universityDepartmentRequest);
-        return ResponseEntity.created(URI.create("/api/universityDepartment/" + universityDepartment.id())).body(universityDepartment);
+        return ResponseEntity.created(URI.create("/api/universityDepartment/" + universityDepartment.id()))
+                .body(universityDepartment);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUniversityDepartment(@PathVariable Long id, @Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
         universityDepartmentService.updateUniversityDepartment(id, universityDepartmentRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent()
+                .build();
     }
 
     @GetMapping("/{id}")
