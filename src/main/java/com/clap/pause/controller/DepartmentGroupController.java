@@ -18,17 +18,17 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/departmentGroups")
+@RequestMapping("/api/department-groups")
 @RequiredArgsConstructor
 public class DepartmentGroupController {
 
     private final DepartmentGroupService departmentGroupService;
 
     @PostMapping
-    public ResponseEntity<DepartmentGroupResponse> saveDepartmentGroup(@Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
+    public ResponseEntity<Void> saveDepartmentGroup(@Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
         var departmentGroup = departmentGroupService.saveDepartmentGroup(departmentGroupRequest);
-        return ResponseEntity.created(URI.create("/api/departmentGroups/" + departmentGroup.id()))
-                .body(departmentGroup);
+        return ResponseEntity.created(URI.create("/api/department-groups/" + departmentGroup.id()))
+                .build();
     }
 
     @PutMapping("/{id}")

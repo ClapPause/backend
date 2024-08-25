@@ -19,17 +19,17 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/universityDepartment")
+@RequestMapping("/api/university-departments")
 @RequiredArgsConstructor
 public class UniversityDepartmentController {
 
     private final UniversityDepartmentService universityDepartmentService;
 
     @PostMapping
-    public ResponseEntity<UniversityDepartmentResponse> saveUniversityDepartment(@Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
+    public ResponseEntity<Void> saveUniversityDepartment(@Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
         var universityDepartment = universityDepartmentService.saveUniversityDepartment(universityDepartmentRequest);
-        return ResponseEntity.created(URI.create("/api/universityDepartment/" + universityDepartment.id()))
-                .body(universityDepartment);
+        return ResponseEntity.created(URI.create("/api/university-departments/" + universityDepartment.id()))
+                .build();
     }
 
     @PutMapping("/{id}")
