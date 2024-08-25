@@ -18,6 +18,7 @@ public class MemberController {
     @DeleteMapping
     public ResponseEntity<Void> deleteMember(@RequestAttribute("memberId") Long memberId) {
         memberService.deleteMember(memberId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent()
+                .build();
     }
 }
