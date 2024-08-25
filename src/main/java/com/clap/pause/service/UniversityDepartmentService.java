@@ -38,8 +38,8 @@ public class UniversityDepartmentService {
     }
 
     public List<UniversityDepartmentResponse> getUniversityDepartments(String university) {
-        var UniversityDepartments = universityDepartmentRepository.findAllByUniversity(university);
-        return UniversityDepartments.stream()
+        var universityDepartments = universityDepartmentRepository.findAllByUniversity(university);
+        return universityDepartments.stream()
                 .map(this::getUniversityDepartmentResponse)
                 .toList();
     }
