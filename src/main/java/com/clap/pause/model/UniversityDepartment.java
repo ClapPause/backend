@@ -26,8 +26,8 @@ public class UniversityDepartment extends BaseEntity {
     @Column(name = "university")
     private String university;
     @NotNull
-    @Column(name = "university_department")
-    private String universityDepartment;
+    @Column(name = "department")
+    private String department;
     @NotNull
     @Column(name = "deleted")
     @Getter(AccessLevel.PRIVATE)
@@ -36,9 +36,14 @@ public class UniversityDepartment extends BaseEntity {
     protected UniversityDepartment() {
     }
 
-    public UniversityDepartment(DepartmentGroup departmentGroup, String university, String universityDepartment) {
+    public UniversityDepartment(DepartmentGroup departmentGroup, String university, String department) {
         this.departmentGroup = departmentGroup;
         this.university = university;
-        this.universityDepartment = universityDepartment;
+        this.department = department;
+    }
+
+    public void updateUniversityDepartment(String university, String department) {
+        this.university = university;
+        this.department = department;
     }
 }
