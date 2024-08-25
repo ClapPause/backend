@@ -47,17 +47,17 @@ public class UniversityDepartmentService {
     private UniversityDepartment saveUniversityDepartmentWithUniversityDepartmentRequest(UniversityDepartmentRequest universityDepartmentRequest) {
         var departmentGroup = departmentGroupRepository.findById(universityDepartmentRequest.departmentGroupId())
                 .orElseThrow(() -> new NotFoundElementException(universityDepartmentRequest.departmentGroupId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
-        var universityDepartment = new UniversityDepartment(departmentGroup, universityDepartmentRequest.university(), universityDepartmentRequest.universityDepartment());
+        var universityDepartment = new UniversityDepartment(departmentGroup, universityDepartmentRequest.university(), universityDepartmentRequest.department());
         return universityDepartmentRepository.save(universityDepartment);
     }
 
     private void updateUniversityDepartmentWithUniversityDepartmentRequest(UniversityDepartment universityDepartment, UniversityDepartmentRequest universityDepartmentRequest) {
-        universityDepartment.updateUniversityDepartment(universityDepartmentRequest.university(), universityDepartmentRequest.universityDepartment());
+        universityDepartment.updateUniversityDepartment(universityDepartmentRequest.university(), universityDepartmentRequest.department());
         universityDepartmentRepository.save(universityDepartment);
     }
 
     private UniversityDepartmentResponse getUniversityDepartmentResponse(UniversityDepartment universityDepartment) {
-        return UniversityDepartmentResponse.of(universityDepartment.getId(), universityDepartment.getDepartmentGroup().getName(), universityDepartment.getUniversity(), universityDepartment.getUniversityDepartment());
+        return UniversityDepartmentResponse.of(universityDepartment.getId(), universityDepartment.getDepartmentGroup().getName(), universityDepartment.getUniversity(), universityDepartment.getDepartment());
     }
 
 }

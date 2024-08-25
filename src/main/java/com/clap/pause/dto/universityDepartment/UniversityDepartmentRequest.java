@@ -9,6 +9,6 @@ public record UniversityDepartmentRequest(
         @NotBlank(message = "대학명은 최소 1자 이상이어야 합니다.")
         String university,
         @NotBlank(message = "대학교 학과명은 최소 1자 이상이어야 합니다.")
-        String universityDepartment
+        String department
 ) {
 }
