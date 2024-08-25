@@ -59,5 +59,4 @@ public class UniversityDepartmentService {
     private UniversityDepartmentResponse getUniversityDepartmentResponse(UniversityDepartment universityDepartment) {
         return UniversityDepartmentResponse.of(universityDepartment.getId(), universityDepartment.getDepartmentGroup().getName(), universityDepartment.getUniversity(), universityDepartment.getDepartment());
     }
-
 }
