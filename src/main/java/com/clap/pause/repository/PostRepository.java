@@ -1,4 +1,4 @@
-package com.clap.pause.repository.post;
+package com.clap.pause.repository;
 
 import com.clap.pause.model.DepartmentGroup;
 import com.clap.pause.model.Post;

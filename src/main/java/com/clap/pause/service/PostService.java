@@ -10,7 +10,7 @@ import com.clap.pause.model.Post;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.MemberUniversityDepartmentRepository;
-import com.clap.pause.repository.post.PostRepository;
+import com.clap.pause.repository.PostRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
