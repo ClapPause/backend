@@ -3,6 +3,7 @@ package com.clap.pause.controller;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.exception.PostAccessException;
+import com.clap.pause.service.GetPostsService;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
-    private final com.clap.pause.service.getPostsService getPostsService;
+    private final GetPostsService getPostsService;
 
     @PostMapping
     public ResponseEntity<Void> saveDefaultPost(
@@ -31,7 +32,7 @@ public class PostController {
             @Valid @RequestBody PostRequest postRequest) {
         var memberId = getMemberId();
         var post = postService.saveDefaultPost(memberId, postRequest, departmentgroupId);
-        return ResponseEntity.created(URI.create("/api/departmentgroups/" + post.departmentGroupId()
+        return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId
                         + "/posts" + post.id()))
                 .build();
     }
@@ -39,8 +40,16 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<PostListResponse>> getAllPosts(
             @PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
-        List<PostListResponse> postResponses = getPostsService.getAllPosts(departmentGroupId);
-        return ResponseEntity.ok().body(postResponses);
+        List<PostListResponse> postListRespons = getPostsService.getAllPosts(departmentGroupId);
+        return ResponseEntity.ok().body(postListRespons);
+    }
+
+    @GetMapping
+    public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
+                                                    @PathVariable(name = "postId") Long postId)
+            throws PostAccessException {
+        var response = getPostsService.getPost(departmentGroupId, postId);
+        return ResponseEntity.ok().body(response);
     }
 
     private Long getMemberId() {

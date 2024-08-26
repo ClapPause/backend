@@ -34,4 +34,11 @@ public class GetPostsService {
         }
         return postListRespons;
     }
+
+    public PostListResponse getPost(Long departmentId, Long postId) throws PostAccessException {
+        var post = postService.getPost(postId);
+        var memberUniversityDepartments =
+                memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
+        return postService.getMemberInfo(post, memberUniversityDepartments);
+    }
 }

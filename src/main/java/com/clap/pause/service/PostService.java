@@ -115,4 +115,16 @@ public class PostService {
                 post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(),
                 response.department());
     }
+
+    /**
+     * postId로 post 가져옴
+     *
+     * @param postId
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundElementException("글이 존재하지 않습니다."));
+    }
 }
