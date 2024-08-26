@@ -127,4 +127,9 @@ public class PostService {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException("글이 존재하지 않습니다."));
     }
+
+    public void updatePost(Post post, PostRequest postRequest) {
+        post.updatePost(postRequest.title(), postRequest.contents());
+        postRepository.save(post);
+    }
 }

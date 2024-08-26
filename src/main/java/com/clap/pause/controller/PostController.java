@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,13 +45,23 @@ public class PostController {
         return ResponseEntity.ok().body(postListRespons);
     }
 
-    @GetMapping
+    @GetMapping("/{postId}")
     public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
                                                     @PathVariable(name = "postId") Long postId)
             throws PostAccessException {
         var response = getPostsService.getPost(departmentGroupId, postId);
         return ResponseEntity.ok().body(response);
     }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
+                                           @PathVariable(name = "postId") Long postId,
+                                           @Valid @RequestBody PostRequest postRequest) {
+        var post = postService.getPost(postId);
+        postService.updatePost(post, postRequest);
+        return ResponseEntity.noContent().build();
+    }
+
 
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
