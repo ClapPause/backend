@@ -60,7 +60,7 @@ tasks.named('test') {
 //QueryDsl 설정
 // gradle clean 시에 QClass 디렉토리 삭제
 clean {
-    delete file('src/main/generated')
+    delete file('target/generated-sources')
 }
 
 compileJava {
@@ -70,6 +70,6 @@ compileJava {
 tasks.withType(JavaCompile) {
     options.annotationProcessorPath = configurations.annotationProcessor
     options.compilerArgs += [
-            "-s", file("src/main/generated").absolutePath
+            "-s", file("target/generated-sources").absolutePath
     ]
 }
