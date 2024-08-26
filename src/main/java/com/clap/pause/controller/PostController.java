@@ -4,12 +4,9 @@ import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.PostAccessException;
-import com.clap.pause.model.Post;
-import com.clap.pause.service.MemberUniversityDepartmentService;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
-    private final MemberUniversityDepartmentService memberUniversityDepartmentService;
+    private final com.clap.pause.service.getPostsService getPostsService;
 
-    /**
-     * 기본 게시글을 생성
-     *
-     * @param postRequest
-     * @return postResponse
-     */
     @PostMapping
     public ResponseEntity<PostResponse> saveDefaultPost(
             @PathVariable(name = "departmentgroupId") Long departmentgroupId,
@@ -46,31 +37,13 @@ public class PostController {
                 .body(post);
     }
 
-    /**
-     * 기본 게시글을 불러옴
-     *
-     * @param departmentGroupId
-     * @return List<PostListResponse>
-     */
     @GetMapping
     public ResponseEntity<List<PostListResponse>> getAllPosts(
             @PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
-        var postList = postService.getAllPosts(departmentGroupId);
-        List<PostListResponse> postResponses = new ArrayList<>();
-        for (Post post : postList) {
-            var memberUniversityDepartmentResponses =
-                    memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
-            var response = postService.getMemberInfo(post, memberUniversityDepartmentResponses);
-            postResponses.add(response);
-        }
+        List<PostListResponse> postResponses = getPostsService.getAllPosts(departmentGroupId);
         return ResponseEntity.ok().body(postResponses);
     }
 
-    /**
-     * Header의 Authorization 으로 memberId를 return함
-     *
-     * @return
-     */
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
                 .getAuthentication();

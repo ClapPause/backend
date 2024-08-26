@@ -14,6 +14,7 @@ import com.clap.pause.repository.PostRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -67,11 +68,12 @@ public class PostService {
     }
 
     /**
-     * 모든 기본 게시글 가져옴
+     * List<Post> 가져옴
      *
      * @param departmentGroupId
      * @return postListResponse
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<Post> getAllPosts(Long departmentGroupId) {
 //        departmentId로 departmentGroup 조회
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
@@ -79,6 +81,15 @@ public class PostService {
         return postRepository.findByDepartmentGroupOrderByCreatedAtDesc(departmentGroup);
     }
 
+    /**
+     * post에 대한 멤버 정보를 불러옴
+     *
+     * @param post
+     * @param responseList
+     * @return
+     * @throws PostAccessException
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
     public PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList)
             throws PostAccessException {
         for (MemberUniversityDepartmentResponse response : responseList) {
@@ -91,6 +102,13 @@ public class PostService {
         throw new PostAccessException("회원이 해당 학과그룹에 권한이 없어 조회가 불가 합니다.");
     }
 
+    /**
+     * PostListResponse 생성
+     *
+     * @param post
+     * @param response
+     * @return
+     */
     private PostListResponse getPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
         return PostListResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
                 post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(),
