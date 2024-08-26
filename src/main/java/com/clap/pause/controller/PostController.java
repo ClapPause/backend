@@ -2,7 +2,6 @@ package com.clap.pause.controller;
 
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
-import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
@@ -27,14 +26,14 @@ public class PostController {
     private final com.clap.pause.service.getPostsService getPostsService;
 
     @PostMapping
-    public ResponseEntity<PostResponse> saveDefaultPost(
+    public ResponseEntity<Void> saveDefaultPost(
             @PathVariable(name = "departmentgroupId") Long departmentgroupId,
             @Valid @RequestBody PostRequest postRequest) {
         var memberId = getMemberId();
         var post = postService.saveDefaultPost(memberId, postRequest, departmentgroupId);
         return ResponseEntity.created(URI.create("/api/departmentgroups/" + post.departmentGroupId()
                         + "/posts" + post.id()))
-                .body(post);
+                .build();
     }
 
     @GetMapping
