@@ -1,11 +1,13 @@
 package com.clap.pause.controller.auth;
 
-import com.clap.pause.dto.auth.RegisterRequest;
-import com.clap.pause.model.Gender;
+import com.clap.pause.dto.auth.LoginRequest;
+import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentRequest;
+import com.clap.pause.model.DepartmentType;
+import com.clap.pause.service.MemberUniversityDepartmentService;
 import com.clap.pause.service.PostService;
 import com.clap.pause.service.auth.AuthService;
+import com.clap.pause.service.auth.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,14 +26,18 @@ public class PostControllerTest {
     @Autowired
     private AuthService authService;
     @Autowired
+    private JwtProvider jwtProvider;
+    @Autowired
+    private MemberUniversityDepartmentService memberUniversityDepartmentService;
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        var registerRequest =
-                new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE,
-                        "직업", "010-1234-1234");
-        authService.register(registerRequest);
+        var auth = authService.login(new LoginRequest("test@naver.com", "testPassword"));
+        var memberId = jwtProvider.getMemberIdWithToken(auth.token());
+        var memberUniversityDepartmentRequest = new MemberUniversityDepartmentRequest(1L, DepartmentType.MAJOR);
+        memberUniversityDepartmentService.saveMemberUniversityDepartment(memberId, memberUniversityDepartmentRequest);
     }
 
     @Test
