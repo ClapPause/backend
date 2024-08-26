@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class getPostsService {
+public class GetPostsService {
     private final PostService postService;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
 
@@ -25,13 +25,13 @@ public class getPostsService {
      */
     public List<PostListResponse> getAllPosts(Long departmentGroupId) throws PostAccessException {
         var postList = postService.getAllPosts(departmentGroupId);
-        List<PostListResponse> postResponses = new ArrayList<>();
+        List<PostListResponse> postListRespons = new ArrayList<>();
         for (Post post : postList) {
             var memberUniversityDepartmentResponses =
                     memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
             var response = postService.getMemberInfo(post, memberUniversityDepartmentResponses);
-            postResponses.add(response);
+            postListRespons.add(response);
         }
-        return postResponses;
+        return postListRespons;
     }
 }
