@@ -128,8 +128,23 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundElementException("글이 존재하지 않습니다."));
     }
 
+    /**
+     * post 수정 하는 메소드 - 제목과 내용만 바꿀 수 있음
+     *
+     * @param post
+     * @param postRequest
+     */
     public void updatePost(Post post, PostRequest postRequest) {
         post.updatePost(postRequest.title(), postRequest.contents());
         postRepository.save(post);
+    }
+
+    /**
+     * post 삭제 하는 메소드
+     *
+     * @param post
+     */
+    public void deletePost(Post post) {
+        postRepository.deleteById(post.getId());
     }
 }

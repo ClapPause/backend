@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,14 @@ public class PostController {
                                            @Valid @RequestBody PostRequest postRequest) {
         var post = postService.getPost(postId);
         postService.updatePost(post, postRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
+                                           @PathVariable(name = "postId") Long postId) {
+        var post = postService.getPost(postId);
+        postService.deletePost(post);
         return ResponseEntity.noContent().build();
     }
 
