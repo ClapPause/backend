@@ -10,11 +10,11 @@ public record PostResponse(
         String contents,
         PostCategory postCategory,
         PostType postType,
-        Long departmentGroupId,
         LocalDateTime createdAt
 ) {
-    public static PostResponse of(Long id, String title, String contents, PostCategory postCategory, PostType postType,
-                                  Long departmentGroupId, LocalDateTime createdAt) {
-        return new PostResponse(id, title, contents, postCategory, postType, departmentGroupId, createdAt);
+    public static PostResponse of(Long id, String title, String contents,
+                                  PostCategory postCategory, PostType postType, LocalDateTime createdAt) {
+        return new PostResponse(id, title, contents, postCategory, postType, createdAt);
     }
+
 }

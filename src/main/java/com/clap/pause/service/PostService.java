@@ -64,7 +64,7 @@ public class PostService {
      */
     private PostResponse getPostResponse(Post post) {
         return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
-                post.getPostType(), post.getDepartmentGroup().getId(), post.getCreatedAt());
+                post.getPostType(), post.getCreatedAt());
     }
 
     /**
@@ -95,7 +95,7 @@ public class PostService {
         for (MemberUniversityDepartmentResponse response : responseList) {
             //여러개의 전공 중 현재 게시판의 departmentGroup과 일치하면 PostListResponse를 생성
             if (response.departmentGroupResponse().id().equals(post.getDepartmentGroup().getId())) {
-                return getPostListResponse(post, response);
+                return getPostResponse(post, response);
             }
         }
         // 일치하는 전공이 없다면 예외를 던짐
@@ -109,8 +109,9 @@ public class PostService {
      * @param response
      * @return
      */
-    private PostListResponse getPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
-        return PostListResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
+    private PostListResponse getPostResponse(Post post, MemberUniversityDepartmentResponse response) {
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(),
+                post.getPostCategory(),
                 post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(),
                 response.department());
     }
