@@ -12,6 +12,14 @@ public record PostListResponse(
         PostType postType,
         LocalDateTime createdAt,
         String memberName,
-        String university
+        String university,
+        String department
 ) {
+    public static PostListResponse of(Long id, String title, String contents, PostCategory postCategory,
+                                      PostType postType,
+                                      LocalDateTime createdAt, String memberName, String university,
+                                      String department) {
+        return new PostListResponse(id, title, contents, postCategory, postType, createdAt, memberName, university,
+                department);
+    }
 }
