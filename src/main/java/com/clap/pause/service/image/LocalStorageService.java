@@ -21,16 +21,21 @@ public class LocalStorageService implements StorageService {
     public String uploadImage(File file) {
         try {
             var fileName = file.getName();
-            var path = Paths.get(imageProperties.uploadDir() + fileName);
+            var path = Paths.get(imageProperties.uploadDir(), fileName);
             Files.copy(file.toPath(), path);
             return "/images/" + fileName;
         } catch (IOException exception) {
+            exception.printStackTrace();
             throw new ImageProcessingFailedException("이미지를 저장할 수 없습니다.");
         }
     }
 
     public List<String> uploadImages(List<File> files) {
         var images = new ArrayList<String>();
+        for (var file : files) {
+            var image = uploadImage(file);
+            images.add(image);
+        }
         return images;
     }
 }

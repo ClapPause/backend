@@ -1,5 +1,6 @@
 package com.clap.pause.service.image;
 
+import com.clap.pause.config.properties.ImageProperties;
 import com.clap.pause.exception.ImageProcessingFailedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class ImageService {
 
     private final StorageService storageService;
+    private final ImageProperties imageProperties;
 
     public String saveImage(MultipartFile file) {
         var image = convertToJpg(file);
@@ -42,7 +45,10 @@ public class ImageService {
                     .drawImage(image, 0, 0, null);
 
             var fileName = UUID.randomUUID() + ".jpg";
-            var convertedImage = new File(fileName);
+            var filePath = Paths.get(imageProperties.uploadDir(), fileName)
+                    .toString();
+
+            var convertedImage = new File(filePath);
             ImageIO.write(jpgImage, "jpg", convertedImage);
 
             return convertedImage;
