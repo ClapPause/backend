@@ -1,5 +1,6 @@
 package com.clap.pause.service.image;
 
+import com.clap.pause.exception.ImageProcessingFailedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,7 +47,7 @@ public class ImageService {
 
             return convertedImage;
         } catch (IOException exception) {
-            return null;
+            throw new ImageProcessingFailedException("jpg/png/jpeg 형식의 이미지를 업로드 해주세요.");
         }
     }
 }
