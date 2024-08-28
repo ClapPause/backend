@@ -11,7 +11,6 @@ import com.clap.pause.repository.UniversityDepartmentRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -55,7 +54,6 @@ public class MemberUniversityDepartmentService {
      * @param memberId
      * @return memberUniversityDepartments
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     public List<MemberUniversityDepartmentResponse> getMemberUniversityDepartments(Long memberId) {
         var memberUniversityDepartments = memberUniversityDepartmentRepository.findAllByMemberId(memberId);
         return memberUniversityDepartments.stream()

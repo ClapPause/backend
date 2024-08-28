@@ -3,7 +3,6 @@ package com.clap.pause.controller;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.exception.PostAccessException;
-import com.clap.pause.service.GetPostsService;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
-    private final GetPostsService getPostsService;
 
     @PostMapping
     public ResponseEntity<Void> saveDefaultPost(
@@ -42,7 +40,7 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<PostListResponse>> getAllPosts(
             @PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
-        List<PostListResponse> postListRespons = getPostsService.getAllPosts(departmentGroupId);
+        List<PostListResponse> postListRespons = postService.getAllPosts(departmentGroupId);
         return ResponseEntity.ok().body(postListRespons);
     }
 
@@ -50,7 +48,7 @@ public class PostController {
     public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
                                                     @PathVariable(name = "postId") Long postId)
             throws PostAccessException {
-        var response = getPostsService.getPost(departmentGroupId, postId);
+        var response = postService.getPostResponse(postId);
         return ResponseEntity.ok().body(response);
     }
 
@@ -58,19 +56,16 @@ public class PostController {
     public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
                                            @PathVariable(name = "postId") Long postId,
                                            @Valid @RequestBody PostRequest postRequest) {
-        var post = postService.getPost(postId);
-        postService.updatePost(post, postRequest);
+        postService.updatePost(postId, postRequest);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
                                            @PathVariable(name = "postId") Long postId) {
-        var post = postService.getPost(postId);
-        postService.deletePost(post);
+        postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
-
 
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()

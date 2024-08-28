@@ -9,12 +9,11 @@ import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.model.Post;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
-import com.clap.pause.repository.MemberUniversityDepartmentRepository;
 import com.clap.pause.repository.PostRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -25,13 +24,12 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final DepartmentGroupRepository departmentGroupRepository;
-    private final MemberUniversityDepartmentRepository memberUniversityDepartmentRepository;
+    private final MemberUniversityDepartmentService memberUniversityDepartmentService;
 
     /**
-     * 게시글 저장하는 메소드
-     *
      * @param memberId
      * @param postRequest
+     * @param departmentGroupId
      * @return postResponse
      */
     public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId) {
@@ -42,9 +40,7 @@ public class PostService {
     /**
      * 기본 post 생성
      *
-     * @param memberId
-     * @param postRequest
-     * @return
+     * @return post
      */
     private Post savePostWithPostRequest(Long memberId, PostRequest postRequest, Long departmentGroupId) {
         var member = memberRepository.findById(memberId)
@@ -60,7 +56,7 @@ public class PostService {
      * postResponse 생성
      *
      * @param post
-     * @return
+     * @return postResponse
      */
     private PostResponse getPostResponse(Post post) {
         return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
@@ -70,15 +66,25 @@ public class PostService {
     /**
      * List<Post> 가져옴
      *
-     * @param departmentGroupId
      * @return postListResponse
      */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public List<Post> getAllPosts(Long departmentGroupId) {
+    public List<PostListResponse> getAllPosts(Long departmentGroupId) throws PostAccessException {
 //        departmentId로 departmentGroup 조회
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
                 .orElseThrow(() -> new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
-        return postRepository.findByDepartmentGroupOrderByCreatedAtDesc(departmentGroup);
+        var postList = postRepository.findByDepartmentGroupOrderByCreatedAtDesc(departmentGroup);
+        return postList.stream()
+                .map(post -> {
+                    var memberUniversityDepartmentResponses =
+                            memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
+                    try {
+                        return getMemberInfo(post, memberUniversityDepartmentResponses);
+                    } catch (PostAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -86,11 +92,10 @@ public class PostService {
      *
      * @param post
      * @param responseList
-     * @return
+     * @return postListResponse
      * @throws PostAccessException
      */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList)
+    private PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList)
             throws PostAccessException {
         for (MemberUniversityDepartmentResponse response : responseList) {
             //여러개의 전공 중 현재 게시판의 departmentGroup과 일치하면 PostListResponse를 생성
@@ -107,7 +112,7 @@ public class PostService {
      *
      * @param post
      * @param response
-     * @return
+     * @return postListResponse
      */
     private PostListResponse getPostResponse(Post post, MemberUniversityDepartmentResponse response) {
         return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(),
@@ -117,13 +122,19 @@ public class PostService {
     }
 
     /**
-     * postId로 post 가져옴
+     * postId로 postResponse 생성하는 메소드
      *
      * @param postId
-     * @return
+     * @return postListResponse
      */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Post getPost(Long postId) {
+    public PostListResponse getPostResponse(Long postId) throws PostAccessException {
+        var post = getPost(postId);
+        var memberUniversityDepartments =
+                memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
+        return getMemberInfo(post, memberUniversityDepartments);
+    }
+
+    private Post getPost(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException("글이 존재하지 않습니다."));
     }
@@ -131,10 +142,11 @@ public class PostService {
     /**
      * post 수정 하는 메소드 - 제목과 내용만 바꿀 수 있음
      *
-     * @param post
+     * @param postId
      * @param postRequest
      */
-    public void updatePost(Post post, PostRequest postRequest) {
+    public void updatePost(Long postId, PostRequest postRequest) {
+        var post = getPost(postId);
         post.updatePost(postRequest.title(), postRequest.contents());
         postRepository.save(post);
     }
@@ -142,9 +154,10 @@ public class PostService {
     /**
      * post 삭제 하는 메소드
      *
-     * @param post
+     * @param postId
      */
-    public void deletePost(Post post) {
+    public void deletePost(Long postId) {
+        var post = getPost(postId);
         postRepository.deleteById(post.getId());
     }
 }
