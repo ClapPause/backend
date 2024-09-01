@@ -29,13 +29,10 @@ class AuthServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private JwtProvider jwtProvider;
-
     @InjectMocks
     private AuthService authService;
-
     @Spy
     private BCryptPasswordEncoder passwordEncoder;
 
