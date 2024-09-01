@@ -32,6 +32,11 @@ public class GlobalExceptionHandler {
         return getExceptionResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(value = ImageProcessingFailedException.class)
+    public ResponseEntity<ExceptionResponse> imageProcessingFailedExceptionHandling(InvalidLoginInfoException exception) {
+        return getExceptionResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(value = BadRequestException.class)
     public ResponseEntity<ExceptionResponse> badRequestExceptionHandling(BadRequestException exception) {
         return getExceptionResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
