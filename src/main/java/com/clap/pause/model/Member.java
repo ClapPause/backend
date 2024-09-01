@@ -29,9 +29,6 @@ public class Member extends BaseEntity {
     @Column(name = "password")
     private String password;
     @NotNull
-    @Column(name = "profile_image")
-    private String profileImage;
-    @NotNull
     @Column(name = "birth")
     private LocalDate birth;
     @NotNull
@@ -59,11 +56,10 @@ public class Member extends BaseEntity {
     protected Member() {
     }
 
-    public Member(String name, String email, OauthType oauthType, String profileImage, LocalDate birth, Gender gender, String job, String phoneNumber) {
+    public Member(String name, String email, OauthType oauthType, LocalDate birth, Gender gender, String job, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.password = oauthType.name();
-        this.profileImage = profileImage;
         this.birth = birth;
         this.gender = gender;
         this.job = job;
@@ -71,11 +67,10 @@ public class Member extends BaseEntity {
         this.memberRole = MemberRole.MEMBER;
     }
 
-    public Member(String name, String email, String password, String profileImage, LocalDate birth, Gender gender, String job, String phoneNumber) {
+    public Member(String name, String email, String password, LocalDate birth, Gender gender, String job, String phoneNumber) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.profileImage = profileImage;
         this.birth = birth;
         this.gender = gender;
         this.job = job;
