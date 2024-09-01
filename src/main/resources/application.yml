@@ -7,3 +7,6 @@ spring:
     url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
+image:
+  upload-dir: src/main/resources/static/images/
+  host: http://localhost:8080/
