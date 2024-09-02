@@ -3,7 +3,7 @@ package com.clap.pause.service.auth;
 import com.clap.pause.dto.auth.AuthResponse;
 import com.clap.pause.dto.auth.LoginRequest;
 import com.clap.pause.dto.auth.RegisterRequest;
-import com.clap.pause.exception.DuplicatedEmailException;
+import com.clap.pause.exception.DuplicatedException;
 import com.clap.pause.exception.InvalidLoginInfoException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Member;
@@ -67,7 +67,7 @@ public class AuthService {
      */
     private void emailValidation(String email) {
         if (memberRepository.existsByEmail(email)) {
-            throw new DuplicatedEmailException("이미 존재하는 이메일입니다.");
+            throw new DuplicatedException("이미 존재하는 이메일입니다.");
         }
     }
 
