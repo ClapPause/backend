@@ -90,7 +90,6 @@ public class DepartmentGroupService {
         departmentGroupRepository.save(departmentGroup);
     }
 
-
     /**
      * 중복된 학과그룹인지 검증하는 메서드
      *
