@@ -53,6 +53,29 @@ class MemberRepositoryTest {
                 .isNotPresent();
     }
 
+    @Test
+    @DisplayName("존재하는 이메일로 존재하는지 찾으면 True 를 반환한다.")
+    void existsByEmail_success() {
+        //given
+        var member = getMember();
+        memberRepository.save(member);
+        //when
+        var founded = memberRepository.existsByEmail("test@naver.com");
+        // Then
+        Assertions.assertThat(founded)
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 이메일로 존재하는지 찾으면 False 를 반환한다.")
+    void existsByEmail_fail_notExists() {
+        //given, when
+        var founded = memberRepository.existsByEmail("noExistEmail");
+        // Then
+        Assertions.assertThat(founded)
+                .isFalse();
+    }
+
     private Member getMember() {
         return new Member("테스트", "test@naver.com", "tessPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
     }
