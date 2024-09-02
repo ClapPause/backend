@@ -1,54 +1,279 @@
 package com.clap.pause.controller.auth;
 
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.clap.pause.dto.auth.LoginRequest;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentRequest;
+import com.clap.pause.dto.post.request.PostRequest;
+import com.clap.pause.dto.post.response.PostListResponse;
+import com.clap.pause.dto.post.response.PostResponse;
+import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.DepartmentType;
+import com.clap.pause.model.PostCategory;
+import com.clap.pause.model.PostType;
 import com.clap.pause.service.MemberUniversityDepartmentService;
 import com.clap.pause.service.PostService;
 import com.clap.pause.service.auth.AuthService;
 import com.clap.pause.service.auth.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PostControllerTest {
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
+    @MockBean
     private PostService postService;
     @Autowired
     private AuthService authService;
     @Autowired
     private JwtProvider jwtProvider;
-    @Autowired
+    @MockBean
     private MemberUniversityDepartmentService memberUniversityDepartmentService;
     @Autowired
     private ObjectMapper objectMapper;
 
+    private static String token;
+    private static final int departmentGroupId = 1;
+    private static final int postId = 1;
+    private static Long memberId;
+
     @BeforeEach
     void setUp() {
         var auth = authService.login(new LoginRequest("test@naver.com", "testPassword"));
-        var memberId = jwtProvider.getMemberIdWithToken(auth.token());
+        token = auth.token();
+        memberId = jwtProvider.getMemberIdWithToken(token);
         var memberUniversityDepartmentRequest = new MemberUniversityDepartmentRequest(1L, DepartmentType.MAJOR);
         memberUniversityDepartmentService.saveMemberUniversityDepartment(memberId, memberUniversityDepartmentRequest);
     }
 
     @Test
-    @DisplayName("게시글 불러오기에 성공한다")
-    void getPosts_success() throws Exception {
+    @DisplayName("게시글 생성")
+    void savePost_success() throws Exception {
         //given
-
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var response = new PostResponse(1L, "제목", "내용", PostCategory.CONCERN, PostType.DEFAULT,
+                LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        when(postService.saveDefaultPost(any(), any(), any())).thenReturn(response);
         //when
+        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
         //then
-
-
+        perform.andExpect(status().isCreated());
     }
 
+    @Test
+    @DisplayName("글타입이 없으면 게시글 생성에 실패한다")
+    void savePost_fail_postTypeIsNull() throws Exception {
+        //given
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
+        //when
+        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("글 내용이 없으면 게시글 생성에 실패한다")
+    void savePost_fail_createdAtIsNull() throws Exception {
+        //given
+        var postRequest = new PostRequest("제목", "   ", PostCategory.CONCERN, PostType.DEFAULT);
+        //when
+        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("게시글 생성 - 제목이 공백일 경우 실패")
+    void savePost_fail_titleIsBlank() throws Exception {
+        //given
+        var postRequest = new PostRequest("", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        //when
+        var departmentGroupId = 1;
+        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("게시글 생성 - 글 타입이 공백일 경우 실패")
+    void savePost_fail_postTypeIsBlank() throws Exception {
+        //given
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
+        //when
+        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("모든 게시글 불러오기에 성공한다")
+    void getAllPosts_success() throws Exception {
+        //given
+        when(postService.getAllPosts(any())).thenReturn(getPostListResponses());
+        //when
+        ResultActions perform = mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("제목1"))
+                .andExpect(jsonPath("$[0].postType").value("DEFAULT"))
+                .andExpect(jsonPath("$[1].contents").value("내용2"))
+                .andExpect(jsonPath("$[1].memberName").value("가회원"))
+                .andExpect(jsonPath("$[1].department").value("정보통신학과"))
+                .andExpect(jsonPath("$[2].postCategory").value("CONCERN"))
+                .andExpect(jsonPath("$[2].createdAt").value("2000-01-01T00:00:00"))
+                .andExpect(jsonPath("$[2].university").value("충남대"));
+    }
+
+    private List<PostListResponse> getPostListResponses() {
+        List<PostListResponse> responses = new ArrayList<>();
+        responses.add(
+                new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT,
+                        LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과"));
+        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT,
+                LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과"));
+        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT,
+                LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원",
+                "충남대", "정보통신학과"));
+        return responses;
+    }
+
+    @Test
+    @DisplayName("학교그룹이 존재하지 않으면 게시글 조회가 실패한다")
+    void getAllPosts_fail_notExistDepartmentId() throws Exception {
+        //given
+        when(postService.getAllPosts(any())).thenThrow(new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
+        //when
+        ResultActions perform = mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        perform.andExpect(status().isNotFound())
+                .andExpect(
+                        result -> assertThat(getApiResultExceptionClass(result)).isEqualTo(
+                                NotFoundElementException.class));
+    }
+
+    private Class<? extends Exception> getApiResultExceptionClass(MvcResult result) {
+        return Objects.requireNonNull(result.getResolvedException()).getClass();
+    }
+
+    @Test
+    @DisplayName("글 id로 글을 조회한다")
+    public void getPost_success() throws Exception {
+        //given
+        PostListResponse response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT,
+                LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과");
+        when(postService.getPostResponse(any())).thenReturn(response);
+        //when
+        ResultActions perform =
+                mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                        .header("Authorization", "Bearer " + token));
+        //then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.title").value("제목1"))
+                .andExpect(jsonPath("$.memberName").value("나회원"))
+                .andExpect(jsonPath("$.university").value("고려대학교"));
+    }
+
+    @Test
+    @DisplayName("글을 수정한다")
+    public void updatePost_success() throws Exception {
+        //given
+        PostRequest postRequest = new PostRequest("수정된 제목", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
+        //when
+        ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isNoContent());
+        verify(postService, times(1)).updatePost(1L, postRequest);
+    }
+
+    @Test
+    @DisplayName("제목이 공백이면 글 수정을 실패한다")
+    public void updatePost_fail_titleIsBlank() throws Exception {
+        //given
+        PostRequest postRequest = new PostRequest("", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
+        //when
+        ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("글 카테고리를 선택하지 않으면 글 수정을 실패한다")
+    public void updatePost_fail_CategoryIsNull() throws Exception {
+        //given
+        PostRequest postRequest = new PostRequest("", "수정된 내용", null, PostType.DEFAULT);
+        //when
+        ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postRequest)));
+        //then
+        perform.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("글을 삭제한다")
+    public void deletePost_success() throws Exception {
+        //given
+        //when
+        ResultActions perform =
+                mockMvc.perform(delete("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                        .header("Authorization", "Bearer " + token));
+        //then
+        perform.andExpect(status().isNoContent());
+        verify(postService, times(1)).deletePost(1L);
+    }
 }
