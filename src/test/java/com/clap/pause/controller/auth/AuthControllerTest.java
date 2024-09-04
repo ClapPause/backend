@@ -76,7 +76,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -96,7 +97,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -116,7 +118,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -136,7 +139,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -156,7 +160,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -176,7 +181,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -214,7 +220,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(loginRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
@@ -234,7 +241,8 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(loginRequest))
                 .with(csrf()));
         //then
-        var postResult = result.andExpect(status().isBadRequest()).andReturn();
+        var postResult = result.andExpect(status().isBadRequest())
+                .andReturn();
         var response = getExceptionResponseMessage(postResult);
 
         Assertions.assertThat(response.status())
