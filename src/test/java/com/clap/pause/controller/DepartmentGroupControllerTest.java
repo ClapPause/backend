@@ -6,6 +6,7 @@ import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
 import com.clap.pause.exception.ExceptionResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.service.DepartmentGroupService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -135,7 +138,6 @@ class DepartmentGroupControllerTest {
     @DisplayName("존재하는 ID 로 조회 요청을 보내면 성공한다.")
     void getDepartmentGroup_success() throws Exception {
         //given
-        var departmentGroupRequest = new DepartmentGroupRequest("테스트");
         var departmentGroupResponse = new DepartmentGroupResponse(1L, "테스트");
 
         when(departmentGroupService.getDepartmentGroup(any(Long.class)))
@@ -143,7 +145,6 @@ class DepartmentGroupControllerTest {
         //when
         var result = mockMvc.perform(get("/api/department-groups/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(departmentGroupRequest))
                 .with(csrf()));
         //then
         var getResult = result.andExpect(status().isOk())
@@ -159,17 +160,14 @@ class DepartmentGroupControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 ID 로 조회 요청을 보내면 성공한다.")
+    @DisplayName("존재하지 않는 ID 로 조회 요청을 보내면 실패한다.")
     void getDepartmentGroup_fail_noExistsId() throws Exception {
         //given
-        var departmentGroupRequest = new DepartmentGroupRequest("테스트");
-
         doThrow(new NotFoundElementException("1를 가진 학과그룹이 존재하지 않습니다.")).when(departmentGroupService)
                 .getDepartmentGroup(any(Long.class));
         //when
         var result = mockMvc.perform(get("/api/department-groups/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(departmentGroupRequest))
                 .with(csrf()));
         //then
         var postResult = result.andExpect(status().isNotFound())
@@ -180,6 +178,30 @@ class DepartmentGroupControllerTest {
                 .isEqualTo(HttpStatus.NOT_FOUND.value());
         Assertions.assertThat(response.message())
                 .isEqualTo("1를 가진 학과그룹이 존재하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("학과그룹 전체에 대한 요청을 보내면 성공한다.")
+    void getDepartmentGroups_success() throws Exception {
+        //given
+        var departmentGroupResponse = new DepartmentGroupResponse(1L, "테스트");
+
+        when(departmentGroupService.getDepartmentGroups())
+                .thenReturn(List.of(departmentGroupResponse, departmentGroupResponse));
+        //when
+        var result = mockMvc.perform(get("/api/department-groups")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+        //then
+        var getResult = result.andExpect(status().isOk())
+                .andReturn();
+        var response = getResult.getResponse()
+                .getContentAsString();
+        var convertedDepartmentGroupResponse = objectMapper.readValue(response, new TypeReference<List<DepartmentGroupResponse>>() {
+        });
+
+        Assertions.assertThat(convertedDepartmentGroupResponse.size())
+                .isEqualTo(2);
     }
 
     private ExceptionResponse getExceptionResponseMessage(MvcResult result) throws Exception {
