@@ -1,6 +1,7 @@
 package com.clap.pause.controller;
 
 import com.clap.pause.config.security.JwtAuthFilter;
+import com.clap.pause.config.security.MockMember;
 import com.clap.pause.dto.departmentGroup.DepartmentGroupRequest;
 import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
 import com.clap.pause.exception.ExceptionResponse;
@@ -20,7 +21,6 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthFilter.class)
         })
-@WithMockUser
+@MockMember
 @MockBean(JpaMetamodelMappingContext.class)
 class DepartmentGroupControllerTest {
 
