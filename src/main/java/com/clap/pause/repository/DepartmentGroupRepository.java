@@ -4,4 +4,5 @@ import com.clap.pause.model.DepartmentGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DepartmentGroupRepository extends JpaRepository<DepartmentGroup, Long> {
+    boolean existsByName(String name);
 }

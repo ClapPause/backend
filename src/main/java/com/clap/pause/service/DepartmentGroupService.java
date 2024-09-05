@@ -2,6 +2,7 @@ package com.clap.pause.service;
 
 import com.clap.pause.dto.departmentGroup.DepartmentGroupRequest;
 import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
+import com.clap.pause.exception.DuplicatedException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.DepartmentGroup;
 import com.clap.pause.repository.DepartmentGroupRepository;
@@ -25,6 +26,7 @@ public class DepartmentGroupService {
      * @return departmentGroup
      */
     public DepartmentGroupResponse saveDepartmentGroup(DepartmentGroupRequest departmentGroupRequest) {
+        nameValidation(departmentGroupRequest.name());
         var departmentGroup = saveDepartmentGroupWithDepartmentGroupRequest(departmentGroupRequest);
         return getDepartmentGroupResponse(departmentGroup);
     }
@@ -36,6 +38,7 @@ public class DepartmentGroupService {
      * @param departmentGroupRequest
      */
     public void updateDepartmentGroup(Long id, DepartmentGroupRequest departmentGroupRequest) {
+        nameValidation(departmentGroupRequest.name());
         var departmentGroup = departmentGroupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 학과그룹이 존재하지 않습니다."));
         updateDepartmentGroupWithDepartmentGroupRequest(departmentGroup, departmentGroupRequest);
@@ -85,6 +88,17 @@ public class DepartmentGroupService {
     private void updateDepartmentGroupWithDepartmentGroupRequest(DepartmentGroup departmentGroup, DepartmentGroupRequest departmentGroupRequest) {
         departmentGroup.updateName(departmentGroupRequest.name());
         departmentGroupRepository.save(departmentGroup);
+    }
+
+    /**
+     * 중복된 학과그룹인지 검증하는 메서드
+     *
+     * @param name
+     */
+    private void nameValidation(String name) {
+        if (departmentGroupRepository.existsByName(name)) {
+            throw new DuplicatedException("이미 존재하는 학과그룹입니다.");
+        }
     }
 
     /**
