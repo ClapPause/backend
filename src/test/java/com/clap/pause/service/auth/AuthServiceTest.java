@@ -2,7 +2,7 @@ package com.clap.pause.service.auth;
 
 import com.clap.pause.dto.auth.LoginRequest;
 import com.clap.pause.dto.auth.RegisterRequest;
-import com.clap.pause.exception.DuplicatedEmailException;
+import com.clap.pause.exception.DuplicatedException;
 import com.clap.pause.exception.InvalidLoginInfoException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Gender;
@@ -66,7 +66,7 @@ class AuthServiceTest {
                 .thenReturn(true);
         //when, then
         Assertions.assertThatThrownBy(() -> authService.register(registerRequest))
-                .isInstanceOf(DuplicatedEmailException.class);
+                .isInstanceOf(DuplicatedException.class);
     }
 
     @Test

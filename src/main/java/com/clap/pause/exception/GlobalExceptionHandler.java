@@ -22,8 +22,8 @@ public class GlobalExceptionHandler {
         return getExceptionResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = DuplicatedEmailException.class)
-    public ResponseEntity<ExceptionResponse> duplicatedEmailExceptionHandling(DuplicatedEmailException exception) {
+    @ExceptionHandler(value = DuplicatedException.class)
+    public ResponseEntity<ExceptionResponse> duplicatedExceptionHandling(DuplicatedException exception) {
         return getExceptionResponse(exception.getMessage(), HttpStatus.CONFLICT);
     }
 
