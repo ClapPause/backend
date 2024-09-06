@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/department-groups/{departmentgroupId}/posts")
@@ -29,9 +31,10 @@ public class PostController {
     @PostMapping
     public ResponseEntity<Void> saveDefaultPost(
             @PathVariable(name = "departmentgroupId") Long departmentgroupId,
-            @Valid @RequestBody PostRequest postRequest) {
+            @Valid @RequestBody PostRequest postRequest,
+            @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
         var memberId = getMemberId();
-        var post = postService.saveDefaultPost(memberId, postRequest, departmentgroupId);
+        var post = postService.saveDefaultPost(memberId, postRequest, departmentgroupId, imageFiles);
         return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId
                         + "/posts" + post.id()))
                 .build();
