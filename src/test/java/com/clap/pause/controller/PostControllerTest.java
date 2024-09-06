@@ -10,7 +10,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,8 +39,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -60,14 +57,9 @@ class PostControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private PostService postService;
-//    @MockBean
-//    private Authentication authentication;
-//    @MockBean
-//    private SecurityContext securityContext;
 
     @Test
     @DisplayName("게시글 생성")
-    @WithMockUser("1L")
     void savePost_success() throws Exception {
         //given
         long departmentGroupId = 1;
@@ -77,16 +69,6 @@ class PostControllerTest {
         MockMultipartFile imageFiles =
                 new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
                         StandardCharsets.UTF_8));
-
-        var auth = SecurityContextHolder.getContext()
-                .getAuthentication();
-        var memberId = (Long) auth.getPrincipal();
-//        when(securityContext.getAuthentication()).thenReturn(auth);
-//        when(auth.getPrincipal()).thenReturn(memberId);
-//        when(securityContext.getAuthentication()).thenReturn(authentication);
-//        SecurityContextHolder.setContext(securityContext);
-//        when(authentication.getPrincipal()).thenReturn(1L);
-
         when(postService.saveDefaultPost(any(), any(), any(), any())).thenReturn(response);
         //when
         ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
@@ -143,10 +125,15 @@ class PostControllerTest {
         var postRequest = new PostRequest("", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         //when
         var departmentGroupId = 1;
-        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+        MockMultipartFile imageFiles =
+                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
+                        StandardCharsets.UTF_8));
+        ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
+                .file(imageFiles)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
+
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -157,8 +144,12 @@ class PostControllerTest {
         //given
         long departmentGroupId = 1L;
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
+        MockMultipartFile imageFiles =
+                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
+                        StandardCharsets.UTF_8));
         //when
-        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+        ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
+                .file(imageFiles)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
