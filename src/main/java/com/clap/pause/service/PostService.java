@@ -58,7 +58,6 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
         var post = new Post(member, departmentGroup, postRequest.title(), postRequest.contents(),
                 postRequest.postCategory(), postRequest.postType());
-
         return postRepository.save(post);
     }
 
@@ -83,6 +82,7 @@ public class PostService {
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
                 .orElseThrow(() -> new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
         var postList = postRepository.findByDepartmentGroupOrderByCreatedAtDesc(departmentGroup);
+        //각 post에 대한 멤버정보를 가져옴
         return postList.stream()
                 .map(post -> {
                     var memberUniversityDepartmentResponses =
