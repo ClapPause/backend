@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.clap.pause.config.security.JwtAuthFilter;
+import com.clap.pause.config.security.MockMember;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
@@ -39,6 +40,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -49,6 +51,7 @@ import org.springframework.test.web.servlet.ResultActions;
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthFilter.class)
         })
+@MockMember
 @MockBean(JpaMetamodelMappingContext.class)
 class PostControllerTest {
     @Autowired
@@ -57,20 +60,37 @@ class PostControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private PostService postService;
+//    @MockBean
+//    private Authentication authentication;
+//    @MockBean
+//    private SecurityContext securityContext;
 
     @Test
     @DisplayName("게시글 생성")
     @WithMockUser("1L")
     void savePost_success() throws Exception {
         //given
-        int departmentGroupId = 1;
+        long departmentGroupId = 1;
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         var response = new PostResponse(1L, "제목", "내용", PostCategory.CONCERN, PostType.DEFAULT,
                 LocalDateTime.of(2000, 1, 1, 0, 0, 0));
-        when(postService.saveDefaultPost(any(), any(), any(), any())).thenReturn(response);
+        MockMultipartFile imageFiles =
+                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
+                        StandardCharsets.UTF_8));
 
+        var auth = SecurityContextHolder.getContext()
+                .getAuthentication();
+        var memberId = (Long) auth.getPrincipal();
+//        when(securityContext.getAuthentication()).thenReturn(auth);
+//        when(auth.getPrincipal()).thenReturn(memberId);
+//        when(securityContext.getAuthentication()).thenReturn(authentication);
+//        SecurityContextHolder.setContext(securityContext);
+//        when(authentication.getPrincipal()).thenReturn(1L);
+
+        when(postService.saveDefaultPost(any(), any(), any(), any())).thenReturn(response);
         //when
-        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + "1" + "/posts")
+        ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
+                .file(imageFiles)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
@@ -103,10 +123,15 @@ class PostControllerTest {
         //given
         long departmentGroupId = 1L;
         var postRequest = new PostRequest("제목", "   ", PostCategory.CONCERN, PostType.DEFAULT);
+        MockMultipartFile imageFiles =
+                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
+                        StandardCharsets.UTF_8));
         //when
-        ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
+        ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
+                .file(imageFiles)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postRequest)));
+                .content(objectMapper.writeValueAsString(postRequest))
+                .with(csrf()));
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -120,7 +145,8 @@ class PostControllerTest {
         var departmentGroupId = 1;
         ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postRequest)));
+                .content(objectMapper.writeValueAsString(postRequest))
+                .with(csrf()));
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -134,7 +160,8 @@ class PostControllerTest {
         //when
         ResultActions perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postRequest)));
+                .content(objectMapper.writeValueAsString(postRequest))
+                .with(csrf()));
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -147,7 +174,8 @@ class PostControllerTest {
         when(postService.getAllPosts(any())).thenReturn(getPostListResponses());
         //when
         ResultActions perform = mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf()));
         //then
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1L))
@@ -182,7 +210,8 @@ class PostControllerTest {
         when(postService.getAllPosts(any())).thenThrow(new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
         //when
         ResultActions perform = mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf()));
         //then
         perform.andExpect(status().isNotFound())
                 .andExpect(
@@ -205,7 +234,8 @@ class PostControllerTest {
         when(postService.getPostResponse(any())).thenReturn(response);
         //when
         ResultActions perform =
-                mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts/" + postId));
+                mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                        .with(csrf()));
         //then
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
@@ -224,7 +254,8 @@ class PostControllerTest {
         //when
         ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postRequest)));
+                .content(objectMapper.writeValueAsString(postRequest))
+                .with(csrf()));
         //then
         perform.andExpect(status().isNoContent());
         verify(postService, times(1)).updatePost(1L, postRequest);
@@ -240,7 +271,8 @@ class PostControllerTest {
         //when
         ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postRequest)));
+                .content(objectMapper.writeValueAsString(postRequest))
+                .with(csrf()));
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -255,7 +287,8 @@ class PostControllerTest {
         //when
         ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postRequest)));
+                .content(objectMapper.writeValueAsString(postRequest))
+                .with(csrf()));
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -268,7 +301,8 @@ class PostControllerTest {
         long postId = 1L;
         //when
         ResultActions perform =
-                mockMvc.perform(delete("/api/department-groups/" + departmentGroupId + "/posts/" + postId));
+                mockMvc.perform(delete("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                        .with(csrf()));
         //then
         perform.andExpect(status().isNoContent());
         verify(postService, times(1)).deletePost(1L);
