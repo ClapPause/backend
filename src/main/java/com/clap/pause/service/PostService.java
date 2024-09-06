@@ -10,11 +10,14 @@ import com.clap.pause.model.Post;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
+import com.clap.pause.service.image.ImageService;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -25,6 +28,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final DepartmentGroupRepository departmentGroupRepository;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
+    private final ImageService imageService;
 
     /**
      * @param memberId
@@ -32,9 +36,14 @@ public class PostService {
      * @param departmentGroupId
      * @return postResponse
      */
-    public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId) {
+    public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId,
+                                        List<MultipartFile> imageFiles) {
+        //이미지들이 null이 아니면 이미지 저장
+        if (Objects.nonNull(imageFiles)) {
+            imageService.saveImages(imageFiles);
+        }
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
-        return getPostResponse(post);
+        return getPostListResponse(post);
     }
 
     /**
@@ -49,6 +58,7 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
         var post = new Post(member, departmentGroup, postRequest.title(), postRequest.contents(),
                 postRequest.postCategory(), postRequest.postType());
+
         return postRepository.save(post);
     }
 
@@ -58,7 +68,7 @@ public class PostService {
      * @param post
      * @return postResponse
      */
-    private PostResponse getPostResponse(Post post) {
+    private PostResponse getPostListResponse(Post post) {
         return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
                 post.getPostType(), post.getCreatedAt());
     }
@@ -100,7 +110,7 @@ public class PostService {
         for (MemberUniversityDepartmentResponse response : responseList) {
             //여러개의 전공 중 현재 게시판의 departmentGroup과 일치하면 PostListResponse를 생성
             if (response.departmentGroupResponse().id().equals(post.getDepartmentGroup().getId())) {
-                return getPostResponse(post, response);
+                return getPostListResponse(post, response);
             }
         }
         // 일치하는 전공이 없다면 예외를 던짐
@@ -114,7 +124,7 @@ public class PostService {
      * @param response
      * @return postListResponse
      */
-    private PostListResponse getPostResponse(Post post, MemberUniversityDepartmentResponse response) {
+    private PostListResponse getPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
         return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(),
                 post.getPostCategory(),
                 post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(),
