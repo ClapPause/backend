@@ -1,19 +1,27 @@
 package com.clap.pause.service;
 
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
+import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
+import com.clap.pause.dto.post.request.TextVoteOptionRequest;
+import com.clap.pause.dto.post.request.TextVoteRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
+import com.clap.pause.model.ImageVoteOption;
 import com.clap.pause.model.Post;
+import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
+import com.clap.pause.repository.ImageVoteOptionRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
+import com.clap.pause.repository.TextVoteOptionRepository;
 import com.clap.pause.service.image.ImageService;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +37,8 @@ public class PostService {
     private final DepartmentGroupRepository departmentGroupRepository;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
     private final ImageService imageService;
+    private final TextVoteOptionRepository textVoteOptionRepository;
+    private final ImageVoteOptionRepository imageVoteOptionRepository;
 
     /**
      * @param memberId
@@ -42,7 +52,27 @@ public class PostService {
             imageService.saveImages(imageFiles);
         }
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
-        return getPostListResponse(post);
+        return getPostResponse(post);
+    }
+
+    public PostResponse saveTextVote(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId, MultipartFile imageFile) {
+        //이미지들이 null이 아니면 이미지 저장
+        if (Objects.nonNull(imageFile)) {
+            imageService.saveImage(imageFile);
+        }
+        var post = savePostWithVoteRequest(memberId, textVoteRequest, departmentGroupId);
+        saveTextOption(post, textVoteRequest.options());
+        return getPostResponse(post);
+    }
+
+    public PostResponse saveImageVote(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
+        var post = savePostWithImageRequest(memberId, imageVoteRequest, departmentGroupId);
+        //이미지들이 null이 아니면 이미지 저장
+        if (Objects.nonNull(imageFiles)) {
+            List<String> imageUrls = imageService.saveImages(imageFiles);
+            saveImageOption(post, imageUrls, imageVoteRequest.descriptions());
+        }
+        return getPostResponse(post);
     }
 
     /**
@@ -59,13 +89,40 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    private Post savePostWithVoteRequest(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId) {
+        var member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
+        var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
+                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
+        var post = new Post(member, departmentGroup, textVoteRequest.title(), textVoteRequest.contents(), textVoteRequest.postCategory(), textVoteRequest.postType());
+        return postRepository.save(post);
+    }
+
+    private Post savePostWithImageRequest(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId) {
+        var member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
+        var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
+                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
+        var post = new Post(member, departmentGroup, imageVoteRequest.title(), imageVoteRequest.contents(), imageVoteRequest.postCategory(), imageVoteRequest.postType());
+        return postRepository.save(post);
+    }
+
+    private void saveTextOption(Post post, List<TextVoteOptionRequest> options) {
+        options.forEach(option -> textVoteOptionRepository.save(new TextVoteOption(post, option.textOption())));
+    }
+
+    private void saveImageOption(Post post, List<String> imageUrls, List<String> descriptions) {
+        IntStream.range(0, imageUrls.size())
+                .forEach(i -> imageVoteOptionRepository.save(new ImageVoteOption(post, imageUrls.get(i), descriptions.get(i))));
+    }
+
     /**
      * postResponse 생성
      *
      * @param post
      * @return postResponse
      */
-    private PostResponse getPostListResponse(Post post) {
+    private PostResponse getPostResponse(Post post) {
         return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
                 post.getPostType(), post.getCreatedAt());
     }

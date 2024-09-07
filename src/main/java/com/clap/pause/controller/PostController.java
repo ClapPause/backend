@@ -1,6 +1,8 @@
 package com.clap.pause.controller;
 
+import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
+import com.clap.pause.dto.post.request.TextVoteRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.service.PostService;
@@ -34,6 +36,23 @@ public class PostController {
         return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId + "/posts" + post.id()))
                 .build();
     }
+
+    @PostMapping
+    public ResponseEntity<Void> saveTextVote(@PathVariable(name = "departmentgroupId") Long departmentgroupId, @Valid @RequestBody TextVoteRequest textVoteRequest, @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        var memberId = getMemberId();
+        var post = postService.saveTextVote(memberId, textVoteRequest, departmentgroupId, imageFile);
+        return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId + "/posts" + post.id()))
+                .build();
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> saveImageVote(@PathVariable(name = "departmentgroupId") Long departmentgroupId, @Valid @RequestBody ImageVoteRequest imageVoteRequest, @RequestPart(value = "image") List<MultipartFile> imageFiles) {
+        var memberId = getMemberId();
+        var post = postService.saveImageVote(memberId, imageVoteRequest, departmentgroupId, imageFiles);
+        return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId + "/posts" + post.id()))
+                .build();
+    }
+
 
     @GetMapping
     public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
