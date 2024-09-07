@@ -62,13 +62,10 @@ class PostControllerTest {
     @DisplayName("게시글 생성")
     void savePost_success() throws Exception {
         //given
-        long departmentGroupId = 1;
+        var departmentGroupId = 1;
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
-        var response = new PostResponse(1L, "제목", "내용", PostCategory.CONCERN, PostType.DEFAULT,
-                LocalDateTime.of(2000, 1, 1, 0, 0, 0));
-        MockMultipartFile imageFiles =
-                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
-                        StandardCharsets.UTF_8));
+        var response = new PostResponse(1L, "제목", "내용", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        MockMultipartFile imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         when(postService.saveDefaultPost(any(), any(), any(), any())).thenReturn(response);
         //when
         ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
@@ -84,11 +81,9 @@ class PostControllerTest {
     @DisplayName("글타입이 없으면 게시글 생성에 실패한다")
     void savePost_fail_postTypeIsNull() throws Exception {
         //given
-        long departmentGroupId = 1L;
+        var departmentGroupId = 1L;
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
-        MockMultipartFile imageFiles =
-                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
-                        StandardCharsets.UTF_8));
+        MockMultipartFile imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         //when
         ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
                 .file(imageFiles)
@@ -103,11 +98,9 @@ class PostControllerTest {
     @DisplayName("글 내용이 없으면 게시글 생성에 실패한다")
     void savePost_fail_createdAtIsNull() throws Exception {
         //given
-        long departmentGroupId = 1L;
+        var departmentGroupId = 1L;
         var postRequest = new PostRequest("제목", "   ", PostCategory.CONCERN, PostType.DEFAULT);
-        MockMultipartFile imageFiles =
-                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
-                        StandardCharsets.UTF_8));
+        MockMultipartFile imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         //when
         ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
                 .file(imageFiles)
@@ -125,15 +118,12 @@ class PostControllerTest {
         var postRequest = new PostRequest("", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         //when
         var departmentGroupId = 1;
-        MockMultipartFile imageFiles =
-                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
-                        StandardCharsets.UTF_8));
+        MockMultipartFile imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
                 .file(imageFiles)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
-
         //then
         perform.andExpect(status().isBadRequest());
     }
@@ -142,11 +132,9 @@ class PostControllerTest {
     @DisplayName("게시글 생성 - 글 타입이 공백일 경우 실패")
     void savePost_fail_postTypeIsBlank() throws Exception {
         //given
-        long departmentGroupId = 1L;
+        var departmentGroupId = 1L;
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
-        MockMultipartFile imageFiles =
-                new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(
-                        StandardCharsets.UTF_8));
+        MockMultipartFile imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         //when
         ResultActions perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
                 .file(imageFiles)
@@ -161,7 +149,7 @@ class PostControllerTest {
     @DisplayName("모든 게시글 불러오기에 성공한다")
     void getAllPosts_success() throws Exception {
         //given
-        long departmentGroupId = 1L;
+        var departmentGroupId = 1L;
         when(postService.getAllPosts(any())).thenReturn(getPostListResponses());
         //when
         ResultActions perform = mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts")
@@ -182,14 +170,9 @@ class PostControllerTest {
 
     private List<PostListResponse> getPostListResponses() {
         List<PostListResponse> responses = new ArrayList<>();
-        responses.add(
-                new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT,
-                        LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과"));
-        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT,
-                LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과"));
-        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT,
-                LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원",
-                "충남대", "정보통신학과"));
+        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과"));
+        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과"));
+        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과"));
         return responses;
     }
 
@@ -197,7 +180,7 @@ class PostControllerTest {
     @DisplayName("학교그룹이 존재하지 않으면 게시글 조회가 실패한다")
     void getAllPosts_fail_notExistDepartmentId() throws Exception {
         //given
-        long departmentGroupId = 1L;
+        var departmentGroupId = 1L;
         when(postService.getAllPosts(any())).thenThrow(new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
         //when
         ResultActions perform = mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts")
@@ -216,12 +199,11 @@ class PostControllerTest {
 
     @Test
     @DisplayName("글 id로 글을 조회한다")
-    public void getPost_success() throws Exception {
+    void getPost_success() throws Exception {
         //given
-        long departmentGroupId = 1L;
-        long postId = 1L;
-        PostListResponse response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT,
-                LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과");
+        var departmentGroupId = 1L;
+        var postId = 1L;
+        PostListResponse response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과");
         when(postService.getPostResponse(any())).thenReturn(response);
         //when
         ResultActions perform =
@@ -237,10 +219,10 @@ class PostControllerTest {
 
     @Test
     @DisplayName("글을 수정한다")
-    public void updatePost_success() throws Exception {
+    void updatePost_success() throws Exception {
         //given
-        long departmentGroupId = 1L;
-        long postId = 1L;
+        var departmentGroupId = 1L;
+        var postId = 1L;
         PostRequest postRequest = new PostRequest("수정된 제목", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
         //when
         ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
@@ -254,10 +236,10 @@ class PostControllerTest {
 
     @Test
     @DisplayName("제목이 공백이면 글 수정을 실패한다")
-    public void updatePost_fail_titleIsBlank() throws Exception {
+    void updatePost_fail_titleIsBlank() throws Exception {
         //given
-        long departmentGroupId = 1L;
-        long postId = 1L;
+        var departmentGroupId = 1L;
+        var postId = 1L;
         PostRequest postRequest = new PostRequest("", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
         //when
         ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
@@ -270,10 +252,10 @@ class PostControllerTest {
 
     @Test
     @DisplayName("글 카테고리를 선택하지 않으면 글 수정을 실패한다")
-    public void updatePost_fail_CategoryIsNull() throws Exception {
+    void updatePost_fail_CategoryIsNull() throws Exception {
         //given
-        long departmentGroupId = 1L;
-        long postId = 1L;
+        var departmentGroupId = 1L;
+        var postId = 1L;
         PostRequest postRequest = new PostRequest("", "수정된 내용", null, PostType.DEFAULT);
         //when
         ResultActions perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
@@ -286,10 +268,10 @@ class PostControllerTest {
 
     @Test
     @DisplayName("글을 삭제한다")
-    public void deletePost_success() throws Exception {
+    void deletePost_success() throws Exception {
         //given
-        long departmentGroupId = 1L;
-        long postId = 1L;
+        var departmentGroupId = 1L;
+        var postId = 1L;
         //when
         ResultActions perform =
                 mockMvc.perform(delete("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
