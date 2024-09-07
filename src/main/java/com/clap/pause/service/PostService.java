@@ -1,20 +1,19 @@
 package com.clap.pause.service;
 
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
-import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
-import com.clap.pause.dto.post.request.TextVoteOptionRequest;
-import com.clap.pause.dto.post.request.TextVoteRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
+import com.clap.pause.model.Photo;
 import com.clap.pause.model.ImageVoteOption;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.ImageVoteOptionRepository;
 import com.clap.pause.repository.MemberRepository;
+import com.clap.pause.repository.PhotoRepository;
 import com.clap.pause.repository.PostRepository;
 import com.clap.pause.repository.TextVoteOptionRepository;
 import com.clap.pause.service.image.ImageService;
@@ -37,6 +36,7 @@ public class PostService {
     private final DepartmentGroupRepository departmentGroupRepository;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
     private final ImageService imageService;
+    private final PhotoRepository photoRepository;
     private final TextVoteOptionRepository textVoteOptionRepository;
     private final ImageVoteOptionRepository imageVoteOptionRepository;
 
@@ -47,10 +47,14 @@ public class PostService {
      * @return postResponse
      */
     public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
+        var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
-            imageService.saveImages(imageFiles);
+            var imageStrings = imageService.saveImages(imageFiles);
+            //이미지를 string으로 변환한 것을 photo 엔티티로 저장
+            imageStrings.forEach(image -> savePostPhoto(post, image));
         }
+        return getPostListResponse(post);
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         return getPostResponse(post);
     }
@@ -222,5 +226,9 @@ public class PostService {
     public void deletePost(Long postId) {
         var post = getPost(postId);
         postRepository.deleteById(post.getId());
+    }
+
+    public void savePostPhoto(Post post, String url) {
+        photoRepository.save(new Photo(url, post));
     }
 }
