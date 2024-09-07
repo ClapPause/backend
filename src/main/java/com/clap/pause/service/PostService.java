@@ -65,7 +65,8 @@ public class PostService {
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFile)) {
-            imageService.saveImage(imageFile);
+            var imageString = imageService.saveImage(imageFile);
+            savePostPhoto(post, imageString);
         }
         //텍스트 투표 선택지를 저장
         saveTextOption(post, textVoteRequest.options());
