@@ -17,7 +17,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @SQLDelete(sql = "update image set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
-public class Image extends BaseEntity {
+public class Photo extends BaseEntity {
     @NotNull
     @Column(name = "url")
     private String url;
@@ -31,10 +31,10 @@ public class Image extends BaseEntity {
     @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
-    protected Image() {
+    protected Photo() {
     }
 
-    public Image(String url, Post post) {
+    public Photo(String url, Post post) {
         this.url = url;
         this.post = post;
     }
