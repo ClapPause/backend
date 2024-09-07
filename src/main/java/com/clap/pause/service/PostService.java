@@ -1,13 +1,16 @@
 package com.clap.pause.service;
 
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
+import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
+import com.clap.pause.dto.post.request.TextVoteOptionRequest;
+import com.clap.pause.dto.post.request.TextVoteRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
-import com.clap.pause.model.Photo;
 import com.clap.pause.model.ImageVoteOption;
+import com.clap.pause.model.Photo;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
@@ -54,23 +57,24 @@ public class PostService {
             //이미지를 string으로 변환한 것을 photo 엔티티로 저장
             imageStrings.forEach(image -> savePostPhoto(post, image));
         }
-        return getPostListResponse(post);
-        var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         return getPostResponse(post);
     }
 
     public PostResponse saveTextVote(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId, MultipartFile imageFile) {
+        var postRequest = new PostRequest(textVoteRequest.title(), textVoteRequest.contents(), textVoteRequest.postCategory(), textVoteRequest.postType());
+        var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFile)) {
             imageService.saveImage(imageFile);
         }
-        var post = savePostWithVoteRequest(memberId, textVoteRequest, departmentGroupId);
+        //텍스트 투표 선택지를 저장
         saveTextOption(post, textVoteRequest.options());
         return getPostResponse(post);
     }
 
     public PostResponse saveImageVote(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
-        var post = savePostWithImageRequest(memberId, imageVoteRequest, departmentGroupId);
+        var postRequest = new PostRequest(imageVoteRequest.title(), imageVoteRequest.contents(), imageVoteRequest.postCategory(), imageVoteRequest.postType());
+        var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
             List<String> imageUrls = imageService.saveImages(imageFiles);
@@ -90,24 +94,6 @@ public class PostService {
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
         var post = new Post(member, departmentGroup, postRequest.title(), postRequest.contents(), postRequest.postCategory(), postRequest.postType());
-        return postRepository.save(post);
-    }
-
-    private Post savePostWithVoteRequest(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId) {
-        var member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
-        var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
-                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
-        var post = new Post(member, departmentGroup, textVoteRequest.title(), textVoteRequest.contents(), textVoteRequest.postCategory(), textVoteRequest.postType());
-        return postRepository.save(post);
-    }
-
-    private Post savePostWithImageRequest(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId) {
-        var member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
-        var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
-                .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
-        var post = new Post(member, departmentGroup, imageVoteRequest.title(), imageVoteRequest.contents(), imageVoteRequest.postCategory(), imageVoteRequest.postType());
         return postRepository.save(post);
     }
 
