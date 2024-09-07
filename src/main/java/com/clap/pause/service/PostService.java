@@ -12,6 +12,7 @@ import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.model.ImageVoteOption;
 import com.clap.pause.model.Photo;
 import com.clap.pause.model.Post;
+import com.clap.pause.model.PostType;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.ImageVoteOptionRepository;
@@ -60,6 +61,15 @@ public class PostService {
         return getPostResponse(post);
     }
 
+    /**
+     * 텍스트 투표를 저장하는 메소드
+     *
+     * @param memberId
+     * @param textVoteRequest
+     * @param departmentGroupId
+     * @param imageFile
+     * @return
+     */
     public PostResponse saveTextVote(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId, MultipartFile imageFile) {
         var postRequest = new PostRequest(textVoteRequest.title(), textVoteRequest.contents(), textVoteRequest.postCategory(), textVoteRequest.postType());
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
@@ -73,6 +83,15 @@ public class PostService {
         return getPostResponse(post);
     }
 
+    /**
+     * 이미지 투표를 저장
+     *
+     * @param memberId
+     * @param imageVoteRequest
+     * @param departmentGroupId
+     * @param imageFiles
+     * @return
+     */
     public PostResponse saveImageVote(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
         var postRequest = new PostRequest(imageVoteRequest.title(), imageVoteRequest.contents(), imageVoteRequest.postCategory(), imageVoteRequest.postType());
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
@@ -140,7 +159,6 @@ public class PostService {
                     }
                 })
                 .collect(Collectors.toList());
-
     }
 
     /**
@@ -211,11 +229,48 @@ public class PostService {
      * @param postId
      */
     public void deletePost(Long postId) {
+        //post 삭제
         var post = getPost(postId);
         postRepository.deleteById(post.getId());
+        //글타입이 이미지 투표면 imageVoteOption을 삭제
+        if (post.getPostType().equals(PostType.IMAGE_VOTE)) {
+            deleteImageVoteOption(post);
+        }
+        //글타입이 텍스트 투표면 textVoteOption을 삭제
+        if (post.getPostType().equals(PostType.TEXT_VOTE)) {
+            deleteTextVoteOption(post);
+        }
     }
 
-    public void savePostPhoto(Post post, String url) {
+    /**
+     * photo를 저장하는 메소드
+     *
+     * @param post
+     * @param url
+     */
+    private void savePostPhoto(Post post, String url) {
         photoRepository.save(new Photo(url, post));
+    }
+
+    /**
+     * 이미지 투표 선택지를 삭제하는 메소드
+     *
+     * @param post
+     */
+    private void deleteImageVoteOption(Post post) {
+        var imageVoteOptions = imageVoteOptionRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
+        imageVoteOptions.forEach(option -> imageVoteOptionRepository.deleteById(option.getId()));
+    }
+
+    /**
+     * 텍스트 투표 선택지를 삭제하는 메소드
+     *
+     * @param post
+     */
+    private void deleteTextVoteOption(Post post) {
+        var textVoteOptions = textVoteOptionRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
+        textVoteOptions.forEach(option -> textVoteOptionRepository.deleteById(option.getId()));
     }
 }
