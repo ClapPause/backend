@@ -10,8 +10,6 @@ import static org.mockito.Mockito.when;
 import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
 import com.clap.pause.dto.post.request.PostRequest;
-import com.clap.pause.dto.post.response.PostListResponse;
-import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.model.DepartmentGroup;
@@ -64,16 +62,16 @@ public class PostServiceTest {
     @DisplayName("글을 저장한다")
     void savePost_success() throws Exception {
         //given
-        Long memberId = 1L;
-        Long departmentGroupId = 1L;
-        DepartmentGroup departmentGroup = new DepartmentGroup("전자공학과");
-        PostRequest postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var memberId = 1L;
+        var departmentGroupId = 1L;
+        var departmentGroup = new DepartmentGroup("전자공학과");
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(imageService.saveImages(imageFiles)).thenReturn(imageUrl);
         when(memberRepository.findById(any())).thenReturn(Optional.of(getMember()));
         when(departmentGroupRepository.findById(any())).thenReturn(Optional.of(getDepartmentGroup()));
         when(postRepository.save(any(Post.class))).thenReturn(getPost(departmentGroup));
         //when
-        PostResponse response = postService.saveDefaultPost(memberId, postRequest, departmentGroupId, imageFiles);
+        var response = postService.saveDefaultPost(memberId, postRequest, departmentGroupId, imageFiles);
         //then
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("제목");
@@ -84,10 +82,10 @@ public class PostServiceTest {
     @DisplayName("멤버가 존재하지 않으면 글 생성에 실패한다")
     void savePost_fail_MemberNotFound() throws Exception {
         //given
-        Long memberId = 1L;
-        Long departmentGroupId = 1L;
+        var memberId = 1L;
+        var departmentGroupId = 1L;
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(imageService.saveImages(imageFiles)).thenReturn(imageUrl);
-        PostRequest postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(memberRepository.findById(any())).thenThrow(new NotFoundElementException("존재하지 않는 이용자입니다."));
         //when, then
         assertThatThrownBy(() -> postService.saveDefaultPost(memberId, postRequest, departmentGroupId, imageFiles))
@@ -98,9 +96,9 @@ public class PostServiceTest {
     @DisplayName("학과그룹이 존재하지 않으면 글 생성에 실패한다")
     void savePost_fail_departmentGroupIsNotFound() throws Exception {
         //given
-        Long memberId = 1L;
-        Long departmentGroupId = 1L;
-        PostRequest postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var memberId = 1L;
+        var departmentGroupId = 1L;
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(imageService.saveImages(imageFiles)).thenReturn(imageUrl);
         when(memberRepository.findById(any())).thenReturn(Optional.of(getMember()));
         when(departmentGroupRepository.findById(any())).thenThrow(new NotFoundElementException("존재하지 않는 학과그룹입니다."));
@@ -113,14 +111,14 @@ public class PostServiceTest {
     @DisplayName("학과그룹의 모든 게시글을 조회한다")
     void getAllPosts_success() throws Exception {
         //given
-        Long departmentGroupId = 2L;
+        var departmentGroupId = 2L;
         when(departmentGroupRepository.findById(any())).thenReturn(Optional.of(departmentGroup));
         when(postRepository.findByDepartmentGroupOrderByCreatedAtDesc(any())).thenReturn(getPostList(departmentGroup));
         when(memberUniversityDepartmentService.getMemberUniversityDepartments(any())).thenReturn(
                 getMemberUniversityDepartmentResponse());
         when(departmentGroup.getId()).thenReturn(2L);
         //when
-        List<PostListResponse> postListResponses = postService.getAllPosts(departmentGroupId);
+        var postListResponses = postService.getAllPosts(departmentGroupId);
         //then
         assertThat(postListResponses).hasSize(3);
         assertThat(postListResponses.get(0).departmentGroupId()).isEqualTo(2L);
@@ -131,7 +129,7 @@ public class PostServiceTest {
     @DisplayName("멤버가 해당 학과그룹에 권한이 없으면 모든 게시글을 조회에 실패한다")
     void getAllPosts_fail_postNotAccess() throws Exception {
         //given
-        Long departmentGroupId = 2L;
+        var departmentGroupId = 2L;
         when(departmentGroupRepository.findById(any())).thenReturn(Optional.of(departmentGroup));
         when(postRepository.findByDepartmentGroupOrderByCreatedAtDesc(any())).thenReturn(getPostList(departmentGroup));
         when(memberUniversityDepartmentService.getMemberUniversityDepartments(any())).thenReturn(
@@ -146,7 +144,7 @@ public class PostServiceTest {
     @DisplayName("학과그룹이 없으면 모든 게시글을 조회에 실패한다")
     void getAllPosts_fail_universityGroupIsNotFound() throws Exception {
         //given
-        Long departmentGroupId = 2L;
+        var departmentGroupId = 2L;
         when(departmentGroupRepository.findById(any())).thenThrow(new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
         //when
         //then
@@ -158,13 +156,13 @@ public class PostServiceTest {
     @DisplayName("게시글을 조회한다")
     void getPostResponse_success() throws Exception {
         //given
-        Long postId = 1L;
+        var postId = 1L;
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
         when(memberUniversityDepartmentService.getMemberUniversityDepartments(any())).thenReturn(
                 getMemberUniversityDepartmentResponse());
         when(departmentGroup.getId()).thenReturn(2L);
         //when
-        PostListResponse postResponse = postService.getPostResponse(postId);
+        var postResponse = postService.getPostResponse(postId);
         //then
         assertThat(postResponse.title()).isEqualTo("제목");
         assertThat(postResponse.memberName()).isEqualTo("가회원");
@@ -175,7 +173,7 @@ public class PostServiceTest {
     @DisplayName("멤버가 해당 학과그룹에 권한이 없으면 게시글 조회에 실패한다")
     void getPostResponse_fail_postNotAccess() throws Exception {
         //given
-        Long postId = 1L;
+        var postId = 1L;
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
         when(memberUniversityDepartmentService.getMemberUniversityDepartments(any())).thenReturn(
                 getMemberUniversityDepartmentResponse());
@@ -189,7 +187,7 @@ public class PostServiceTest {
     @DisplayName("해당 post가 없다면 게시글 조회에 실패한다")
     void getPostResponse_fail_postIsNotFound() throws Exception {
         //given
-        Long postId = 1L;
+        var postId = 1L;
         when(postRepository.findById(any())).thenThrow(new NotFoundElementException("글이 존재하지 않습니다."));
         //when & then
         assertThatThrownBy(() -> postService.getPostResponse(postId))
@@ -200,8 +198,8 @@ public class PostServiceTest {
     @DisplayName("게시글을 수정한다")
     void updatePost_success() throws Exception {
         //given
-        Long postId = 1L;
-        PostRequest postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var postId = 1L;
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
         //when
         postService.updatePost(postId, postRequest);
@@ -213,8 +211,8 @@ public class PostServiceTest {
     @DisplayName("post가 없으면 게시글을 수정에 실패한다")
     void updatePost_fail_postIsNotFound() throws Exception {
         //given
-        Long postId = 1L;
-        PostRequest postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var postId = 1L;
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(postRepository.findById(any())).thenThrow(new NotFoundElementException("글이 존재하지 않습니다."));
         //when & then
         assertThatThrownBy(() -> postService.updatePost(postId, postRequest))
@@ -225,7 +223,7 @@ public class PostServiceTest {
     @DisplayName("게시글을 삭제한다")
     void deletePost_success() throws Exception {
         //given
-        Long postId = 1L;
+        var postId = 1L;
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
         //when
         postService.deletePost(postId);
@@ -237,7 +235,7 @@ public class PostServiceTest {
     @DisplayName("게시글을 삭제한다")
     void deletePost_fail_postIsNotFound() throws Exception {
         //given
-        Long postId = 1L;
+        var postId = 1L;
         when(postRepository.findById(any())).thenThrow(new NotFoundElementException("글이 존재하지 않습니다."));
         //when & then
         assertThatThrownBy(() -> postService.deletePost(postId))
@@ -245,10 +243,9 @@ public class PostServiceTest {
     }
 
     private List<Post> getPostList(DepartmentGroup departmentGroup) {
-        List<Post> posts = new ArrayList<>();
+        var posts = new ArrayList<Post>();
         for (int i = 0; i < 3; i++) {
-            posts.add(new Post(getMember(), departmentGroup, "제목" + i, "내용" + i, PostCategory.CONCERN,
-                    PostType.DEFAULT));
+            posts.add(new Post(getMember(), departmentGroup, "제목" + i, "내용" + i, PostCategory.CONCERN, PostType.DEFAULT));
         }
         return posts;
     }
@@ -258,8 +255,7 @@ public class PostServiceTest {
     }
 
     private Member getMember() {
-        return new Member("가회원", "test@naver.com", "password1234", LocalDate.now(), Gender.valueOf("FEMALE"),
-                "student", "010-1234-1234");
+        return new Member("가회원", "test@naver.com", "password1234", LocalDate.now(), Gender.valueOf("FEMALE"), "student", "010-1234-1234");
     }
 
     private DepartmentGroup getDepartmentGroup() {
@@ -267,14 +263,9 @@ public class PostServiceTest {
     }
 
     private List<MemberUniversityDepartmentResponse> getMemberUniversityDepartmentResponse() {
-        List<MemberUniversityDepartmentResponse> responses = new ArrayList<>();
-        responses.add(
-                new MemberUniversityDepartmentResponse(1L, new DepartmentGroupResponse(1L, "IT"), "충남대학교", "컴퓨터공학과",
-                        DepartmentType.MAJOR));
-        responses.add(
-                new MemberUniversityDepartmentResponse(2L, new DepartmentGroupResponse(2L, "전자"),
-                        "충남대학교", "전자공학과",
-                        DepartmentType.MINOR));
+        var responses = new ArrayList<MemberUniversityDepartmentResponse>();
+        responses.add(new MemberUniversityDepartmentResponse(1L, new DepartmentGroupResponse(1L, "IT"), "충남대학교", "컴퓨터공학과", DepartmentType.MAJOR));
+        responses.add(new MemberUniversityDepartmentResponse(2L, new DepartmentGroupResponse(2L, "전자"), "충남대학교", "전자공학과", DepartmentType.MINOR));
         return responses;
     }
 }

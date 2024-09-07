@@ -25,47 +25,36 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/department-groups/{departmentgroupId}/posts")
 @RequiredArgsConstructor
 public class PostController {
-
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Void> saveDefaultPost(
-            @PathVariable(name = "departmentgroupId") Long departmentgroupId,
-            @Valid @RequestBody PostRequest postRequest,
-            @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
+    public ResponseEntity<Void> saveDefaultPost(@PathVariable(name = "departmentgroupId") Long departmentgroupId, @Valid @RequestBody PostRequest postRequest, @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
         var memberId = getMemberId();
         var post = postService.saveDefaultPost(memberId, postRequest, departmentgroupId, imageFiles);
-        return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId
-                        + "/posts" + post.id()))
+        return ResponseEntity.created(URI.create("/api/departmentgroups/" + departmentgroupId + "/posts" + post.id()))
                 .build();
     }
 
     @GetMapping
-    public ResponseEntity<List<PostListResponse>> getAllPosts(
-            @PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
-        List<PostListResponse> postListRespons = postService.getAllPosts(departmentGroupId);
+    public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
+        var postListRespons = postService.getAllPosts(departmentGroupId);
         return ResponseEntity.ok().body(postListRespons);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
-                                                    @PathVariable(name = "postId") Long postId)
-            throws PostAccessException {
+    public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId) throws PostAccessException {
         var response = postService.getPostResponse(postId);
         return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
-                                           @PathVariable(name = "postId") Long postId,
-                                           @Valid @RequestBody PostRequest postRequest) {
+    public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody PostRequest postRequest) {
         postService.updatePost(postId, postRequest);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId,
-                                           @PathVariable(name = "postId") Long postId) {
+    public ResponseEntity<Void> deletePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId) {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }

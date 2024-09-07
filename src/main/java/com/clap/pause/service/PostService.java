@@ -36,8 +36,7 @@ public class PostService {
      * @param departmentGroupId
      * @return postResponse
      */
-    public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId,
-                                        List<MultipartFile> imageFiles) {
+    public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
             imageService.saveImages(imageFiles);
@@ -56,8 +55,7 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 이용자입니다."));
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
                 .orElseThrow(() -> new NotFoundElementException("존재하지 않는 학과그룹입니다."));
-        var post = new Post(member, departmentGroup, postRequest.title(), postRequest.contents(),
-                postRequest.postCategory(), postRequest.postType());
+        var post = new Post(member, departmentGroup, postRequest.title(), postRequest.contents(), postRequest.postCategory(), postRequest.postType());
         return postRepository.save(post);
     }
 
@@ -85,8 +83,8 @@ public class PostService {
         //각 post에 대한 멤버정보를 가져옴
         return postList.stream()
                 .map(post -> {
-                    var memberUniversityDepartmentResponses =
-                            memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
+                    var memberUniversityDepartmentResponses = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
+                            .getId());
                     try {
                         return getMemberInfo(post, memberUniversityDepartmentResponses);
                     } catch (PostAccessException e) {
@@ -105,8 +103,7 @@ public class PostService {
      * @return postListResponse
      * @throws PostAccessException
      */
-    private PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList)
-            throws PostAccessException {
+    private PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList) throws PostAccessException {
         for (MemberUniversityDepartmentResponse response : responseList) {
             //여러개의 전공 중 현재 게시판의 departmentGroup과 일치하면 PostListResponse를 생성
             if (response.departmentGroupResponse().id().equals(post.getDepartmentGroup().getId())) {
@@ -125,10 +122,9 @@ public class PostService {
      * @return postListResponse
      */
     private PostListResponse getPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(),
-                post.getPostCategory(),
-                post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(),
-                response.department());
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup()
+                .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
+                .getName(), response.university(), response.department());
     }
 
     /**
@@ -139,8 +135,8 @@ public class PostService {
      */
     public PostListResponse getPostResponse(Long postId) throws PostAccessException {
         var post = getPost(postId);
-        var memberUniversityDepartments =
-                memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
+        var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
+                .getId());
         return getMemberInfo(post, memberUniversityDepartments);
     }
 
