@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -20,25 +22,46 @@ public class PostImageService {
     private final PostImageRepository postImageRepository;
 
     public void savePostImage(Long postId, MultipartFile file) {
-        var image = imageService.saveImage(file);
-        image.thenApply(result -> {
-            savePostImage(postId, result);
-            return result;
-        }).exceptionally(e -> {
-            throw new ImageProcessingFailedException(e.getMessage());
-        });
+        imageService.saveImage(file)
+                .thenAccept(result -> savePostImageWithImage(postId, result))
+                .exceptionally(e -> {
+                    throw new ImageProcessingFailedException(e.getMessage());
+                });
     }
 
-    public void saveImages(Long postId, List<MultipartFile> files) {
-        for (MultipartFile file : files) {
-            savePostImage(postId, file);
+    public void savePostImages(Long postId, List<MultipartFile> files) {
+        var futures = new ArrayList<CompletableFuture<String>>();
+        for (var file : files) {
+            var future = imageService.saveImage(file)
+                    .thenApply(result -> result)
+                    .exceptionally(e -> {
+                        throw new ImageProcessingFailedException(e.getMessage());
+                    });
+            futures.add(future);
         }
+        var allOfFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allOfFutures.join();
+
+        var result = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+        savePostImagesWithImages(postId, result);
     }
 
-    private PostImage savePostImage(Long postId, String image) {
+    private void savePostImageWithImage(Long postId, String image) {
         var post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException(postId + "를 가진 게시글이 존재하지 않습니다."));
         var postImage = new PostImage(post, image);
-        return postImageRepository.save(postImage);
+        postImageRepository.save(postImage);
+    }
+
+    private void savePostImagesWithImages(Long postId, List<String> images) {
+        var post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundElementException(postId + "를 가진 게시글이 존재하지 않습니다."));
+
+        for (var image : images) {
+            var postImage = new PostImage(post, image);
+            postImageRepository.save(postImage);
+        }
     }
 }

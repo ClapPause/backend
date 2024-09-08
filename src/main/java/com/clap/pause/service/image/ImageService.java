@@ -29,6 +29,12 @@ public class ImageService {
         return CompletableFuture.completedFuture(imageUrl);
     }
 
+    public String noAsyncSaveImage(MultipartFile file) {
+        var image = convertToJpg(file);
+        var imageUrl = storageService.uploadImage(image);
+        return imageUrl;
+    }
+
     private File convertToJpg(MultipartFile file) {
         try {
             var inputStream = file.getInputStream();

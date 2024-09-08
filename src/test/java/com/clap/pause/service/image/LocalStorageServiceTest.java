@@ -43,7 +43,7 @@ class LocalStorageServiceTest {
         //then
         Assertions.assertThat(result).isEqualTo("/images/" + fileName);
         Assertions.assertThat(Files.exists(filePath)).isTrue();
-
+        
         Files.deleteIfExists(filePath);
     }
 }
