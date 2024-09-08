@@ -1,4 +1,4 @@
-package com.clap.pause.dto.post;
+package com.clap.pause.dto.post.request;
 
 import jakarta.validation.constraints.NotBlank;
 
