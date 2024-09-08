@@ -30,9 +30,9 @@ public class MemberUniversityDepartmentService {
      * @param memberUniversityDepartmentRequest
      * @return memberUniversityDepartment
      */
-    public MemberUniversityDepartmentResponse saveMemberUniversityDepartment(Long memberId,
-                                                                             MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
-        var memberUniversityDepartment = saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(memberId, memberUniversityDepartmentRequest);
+    public MemberUniversityDepartmentResponse saveMemberUniversityDepartment(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
+        var memberUniversityDepartment = saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(memberId,
+                memberUniversityDepartmentRequest);
         return getMemberUniversityDepartmentResponse(memberUniversityDepartment);
     }
 
