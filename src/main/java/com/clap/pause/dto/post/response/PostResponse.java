@@ -1,8 +1,7 @@
-package com.clap.pause.dto.post;
+package com.clap.pause.dto.post.response;
 
 import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
-
 import java.time.LocalDateTime;
 
 public record PostResponse(
@@ -13,7 +12,9 @@ public record PostResponse(
         PostType postType,
         LocalDateTime createdAt
 ) {
-    public static PostResponse of(Long id, String title, String contents, PostCategory postCategory, PostType postType, LocalDateTime createdAt) {
+    public static PostResponse of(Long id, String title, String contents,
+                                  PostCategory postCategory, PostType postType, LocalDateTime createdAt) {
         return new PostResponse(id, title, contents, postCategory, postType, createdAt);
     }
+
 }
