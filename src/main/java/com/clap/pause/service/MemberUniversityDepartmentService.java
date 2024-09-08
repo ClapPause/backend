@@ -80,8 +80,7 @@ public class MemberUniversityDepartmentService {
      * @param memberUniversityDepartmentRequest
      * @return memberUniversityDepartment
      */
-    private MemberUniversityDepartment saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(
-            Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
+    private MemberUniversityDepartment saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
         var universityDepartment = universityDepartmentRepository.findById(memberUniversityDepartmentRequest.universityDepartmentId())

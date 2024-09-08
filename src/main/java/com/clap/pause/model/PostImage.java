@@ -19,13 +19,12 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted is false")
 public class PostImage extends BaseEntity {
     @NotNull
-    @Column(name = "url")
-    private String url;
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
-
+    @NotNull
+    @Column(name = "image")
+    private String image;
     @NotNull
     @Column(name = "deleted")
     @Getter(AccessLevel.PRIVATE)
@@ -34,8 +33,8 @@ public class PostImage extends BaseEntity {
     protected PostImage() {
     }
 
-    public PostImage(String url, Post post) {
-        this.url = url;
+    public PostImage(Post post, String image) {
         this.post = post;
+        this.image = image;
     }
 }

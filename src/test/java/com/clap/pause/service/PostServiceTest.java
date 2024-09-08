@@ -67,7 +67,6 @@ public class PostServiceTest {
         var departmentGroupId = 1L;
         var departmentGroup = new DepartmentGroup("전자공학과");
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
-        when(imageService.saveImages(imageFiles)).thenReturn(imageUrl);
         when(memberRepository.findById(any())).thenReturn(Optional.of(getMember()));
         when(departmentGroupRepository.findById(any())).thenReturn(Optional.of(getDepartmentGroup()));
         when(postRepository.save(any(Post.class))).thenReturn(getPost(departmentGroup));

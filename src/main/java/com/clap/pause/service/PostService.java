@@ -44,9 +44,9 @@ public class PostService {
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
-            var imageStrings = imageService.saveImages(imageFiles);
-            //이미지를 string으로 변환한 것을 photo 엔티티로 저장
-            imageStrings.forEach(image -> savePostPhoto(post, image));
+//            var imageStrings = imageService.saveImages(imageFiles);
+//            //이미지를 string으로 변환한 것을 photo 엔티티로 저장
+//            imageStrings.forEach(image -> savePostPhoto(post, image));
         }
         return getPostListResponse(post);
     }
@@ -174,6 +174,6 @@ public class PostService {
     }
 
     public void savePostPhoto(Post post, String url) {
-        postImageRepository.save(new PostImage(url, post));
+        postImageRepository.save(new PostImage(post, url));
     }
 }

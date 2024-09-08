@@ -3,6 +3,7 @@ package com.clap.pause.service.image;
 import com.clap.pause.config.properties.ImageProperties;
 import com.clap.pause.exception.ImageProcessingFailedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,9 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -22,17 +22,11 @@ public class ImageService {
     private final StorageService storageService;
     private final ImageProperties imageProperties;
 
-    public String saveImage(MultipartFile file) {
+    @Async
+    public CompletableFuture<String> saveImage(MultipartFile file) {
         var image = convertToJpg(file);
-        return storageService.uploadImage(image);
-    }
-
-    public List<String> saveImages(List<MultipartFile> files) {
-        var images = new ArrayList<File>();
-        for (var file : files) {
-            images.add(convertToJpg(file));
-        }
-        return storageService.uploadImages(images);
+        var imageUrl = storageService.uploadImage(image);
+        return CompletableFuture.completedFuture(imageUrl);
     }
 
     private File convertToJpg(MultipartFile file) {
