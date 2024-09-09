@@ -4,7 +4,6 @@ import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.request.TextVoteRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
-import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -37,7 +36,7 @@ public class PostController {
                 .build();
     }
 
-    @PostMapping
+    @PostMapping("/textvote")
     public ResponseEntity<Void> saveTextVote(@PathVariable(name = "departmentgroupId") Long departmentgroupId, @Valid @RequestBody TextVoteRequest textVoteRequest, @RequestPart(value = "image", required = false) MultipartFile imageFile) {
         var memberId = getMemberId();
         var post = postService.saveTextVote(memberId, textVoteRequest, departmentgroupId, imageFile);
@@ -45,7 +44,7 @@ public class PostController {
                 .build();
     }
 
-    @PostMapping
+    @PostMapping("/imageVote")
     public ResponseEntity<Void> saveImageVote(@PathVariable(name = "departmentgroupId") Long departmentgroupId, @Valid @RequestBody ImageVoteRequest imageVoteRequest, @RequestPart(value = "image") List<MultipartFile> imageFiles) {
         var memberId = getMemberId();
         var post = postService.saveImageVote(memberId, imageVoteRequest, departmentgroupId, imageFiles);
@@ -53,15 +52,14 @@ public class PostController {
                 .build();
     }
 
-
     @GetMapping
-    public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable(name = "departmentgroupId") Long departmentGroupId) throws PostAccessException {
+    public ResponseEntity<List<PostListResponse>> getAllPosts(@PathVariable(name = "departmentgroupId") Long departmentGroupId) {
         var postListRespons = postService.getAllPosts(departmentGroupId);
         return ResponseEntity.ok().body(postListRespons);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId) throws PostAccessException {
+    public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId) {
         var response = postService.getPostResponse(postId);
         return ResponseEntity.ok().body(response);
     }
@@ -69,6 +67,18 @@ public class PostController {
     @PutMapping("/{postId}")
     public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody PostRequest postRequest) {
         postService.updatePost(postId, postRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/textvote/{postId}")
+    public ResponseEntity<Void> updateTextVote(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody TextVoteRequest textVoteRequest) {
+        postService.updateTextVote(postId, textVoteRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/imageVote/{postId}")
+    public ResponseEntity<Void> updateImageVote(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody ImageVoteRequest imageVoteRequest, @RequestPart List<MultipartFile> imageFiles) {
+        postService.updateImageVote(postId, imageVoteRequest, imageFiles);
         return ResponseEntity.noContent().build();
     }
 

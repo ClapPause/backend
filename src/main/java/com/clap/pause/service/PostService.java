@@ -117,14 +117,28 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    /**
+     * 텍스트 투표 선택지 저장하는 메소드
+     *
+     * @param post
+     * @param options
+     */
     private void saveTextOption(Post post, List<TextVoteOptionRequest> options) {
         options.forEach(option -> textVoteOptionRepository.save(new TextVoteOption(post, option.textOption())));
     }
 
+    /**
+     * 이미지 투표 선택지 저장하는 메소드
+     *
+     * @param post
+     * @param imageUrls
+     * @param descriptions
+     */
     private void saveImageOption(Post post, List<String> imageUrls, List<String> descriptions) {
         IntStream.range(0, imageUrls.size())
                 .forEach(i -> imageVoteOptionRepository.save(new ImageVoteOption(post, imageUrls.get(i), descriptions.get(i))));
     }
+
 
     /**
      * postResponse 생성
@@ -142,7 +156,7 @@ public class PostService {
      *
      * @return postListResponse
      */
-    public List<PostListResponse> getAllPosts(Long departmentGroupId) throws PostAccessException {
+    public List<PostListResponse> getAllPosts(Long departmentGroupId) {
 //        departmentId로 departmentGroup 조회
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
                 .orElseThrow(() -> new NotFoundElementException("학과 그룹이 존재하지 않습니다."));
@@ -155,7 +169,7 @@ public class PostService {
                     try {
                         return getMemberInfo(post, memberUniversityDepartmentResponses);
                     } catch (PostAccessException e) {
-                        throw new RuntimeException(e);
+                        throw e;
                     }
                 })
                 .collect(Collectors.toList());
@@ -169,11 +183,11 @@ public class PostService {
      * @return postListResponse
      * @throws PostAccessException
      */
-    private PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList) throws PostAccessException {
+    private PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList) {
         for (MemberUniversityDepartmentResponse response : responseList) {
             //여러개의 전공 중 현재 게시판의 departmentGroup과 일치하면 PostListResponse를 생성
             if (response.departmentGroupResponse().id().equals(post.getDepartmentGroup().getId())) {
-                return getPostListResponse(post, response);
+                return getDefaultPostListResponse(post, response);
             }
         }
         // 일치하는 전공이 없다면 예외를 던짐
@@ -187,10 +201,10 @@ public class PostService {
      * @param response
      * @return postListResponse
      */
-    private PostListResponse getPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
+    private PostListResponse getDefaultPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
         return PostListResponse.of(post.getId(), post.getDepartmentGroup()
                 .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
-                .getName(), response.university(), response.department());
+                .getName(), response.university(), response.department(), null);
     }
 
     /**
@@ -199,7 +213,7 @@ public class PostService {
      * @param postId
      * @return postListResponse
      */
-    public PostListResponse getPostResponse(Long postId) throws PostAccessException {
+    public PostListResponse getPostResponse(Long postId) {
         var post = getPost(postId);
         var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
                 .getId());
@@ -221,6 +235,45 @@ public class PostService {
         var post = getPost(postId);
         post.updatePost(postRequest.title(), postRequest.contents());
         postRepository.save(post);
+    }
+
+    /**
+     * 텍스트 투표 글을 수정하는 메소드
+     *
+     * @param postId
+     * @param textVoteRequest
+     */
+    public void updateTextVote(Long postId, TextVoteRequest textVoteRequest) {
+        var post = getPost(postId);
+        post.updatePost(textVoteRequest.title(), textVoteRequest.contents());
+        var textVoteOptions = textVoteOptionRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundElementException("텍스트 투표 선택지가 존재하지 않습니다."));
+        //기존 선택지들을 지움
+        textVoteOptionRepository.deleteAll(textVoteOptions);
+        //새로운 선택지들을 저장함
+        saveTextOption(post, textVoteRequest.options());
+    }
+
+    /**
+     * 이미지 투표 글을 수정하는 메소드
+     *
+     * @param postId
+     * @param imageVoteRequest
+     * @param imageFiles
+     */
+    public void updateImageVote(Long postId, ImageVoteRequest imageVoteRequest, List<MultipartFile> imageFiles) {
+        var post = getPost(postId);
+        post.updatePost(imageVoteRequest.title(), imageVoteRequest.contents());
+        var imageVoteOptions = imageVoteOptionRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
+        //기존 선택지 사진을 지움
+
+        //새로운 선택지 사진을 저장함
+        var images = imageService.saveImages(imageFiles);
+        //기존 선택지들을 지움
+        imageVoteOptionRepository.deleteAll(imageVoteOptions);
+        //새로운 선택지들을 저장함
+        saveImageOption(post, images, imageVoteRequest.descriptions());
     }
 
     /**
@@ -270,7 +323,7 @@ public class PostService {
      */
     private void deleteTextVoteOption(Post post) {
         var textVoteOptions = textVoteOptionRepository.findByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundElementException("텍스트 투표 선택지가 존재하지 않습니다."));
         textVoteOptions.forEach(option -> textVoteOptionRepository.deleteById(option.getId()));
     }
 }
