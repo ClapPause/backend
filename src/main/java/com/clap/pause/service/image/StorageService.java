@@ -7,4 +7,6 @@ public interface StorageService {
     String uploadImage(File file);
 
     List<String> uploadImages(List<File> files);
+
+    byte[] getImage(String image);
 }

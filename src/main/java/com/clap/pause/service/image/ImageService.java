@@ -37,6 +37,10 @@ public class ImageService {
         return CompletableFuture.completedFuture(result);
     }
 
+    public byte[] getImage(String image) {
+        return storageService.getImage(image);
+    }
+
     private File convertMultipartFileToFile(MultipartFile file) {
         try {
             var inputStream = file.getInputStream();
