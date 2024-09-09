@@ -38,6 +38,10 @@ public class PostImageService {
         }
     }
 
+    public void deleteAllByPostId(Long postId) {
+        postImageRepository.deleteAllByPostId(postId);
+    }
+
     private void savePostImageWithImage(Long postId, String image) {
         var post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException(postId + "를 가진 게시글이 존재하지 않습니다."));
