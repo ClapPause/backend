@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,39 +21,21 @@ public class PostImageService {
     private final PostImageRepository postImageRepository;
 
     public void savePostImage(Long postId, MultipartFile file) {
-        imageService.saveImage(file)
-                .thenAccept(result -> savePostImageWithImage(postId, result))
-                .exceptionally(e -> {
-                    throw new ImageProcessingFailedException(e.getMessage());
-                });
+        try {
+            var image = imageService.saveImage(file).get();
+            savePostImageWithImage(postId, image);
+        } catch (ExecutionException | InterruptedException exception) {
+            throw new ImageProcessingFailedException(exception.getMessage());
+        }
     }
 
     public void savePostImages(Long postId, List<MultipartFile> files) {
-        var futures = createImageSavingFutures(files);
-        waitAllFutures(futures);
-
-        var result = futures.stream()
-                .map(CompletableFuture::join)
-                .toList();
-        savePostImagesWithImages(postId, result);
-    }
-
-    private List<CompletableFuture<String>> createImageSavingFutures(List<MultipartFile> files) {
-        var futures = new ArrayList<CompletableFuture<String>>();
-        for (var file : files) {
-            var future = imageService.saveImage(file)
-                    .thenApply(result -> result)
-                    .exceptionally(e -> {
-                        throw new ImageProcessingFailedException(e.getMessage());
-                    });
-            futures.add(future);
+        try {
+            var images = imageService.saveImages(files).get();
+            savePostImagesWithImages(postId, images);
+        } catch (ExecutionException | InterruptedException exception) {
+            throw new ImageProcessingFailedException(exception.getMessage());
         }
-        return futures;
-    }
-
-    private void waitAllFutures(List<CompletableFuture<String>> futures) {
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .join();
     }
 
     private void savePostImageWithImage(Long postId, String image) {

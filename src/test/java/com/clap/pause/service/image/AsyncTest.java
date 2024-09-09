@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -22,10 +23,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @SpringBootTest
 @Transactional
-public class ImageServiceTest {
+public class AsyncTest {
 
     @Autowired
     private ImageService imageService;
@@ -44,8 +46,8 @@ public class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("이미지를 동시에 100개를 처리해도 동시성 이슈가 발생하지 않는다.")
-    void saveImage_success_withoutConcurrencyIssue() throws IOException {
+    @DisplayName("100개의 비동기 로직을 호출하면 동기 처리된 로직보다 빠르게 수행된다.")
+    void asyncSaveImage_success_withoutConcurrencyIssue() throws IOException {
         //given
         var futures = new ArrayList<CompletableFuture<String>>();
         //when
@@ -66,6 +68,27 @@ public class ImageServiceTest {
                 .map(CompletableFuture::join)
                 .toList();
 
+        Assertions.assertThat(result.size())
+                .isEqualTo(100);
+
+        for (var image : result) {
+            Files.deleteIfExists(getPath(image));
+        }
+    }
+
+    @Test
+    @DisplayName("여러개의 이미지를 저장하는 로직을 실행하면 성공적으로 저장된다.")
+    void asyncSaveImages_success() throws IOException, ExecutionException, InterruptedException {
+        //given
+        var files = new ArrayList<MultipartFile>();
+        for (int i = 0; i < 100; i++) {
+            var multipartFile = new MockMultipartFile("file", UUID.randomUUID() + ".jpg", "image/jpeg", new ByteArrayInputStream(imageBytes));
+            files.add(multipartFile);
+        }
+        //when
+        var result = imageService.saveImages(files)
+                .get();
+        //then
         Assertions.assertThat(result.size())
                 .isEqualTo(100);
 
