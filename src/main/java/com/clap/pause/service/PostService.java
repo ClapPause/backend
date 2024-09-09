@@ -166,11 +166,8 @@ public class PostService {
                 .map(post -> {
                     var memberUniversityDepartmentResponses = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
                             .getId());
-                    try {
-                        return getMemberInfo(post, memberUniversityDepartmentResponses);
-                    } catch (PostAccessException e) {
-                        throw e;
-                    }
+                    var memberInfo = getMemberInfo(post, memberUniversityDepartmentResponses);
+                    return getPostResponseForType(post, memberInfo);
                 })
                 .collect(Collectors.toList());
     }
@@ -183,11 +180,11 @@ public class PostService {
      * @return postListResponse
      * @throws PostAccessException
      */
-    private PostListResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList) {
+    private MemberUniversityDepartmentResponse getMemberInfo(Post post, List<MemberUniversityDepartmentResponse> responseList) {
         for (MemberUniversityDepartmentResponse response : responseList) {
             //여러개의 전공 중 현재 게시판의 departmentGroup과 일치하면 PostListResponse를 생성
             if (response.departmentGroupResponse().id().equals(post.getDepartmentGroup().getId())) {
-                return getDefaultPostListResponse(post, response);
+                return response;
             }
         }
         // 일치하는 전공이 없다면 예외를 던짐
@@ -195,16 +192,71 @@ public class PostService {
     }
 
     /**
-     * PostListResponse 생성
+     * 글 타입에 맞게 글 응답 생성
+     *
+     * @param post
+     * @param memberInfo
+     * @return
+     */
+    private PostListResponse getPostResponseForType(Post post, MemberUniversityDepartmentResponse memberInfo) {
+        //글 타입이 텍스트 투표 타입이면
+        if (post.getPostType().equals(PostType.TEXT_VOTE)) {
+            return getTextVotePostResponse(post, memberInfo);
+        }//글 타입이 이미지 투표 타입이면
+        if (post.getPostType().equals(PostType.IMAGE_VOTE)) {
+            return getImageVotePostResponse(post, memberInfo);
+        }
+        //글 타입이 디폴트이면
+        return getDefaultPostResponse(post, memberInfo);
+    }
+
+    /**
+     * 디폴트 PostListResponse 생성
      *
      * @param post
      * @param response
      * @return postListResponse
      */
-    private PostListResponse getDefaultPostListResponse(Post post, MemberUniversityDepartmentResponse response) {
+    private PostListResponse getDefaultPostResponse(Post post, MemberUniversityDepartmentResponse response) {
         return PostListResponse.of(post.getId(), post.getDepartmentGroup()
                 .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
                 .getName(), response.university(), response.department(), null);
+    }
+
+    /**
+     * 텍스트 투표 타입의 PostListResponse 생성
+     *
+     * @param post
+     * @param response
+     * @return
+     */
+    private PostListResponse getTextVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
+        var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
+                .orElseThrow(() -> new NotFoundElementException("해당 글의 텍스트 투표가 존재하지 않습니다."));
+        List<String> texts = textVoteOptions.stream().
+                map(TextVoteOption::getText)
+                .collect(Collectors.toList());
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup()
+                .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
+                .getName(), response.university(), response.department(), texts);
+    }
+
+    /**
+     * 이미지 투표 타입의 PostListResponse 생성
+     *
+     * @param post
+     * @param response
+     * @return
+     */
+    private PostListResponse getImageVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
+        List<ImageVoteOption> imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
+                .orElseThrow(() -> new NotFoundElementException("해당 글의 이미지 투표가 존재하지 않습니다."));
+        List<String> descriptions = imageVoteOptions.stream().
+                map(ImageVoteOption::getDescription)
+                .collect(Collectors.toList());
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup()
+                .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
+                .getName(), response.university(), response.department(), descriptions);
     }
 
     /**
@@ -213,14 +265,15 @@ public class PostService {
      * @param postId
      * @return postListResponse
      */
-    public PostListResponse getPostResponse(Long postId) {
-        var post = getPost(postId);
+    public PostListResponse getPost(Long postId) {
+        var post = getPostById(postId);
         var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
                 .getId());
-        return getMemberInfo(post, memberUniversityDepartments);
+        var memberInfo = getMemberInfo(post, memberUniversityDepartments);
+        return getPostResponseForType(post, memberInfo);
     }
 
-    private Post getPost(Long postId) {
+    private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException("글이 존재하지 않습니다."));
     }
@@ -232,7 +285,7 @@ public class PostService {
      * @param postRequest
      */
     public void updatePost(Long postId, PostRequest postRequest) {
-        var post = getPost(postId);
+        var post = getPostById(postId);
         post.updatePost(postRequest.title(), postRequest.contents());
         postRepository.save(post);
     }
@@ -244,9 +297,9 @@ public class PostService {
      * @param textVoteRequest
      */
     public void updateTextVote(Long postId, TextVoteRequest textVoteRequest) {
-        var post = getPost(postId);
+        var post = getPostById(postId);
         post.updatePost(textVoteRequest.title(), textVoteRequest.contents());
-        var textVoteOptions = textVoteOptionRepository.findByPost(post)
+        var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("텍스트 투표 선택지가 존재하지 않습니다."));
         //기존 선택지들을 지움
         textVoteOptionRepository.deleteAll(textVoteOptions);
@@ -262,9 +315,9 @@ public class PostService {
      * @param imageFiles
      */
     public void updateImageVote(Long postId, ImageVoteRequest imageVoteRequest, List<MultipartFile> imageFiles) {
-        var post = getPost(postId);
+        var post = getPostById(postId);
         post.updatePost(imageVoteRequest.title(), imageVoteRequest.contents());
-        var imageVoteOptions = imageVoteOptionRepository.findByPost(post)
+        var imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
         //기존 선택지 사진을 지움
 
@@ -283,7 +336,7 @@ public class PostService {
      */
     public void deletePost(Long postId) {
         //post 삭제
-        var post = getPost(postId);
+        var post = getPostById(postId);
         postRepository.deleteById(post.getId());
         //글타입이 이미지 투표면 imageVoteOption을 삭제
         if (post.getPostType().equals(PostType.IMAGE_VOTE)) {
@@ -311,7 +364,7 @@ public class PostService {
      * @param post
      */
     private void deleteImageVoteOption(Post post) {
-        var imageVoteOptions = imageVoteOptionRepository.findByPost(post)
+        var imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
         imageVoteOptions.forEach(option -> imageVoteOptionRepository.deleteById(option.getId()));
     }
@@ -322,7 +375,7 @@ public class PostService {
      * @param post
      */
     private void deleteTextVoteOption(Post post) {
-        var textVoteOptions = textVoteOptionRepository.findByPost(post)
+        var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("텍스트 투표 선택지가 존재하지 않습니다."));
         textVoteOptions.forEach(option -> textVoteOptionRepository.deleteById(option.getId()));
     }

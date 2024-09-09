@@ -60,7 +60,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostListResponse> getPost(@PathVariable(name = "departmentgroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId) {
-        var response = postService.getPostResponse(postId);
+        var response = postService.getPost(postId);
         return ResponseEntity.ok().body(response);
     }
 

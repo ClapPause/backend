@@ -170,9 +170,9 @@ class PostControllerTest {
 
     private List<PostListResponse> getPostListResponses() {
         var responses = new ArrayList<PostListResponse>();
-        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과"));
-        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과"));
-        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과"));
+        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", null));
+        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과", null));
+        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과", null));
         return responses;
     }
 
@@ -203,7 +203,7 @@ class PostControllerTest {
         //given
         var departmentGroupId = 1L;
         var postId = 1L;
-        var response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과");
+        var response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", null);
         when(postService.getPostResponse(any())).thenReturn(response);
         //when
         ResultActions perform =
