@@ -30,6 +30,16 @@ public class PostImageService {
     }
 
     public void savePostImages(Long postId, List<MultipartFile> files) {
+        var futures = createImageSavingFutures(files);
+        waitAllFutures(futures);
+
+        var result = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+        savePostImagesWithImages(postId, result);
+    }
+
+    private List<CompletableFuture<String>> createImageSavingFutures(List<MultipartFile> files) {
         var futures = new ArrayList<CompletableFuture<String>>();
         for (var file : files) {
             var future = imageService.saveImage(file)
@@ -39,13 +49,12 @@ public class PostImageService {
                     });
             futures.add(future);
         }
-        var allOfFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allOfFutures.join();
+        return futures;
+    }
 
-        var result = futures.stream()
-                .map(CompletableFuture::join)
-                .toList();
-        savePostImagesWithImages(postId, result);
+    private void waitAllFutures(List<CompletableFuture<String>> futures) {
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .join();
     }
 
     private void savePostImageWithImage(Long postId, String image) {
