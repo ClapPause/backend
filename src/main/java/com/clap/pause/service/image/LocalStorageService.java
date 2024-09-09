@@ -24,8 +24,7 @@ public class LocalStorageService implements StorageService {
             var path = Paths.get(imageProperties.uploadDir(), fileName);
             Files.copy(file.toPath(), path);
             return "/images/" + fileName;
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (NullPointerException | IOException exception) {
             throw new ImageProcessingFailedException("이미지를 저장할 수 없습니다.");
         }
     }
