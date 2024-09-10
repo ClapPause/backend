@@ -7,6 +7,7 @@ import com.clap.pause.repository.PostImageRepository;
 import com.clap.pause.repository.PostRepository;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,8 +38,11 @@ public class PostImageService {
         }
     }
 
-    public byte[] getImage(String image) {
-        return imageService.getImage(image);
+    public List<byte[]> getImages(Post post) {
+        var postImages = postImageRepository.findAllByPost(post);
+        return postImages.stream()
+                .map(postImage -> imageService.getImage(postImage.getImage()))
+                .collect(Collectors.toList());
     }
 
     public void deleteAllByPostId(Long postId) {

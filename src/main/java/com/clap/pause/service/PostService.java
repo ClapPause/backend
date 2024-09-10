@@ -5,26 +5,23 @@ import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.request.TextVoteOptionRequest;
 import com.clap.pause.dto.post.request.TextVoteRequest;
+import com.clap.pause.dto.post.response.PostIdResponse;
 import com.clap.pause.dto.post.response.PostListResponse;
-import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.model.ImageVoteOption;
-import com.clap.pause.model.Photo;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.PostType;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.ImageVoteOptionRepository;
 import com.clap.pause.repository.MemberRepository;
-import com.clap.pause.repository.PhotoRepository;
 import com.clap.pause.repository.PostRepository;
 import com.clap.pause.repository.TextVoteOptionRepository;
-import com.clap.pause.service.image.ImageService;
+import com.clap.pause.service.image.PostImageService;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,10 +36,9 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final DepartmentGroupRepository departmentGroupRepository;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
-    private final ImageService imageService;
-    private final PhotoRepository photoRepository;
     private final TextVoteOptionRepository textVoteOptionRepository;
     private final ImageVoteOptionRepository imageVoteOptionRepository;
+    private final PostImageService postImageService;
 
     /**
      * @param memberId
@@ -50,15 +46,13 @@ public class PostService {
      * @param departmentGroupId
      * @return postResponse
      */
-    public PostResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
+    public PostIdResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
-            var imageStrings = imageService.saveImages(imageFiles);
-            //이미지를 string으로 변환한 것을 photo 엔티티로 저장
-            imageStrings.forEach(image -> savePostPhoto(post, image));
+            postImageService.savePostImages(post, imageFiles);
         }
-        return getPostResponse(post);
+        return getPostIdResponse(post);
     }
 
     /**
@@ -70,17 +64,16 @@ public class PostService {
      * @param imageFile
      * @return
      */
-    public PostResponse saveTextVote(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId, MultipartFile imageFile) {
+    public PostIdResponse saveTextVote(Long memberId, TextVoteRequest textVoteRequest, Long departmentGroupId, MultipartFile imageFile) {
         var postRequest = new PostRequest(textVoteRequest.title(), textVoteRequest.contents(), textVoteRequest.postCategory(), textVoteRequest.postType());
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFile)) {
-            var imageString = imageService.saveImage(imageFile);
-            savePostPhoto(post, imageString);
+            postImageService.savePostImage(post, imageFile);
         }
         //텍스트 투표 선택지를 저장
         saveTextOption(post, textVoteRequest.options());
-        return getPostResponse(post);
+        return getPostIdResponse(post);
     }
 
     /**
@@ -92,15 +85,17 @@ public class PostService {
      * @param imageFiles
      * @return
      */
-    public PostResponse saveImageVote(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
+    public PostIdResponse saveImageVote(Long memberId, ImageVoteRequest imageVoteRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
         var postRequest = new PostRequest(imageVoteRequest.title(), imageVoteRequest.contents(), imageVoteRequest.postCategory(), imageVoteRequest.postType());
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
-            List<String> imageUrls = imageService.saveImages(imageFiles);
-            saveImageOption(post, imageUrls, imageVoteRequest.descriptions());
+            postImageService.savePostImages(post, imageFiles);
+            //todo
+            // postImageService.savePostImages에서 PostImage 를 받아서 ImageOption에 저장하려고 해요
+//            saveImageOption(post, imageUrls, imageVoteRequest.descriptions());
         }
-        return getPostResponse(post);
+        return getPostIdResponse(post);
     }
 
     /**
@@ -134,10 +129,11 @@ public class PostService {
      * @param imageUrls
      * @param descriptions
      */
-    private void saveImageOption(Post post, List<String> imageUrls, List<String> descriptions) {
-        IntStream.range(0, imageUrls.size())
-                .forEach(i -> imageVoteOptionRepository.save(new ImageVoteOption(post, imageUrls.get(i), descriptions.get(i))));
-    }
+    //todo
+//    private void saveImageOption(Post post, List<String> imageUrls, List<String> descriptions) {
+//        IntStream.range(0, imageUrls.size())
+//                .forEach(i -> imageVoteOptionRepository.save(new ImageVoteOption(post, imageUrls.get(i), descriptions.get(i))));
+//    }
 
 
     /**
@@ -146,9 +142,8 @@ public class PostService {
      * @param post
      * @return postResponse
      */
-    private PostResponse getPostResponse(Post post) {
-        return PostResponse.of(post.getId(), post.getTitle(), post.getContents(), post.getPostCategory(),
-                post.getPostType(), post.getCreatedAt());
+    private PostIdResponse getPostIdResponse(Post post) {
+        return PostIdResponse.of(post.getId());
     }
 
     /**
@@ -218,9 +213,9 @@ public class PostService {
      * @return postListResponse
      */
     private PostListResponse getDefaultPostResponse(Post post, MemberUniversityDepartmentResponse response) {
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup()
-                .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
-                .getName(), response.university(), response.department(), null);
+        //post 로 이미지를 불러옴
+        var images = postImageService.getImages(post);
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), null, images);
     }
 
     /**
@@ -233,12 +228,13 @@ public class PostService {
     private PostListResponse getTextVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
         var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("해당 글의 텍스트 투표가 존재하지 않습니다."));
-        List<String> texts = textVoteOptions.stream().
-                map(TextVoteOption::getText)
+        //텍스트 투표 선택지를 불러옴
+        List<String> texts = textVoteOptions.stream()
+                .map(TextVoteOption::getText)
                 .collect(Collectors.toList());
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup()
-                .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
-                .getName(), response.university(), response.department(), texts);
+        //post로 이미지를 불러옴
+        var images = postImageService.getImages(post);
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), texts, images);
     }
 
     /**
@@ -251,12 +247,13 @@ public class PostService {
     private PostListResponse getImageVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
         List<ImageVoteOption> imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("해당 글의 이미지 투표가 존재하지 않습니다."));
-        List<String> descriptions = imageVoteOptions.stream().
-                map(ImageVoteOption::getDescription)
+        //이미지 투표 사진의 부연설명을 불러옴
+        List<String> descriptions = imageVoteOptions.stream()
+                .map(ImageVoteOption::getDescription)
                 .collect(Collectors.toList());
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup()
-                .getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember()
-                .getName(), response.university(), response.department(), descriptions);
+        //이미지 투표글의 이미지들을 불러옴
+        var images = postImageService.getImages(post);
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), descriptions, images);
     }
 
     /**
@@ -284,10 +281,14 @@ public class PostService {
      * @param postId
      * @param postRequest
      */
-    public void updatePost(Long postId, PostRequest postRequest) {
+    public void updatePost(Long postId, PostRequest postRequest, List<MultipartFile> imageFiles) {
         var post = getPostById(postId);
         post.updatePost(postRequest.title(), postRequest.contents());
         postRepository.save(post);
+        //todo
+        //글에 연관된 postImage을 지우고 다시 저장
+        postImageService.deleteAllByPostId(post.getId());
+        postImageService.savePostImages(post, imageFiles);
     }
 
     /**
@@ -296,7 +297,7 @@ public class PostService {
      * @param postId
      * @param textVoteRequest
      */
-    public void updateTextVote(Long postId, TextVoteRequest textVoteRequest) {
+    public void updateTextVote(Long postId, TextVoteRequest textVoteRequest, MultipartFile imageFile) {
         var post = getPostById(postId);
         post.updatePost(textVoteRequest.title(), textVoteRequest.contents());
         var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
@@ -305,6 +306,10 @@ public class PostService {
         textVoteOptionRepository.deleteAll(textVoteOptions);
         //새로운 선택지들을 저장함
         saveTextOption(post, textVoteRequest.options());
+        //todo
+        //글에 연관된 postImage을 지우고 다시 저장
+        postImageService.deleteAllByPostId(post.getId());
+        postImageService.savePostImage(post, imageFile);
     }
 
     /**
@@ -319,14 +324,15 @@ public class PostService {
         post.updatePost(imageVoteRequest.title(), imageVoteRequest.contents());
         var imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
                 .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
-        //기존 선택지 사진을 지움
-
-        //새로운 선택지 사진을 저장함
-        var images = imageService.saveImages(imageFiles);
+        //추후 수정 필요
+        //글에 연관된 postImage을 지우고 다시 저장
+        postImageService.deleteAllByPostId(post.getId());
+        postImageService.savePostImages(post, imageFiles);
         //기존 선택지들을 지움
         imageVoteOptionRepository.deleteAll(imageVoteOptions);
         //새로운 선택지들을 저장함
-        saveImageOption(post, images, imageVoteRequest.descriptions());
+        //todo
+//        saveImageOption(post, images, imageVoteRequest.descriptions());
     }
 
     /**
@@ -346,16 +352,9 @@ public class PostService {
         if (post.getPostType().equals(PostType.TEXT_VOTE)) {
             deleteTextVoteOption(post);
         }
-    }
-
-    /**
-     * photo를 저장하는 메소드
-     *
-     * @param post
-     * @param url
-     */
-    private void savePostPhoto(Post post, String url) {
-        photoRepository.save(new Photo(url, post));
+        //글의 이미지를 삭제
+        //todo
+        postImageService.deleteAllByPostId(post.getId());
     }
 
     /**
