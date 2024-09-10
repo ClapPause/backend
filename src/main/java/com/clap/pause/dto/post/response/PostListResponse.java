@@ -17,9 +17,11 @@ public record PostListResponse(
         String university,
         String department,
         //options는 글 타입에 따라 달라진다. default일 때는 null, textVote 일 때는 텍스트선택지이고 imageVote일때는 선택지의 설명이 된다.
-        List<String> options
+        List<String> options,
+        List<byte[]> images
+
 ) {
-    public static PostListResponse of(Long id, Long departmentGroupId, String title, String contents, PostCategory postCategory, PostType postType, LocalDateTime createdAt, String memberName, String university, String department, List<String> options) {
-        return new PostListResponse(id, departmentGroupId, title, contents, postCategory, postType, createdAt, memberName, university, department, options);
+    public static PostListResponse of(Long id, Long departmentGroupId, String title, String contents, PostCategory postCategory, PostType postType, LocalDateTime createdAt, String memberName, String university, String department, List<String> options, List<byte[]> images) {
+        return new PostListResponse(id, departmentGroupId, title, contents, postCategory, postType, createdAt, memberName, university, department, options, images);
     }
 }
