@@ -14,10 +14,8 @@ import com.clap.pause.model.Post;
 import com.clap.pause.model.PostType;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
-import com.clap.pause.repository.ImageVoteOptionRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
-import com.clap.pause.repository.TextVoteOptionRepository;
 import com.clap.pause.service.image.PostImageService;
 import java.util.List;
 import java.util.Objects;
@@ -36,8 +34,8 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final DepartmentGroupRepository departmentGroupRepository;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
-    private final TextVoteOptionRepository textVoteOptionRepository;
-    private final ImageVoteOptionRepository imageVoteOptionRepository;
+    private final ImageVoteOptionService imageVoteOptionService;
+    private final TextVoteOptionService textVoteOptionService;
     private final PostImageService postImageService;
 
     /**
@@ -119,7 +117,7 @@ public class PostService {
      * @param options
      */
     private void saveTextOption(Post post, List<TextVoteOptionRequest> options) {
-        options.forEach(option -> textVoteOptionRepository.save(new TextVoteOption(post, option.textOption())));
+        options.forEach(option -> textVoteOptionService.save(new TextVoteOption(post, option.textOption())));
     }
 
     /**
@@ -151,6 +149,7 @@ public class PostService {
      *
      * @return postListResponse
      */
+    @Transactional(readOnly = true)
     public List<PostListResponse> getAllPosts(Long departmentGroupId) {
 //        departmentId로 departmentGroup 조회
         var departmentGroup = departmentGroupRepository.findById(departmentGroupId)
@@ -193,6 +192,7 @@ public class PostService {
      * @param memberInfo
      * @return
      */
+
     private PostListResponse getPostResponseForType(Post post, MemberUniversityDepartmentResponse memberInfo) {
         //글 타입이 텍스트 투표 타입이면
         if (post.getPostType().equals(PostType.TEXT_VOTE)) {
@@ -226,8 +226,7 @@ public class PostService {
      * @return
      */
     private PostListResponse getTextVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
-        var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("해당 글의 텍스트 투표가 존재하지 않습니다."));
+        var textVoteOptions = textVoteOptionService.getTextVoteOptionList(post);
         //텍스트 투표 선택지를 불러옴
         List<String> texts = textVoteOptions.stream()
                 .map(TextVoteOption::getText)
@@ -245,8 +244,7 @@ public class PostService {
      * @return
      */
     private PostListResponse getImageVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
-        List<ImageVoteOption> imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("해당 글의 이미지 투표가 존재하지 않습니다."));
+        List<ImageVoteOption> imageVoteOptions = imageVoteOptionService.getImageVoteOptionList(post);
         //이미지 투표 사진의 부연설명을 불러옴
         List<String> descriptions = imageVoteOptions.stream()
                 .map(ImageVoteOption::getDescription)
@@ -262,6 +260,7 @@ public class PostService {
      * @param postId
      * @return postListResponse
      */
+    @Transactional(readOnly = true)
     public PostListResponse getPost(Long postId) {
         var post = getPostById(postId);
         var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
@@ -300,10 +299,9 @@ public class PostService {
     public void updateTextVote(Long postId, TextVoteRequest textVoteRequest, MultipartFile imageFile) {
         var post = getPostById(postId);
         post.updatePost(textVoteRequest.title(), textVoteRequest.contents());
-        var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("텍스트 투표 선택지가 존재하지 않습니다."));
+        var textVoteOptions = textVoteOptionService.getTextVoteOptionList(post);
         //기존 선택지들을 지움
-        textVoteOptionRepository.deleteAll(textVoteOptions);
+        textVoteOptionService.deleteTextVoteOptionList(textVoteOptions);
         //새로운 선택지들을 저장함
         saveTextOption(post, textVoteRequest.options());
         //todo
@@ -322,14 +320,13 @@ public class PostService {
     public void updateImageVote(Long postId, ImageVoteRequest imageVoteRequest, List<MultipartFile> imageFiles) {
         var post = getPostById(postId);
         post.updatePost(imageVoteRequest.title(), imageVoteRequest.contents());
-        var imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
+        List<ImageVoteOption> imageVoteOptions = imageVoteOptionService.getImageVoteOptionList(post);
         //추후 수정 필요
         //글에 연관된 postImage을 지우고 다시 저장
         postImageService.deleteAllByPostId(post.getId());
         postImageService.savePostImages(post, imageFiles);
         //기존 선택지들을 지움
-        imageVoteOptionRepository.deleteAll(imageVoteOptions);
+        imageVoteOptionService.deleteAll(imageVoteOptions);
         //새로운 선택지들을 저장함
         //todo
 //        saveImageOption(post, images, imageVoteRequest.descriptions());
@@ -363,9 +360,8 @@ public class PostService {
      * @param post
      */
     private void deleteImageVoteOption(Post post) {
-        var imageVoteOptions = imageVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("이미지 투표 선택지가 존재하지 않습니다."));
-        imageVoteOptions.forEach(option -> imageVoteOptionRepository.deleteById(option.getId()));
+        List<ImageVoteOption> imageVoteOptions = imageVoteOptionService.getImageVoteOptionList(post);
+        imageVoteOptionService.deleteAll(imageVoteOptions);
     }
 
     /**
@@ -374,8 +370,7 @@ public class PostService {
      * @param post
      */
     private void deleteTextVoteOption(Post post) {
-        var textVoteOptions = textVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("텍스트 투표 선택지가 존재하지 않습니다."));
-        textVoteOptions.forEach(option -> textVoteOptionRepository.deleteById(option.getId()));
+        List<TextVoteOption> textVoteOptions = textVoteOptionService.getTextVoteOptionList(post);
+        textVoteOptionService.deleteTextVoteOptionList(textVoteOptions);
     }
 }
