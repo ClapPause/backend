@@ -24,8 +24,7 @@ public class LocalStorageService implements StorageService {
             var path = Paths.get(imageProperties.uploadDir(), fileName);
             Files.copy(file.toPath(), path);
             return "/images/" + fileName;
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (NullPointerException | IOException exception) {
             throw new ImageProcessingFailedException("이미지를 저장할 수 없습니다.");
         }
     }
@@ -37,5 +36,14 @@ public class LocalStorageService implements StorageService {
             images.add(image);
         }
         return images;
+    }
+
+    public byte[] getImage(String image) {
+        try {
+            var path = Paths.get("src/main/resources/static/images/" + image);
+            return Files.readAllBytes(path);
+        } catch (IOException exception) {
+            throw new ImageProcessingFailedException("존재하지 않는 파일입니다.");
+        }
     }
 }

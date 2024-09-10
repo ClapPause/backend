@@ -1,5 +1,6 @@
 package com.clap.pause.dto.post.request;
 
+import com.clap.pause.dto.post.request.ImageVoteOptionRequest;
 import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
 import jakarta.validation.constraints.NotBlank;
