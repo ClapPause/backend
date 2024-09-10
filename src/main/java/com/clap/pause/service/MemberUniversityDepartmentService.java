@@ -8,10 +8,11 @@ import com.clap.pause.model.MemberUniversityDepartment;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.MemberUniversityDepartmentRepository;
 import com.clap.pause.repository.UniversityDepartmentRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,8 +30,7 @@ public class MemberUniversityDepartmentService {
      * @param memberUniversityDepartmentRequest
      * @return memberUniversityDepartment
      */
-    public MemberUniversityDepartmentResponse saveMemberUniversityDepartment(Long memberId,
-                                                                             MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
+    public MemberUniversityDepartmentResponse saveMemberUniversityDepartment(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
         var memberUniversityDepartment = saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(memberId,
                 memberUniversityDepartmentRequest);
         return getMemberUniversityDepartmentResponse(memberUniversityDepartment);
@@ -80,17 +80,12 @@ public class MemberUniversityDepartmentService {
      * @param memberUniversityDepartmentRequest
      * @return memberUniversityDepartment
      */
-    private MemberUniversityDepartment saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(
-            Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
+    private MemberUniversityDepartment saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
-        var universityDepartment =
-                universityDepartmentRepository.findById(memberUniversityDepartmentRequest.universityDepartmentId())
-                        .orElseThrow(() -> new NotFoundElementException(
-                                memberUniversityDepartmentRequest.universityDepartmentId() +
-                                        "를 가진 대학교의 학과가 존재하지 않습니다."));
-        var memberUniversityDepartment = new MemberUniversityDepartment(member, universityDepartment,
-                memberUniversityDepartmentRequest.departmentType());
+        var universityDepartment = universityDepartmentRepository.findById(memberUniversityDepartmentRequest.universityDepartmentId())
+                .orElseThrow(() -> new NotFoundElementException(memberUniversityDepartmentRequest.universityDepartmentId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
+        var memberUniversityDepartment = new MemberUniversityDepartment(member, universityDepartment, memberUniversityDepartmentRequest.departmentType());
         return memberUniversityDepartmentRepository.save(memberUniversityDepartment);
     }
 
@@ -100,14 +95,8 @@ public class MemberUniversityDepartmentService {
      * @param memberUniversityDepartment
      * @return memberUniversityDepartmentResponse
      */
-    private MemberUniversityDepartmentResponse getMemberUniversityDepartmentResponse(
-            MemberUniversityDepartment memberUniversityDepartment) {
-        var departmentGroupResponse = new DepartmentGroupResponse(
-                memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getId(),
-                memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getName());
-        return MemberUniversityDepartmentResponse.of(memberUniversityDepartment.getId(), departmentGroupResponse,
-                memberUniversityDepartment.getUniversityDepartment().getUniversity(),
-                memberUniversityDepartment.getUniversityDepartment().getDepartment(),
-                memberUniversityDepartment.getDepartmentType());
+    private MemberUniversityDepartmentResponse getMemberUniversityDepartmentResponse(MemberUniversityDepartment memberUniversityDepartment) {
+        var departmentGroupResponse = new DepartmentGroupResponse(memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getId(), memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getName());
+        return MemberUniversityDepartmentResponse.of(memberUniversityDepartment.getId(), departmentGroupResponse, memberUniversityDepartment.getUniversityDepartment().getUniversity(), memberUniversityDepartment.getUniversityDepartment().getDepartment(), memberUniversityDepartment.getDepartmentType());
     }
 }

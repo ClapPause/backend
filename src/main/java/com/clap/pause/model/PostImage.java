@@ -13,29 +13,28 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "image")
+@Table(name = "post_image")
 @Getter
-@SQLDelete(sql = "update image set deleted = true where id = ?")
+@SQLDelete(sql = "update post_image set deleted = true where id = ?")
 @SQLRestriction("deleted is false")
-public class Photo extends BaseEntity {
-    @NotNull
-    @Column(name = "url")
-    private String url;
+public class PostImage extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
-
+    @NotNull
+    @Column(name = "image")
+    private String image;
     @NotNull
     @Column(name = "deleted")
     @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
-    protected Photo() {
+    protected PostImage() {
     }
 
-    public Photo(String url, Post post) {
-        this.url = url;
+    public PostImage(Post post, String image) {
         this.post = post;
+        this.image = image;
     }
 }
