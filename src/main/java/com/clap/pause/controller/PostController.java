@@ -16,10 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/department-groups/{departmentGroupId}/posts")
@@ -28,25 +27,25 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Void> saveDefaultPost(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestPart(value = "request") PostRequest postRequest, @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
+    public ResponseEntity<Void> saveDefaultPost(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestBody PostRequest postRequest) {
         var memberId = getMemberId();
-        var post = postService.saveDefaultPost(memberId, postRequest, departmentGroupId, imageFiles);
+        var post = postService.saveDefaultPost(memberId, postRequest, departmentGroupId);
         return ResponseEntity.created(URI.create("/api/department-groups/" + departmentGroupId + "/posts" + post.id()))
                 .build();
     }
 
     @PostMapping("/textvote")
-    public ResponseEntity<Void> saveTextVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestPart(value = "request") TextVoteRequest textVoteRequest, @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+    public ResponseEntity<Void> saveTextVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestBody TextVoteRequest textVoteRequest) {
         var memberId = getMemberId();
-        var post = postService.saveTextVote(memberId, textVoteRequest, departmentGroupId, imageFile);
+        var post = postService.saveTextVote(memberId, textVoteRequest, departmentGroupId);
         return ResponseEntity.created(URI.create("/api/department-groups/" + departmentGroupId + "/posts" + post.id()))
                 .build();
     }
 
     @PostMapping("/imageVote")
-    public ResponseEntity<Void> saveImageVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestPart(value = "request") ImageVoteRequest imageVoteRequest, @RequestPart(value = "image") List<MultipartFile> imageFiles) {
+    public ResponseEntity<Void> saveImageVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestBody ImageVoteRequest imageVoteRequest) {
         var memberId = getMemberId();
-        var post = postService.saveImageVote(memberId, imageVoteRequest, departmentGroupId, imageFiles);
+        var post = postService.saveImageVote(memberId, imageVoteRequest, departmentGroupId);
         return ResponseEntity.created(URI.create("/api/department-groups/" + departmentGroupId + "/posts" + post.id()))
                 .build();
     }
@@ -64,20 +63,20 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestPart(value = "request") PostRequest postRequest, @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
-        postService.updatePost(postId, postRequest, imageFiles);
+    public ResponseEntity<Void> updatePost(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody PostRequest postRequest) {
+        postService.updatePost(postId, postRequest);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/textvote/{postId}")
-    public ResponseEntity<Void> updateTextVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestPart(value = "request") TextVoteRequest textVoteRequest, @RequestPart(value = "image", required = false) MultipartFile imageFile) {
-        postService.updateTextVote(postId, textVoteRequest, imageFile);
+    public ResponseEntity<Void> updateTextVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody TextVoteRequest textVoteRequest) {
+        postService.updateTextVote(postId, textVoteRequest);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/imageVote/{postId}")
-    public ResponseEntity<Void> updateImageVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestPart(value = "request") ImageVoteRequest imageVoteRequest, @RequestPart(value = "image") List<MultipartFile> imageFiles) {
-        postService.updateImageVote(postId, imageVoteRequest, imageFiles);
+    public ResponseEntity<Void> updateImageVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody ImageVoteRequest imageVoteRequest) {
+        postService.updateImageVote(postId, imageVoteRequest);
         return ResponseEntity.noContent().build();
     }
 

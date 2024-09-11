@@ -18,12 +18,11 @@ public record PostListResponse(
         String memberName,
         String university,
         String department,
-        List<byte[]> images,
+        List<String> images,
         List<TextVoteOptionResponse> textVoteOptionResponses,
         List<ImageVoteOptionResponse> imageVoteOptionResponses
 ) {
-    public static PostListResponse of(Long id, Long departmentGroupId, String title, String contents, PostCategory postCategory, PostType postType, LocalDateTime createdAt, String memberName, String university, String department, List<byte[]> images, List<TextVoteOptionResponse> textVoteOptionResponses, List<ImageVoteOptionResponse> imageVoteOptionResponses) {
-
+    public static PostListResponse of(Long id, Long departmentGroupId, String title, String contents, PostCategory postCategory, PostType postType, LocalDateTime createdAt, String memberName, String university, String department, List<String> images, List<TextVoteOptionResponse> textVoteOptionResponses, List<ImageVoteOptionResponse> imageVoteOptionResponses) {
         return new PostListResponse(id, departmentGroupId, title, contents, postCategory, postType, createdAt, memberName, university, department, images, textVoteOptionResponses, imageVoteOptionResponses);
     }
 }

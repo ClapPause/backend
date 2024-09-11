@@ -7,11 +7,10 @@ import com.clap.pause.dto.postImage.PostImageResponse;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.PostImage;
 import com.clap.pause.repository.PostImageRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -59,5 +58,12 @@ public class PostImageService {
                 .map(PostImage::getImage)
                 .toList();
         return MultiPostImageResponse.of(post.getId(), result);
+    }
+
+    public List<String> getPostImageWithPost(Post post) {
+        List<PostImage> postImages = postImageRepository.findAllByPost(post);
+        return postImages.stream()
+                .map(PostImage::getImage)
+                .toList();
     }
 }
