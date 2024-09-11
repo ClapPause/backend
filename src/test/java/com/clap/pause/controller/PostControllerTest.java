@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,7 +24,6 @@ import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
 import com.clap.pause.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -63,13 +61,11 @@ class PostControllerTest {
     void savePost_success() throws Exception {
         //given
         var departmentGroupId = 1;
-        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT, getImages());
         var response = new PostIdResponse(1L);
-        var imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
-        when(postService.saveDefaultPost(any(), any(), any(), any())).thenReturn(response);
+        when(postService.saveDefaultPost(any(), any(), any())).thenReturn(response);
         //when
-        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
-                .file(imageFiles)
+        var perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
@@ -82,11 +78,9 @@ class PostControllerTest {
     void savePost_fail_postTypeIsNull() throws Exception {
         //given
         var departmentGroupId = 1L;
-        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
-        var imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null, getImages());
         //when
-        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
-                .file(imageFiles)
+        var perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
@@ -99,11 +93,9 @@ class PostControllerTest {
     void savePost_fail_createdAtIsNull() throws Exception {
         //given
         var departmentGroupId = 1L;
-        var postRequest = new PostRequest("제목", "   ", PostCategory.CONCERN, PostType.DEFAULT);
-        var imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
+        var postRequest = new PostRequest("제목", "   ", PostCategory.CONCERN, PostType.DEFAULT, getImages());
         //when
-        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
-                .file(imageFiles)
+        var perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
@@ -115,12 +107,10 @@ class PostControllerTest {
     @DisplayName("게시글 생성 - 제목이 공백일 경우 실패")
     void savePost_fail_titleIsBlank() throws Exception {
         //given
-        var postRequest = new PostRequest("", "내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var postRequest = new PostRequest("", "내용", PostCategory.CONCERN, PostType.DEFAULT, getImages());
         //when
         var departmentGroupId = 1;
-        var imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
-        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
-                .file(imageFiles)
+        var perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
@@ -133,11 +123,9 @@ class PostControllerTest {
     void savePost_fail_postTypeIsBlank() throws Exception {
         //given
         var departmentGroupId = 1L;
-        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null);
-        var imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
+        var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, null, getImages());
         //when
-        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts")
-                .file(imageFiles)
+        var perform = mockMvc.perform(post("/api/department-groups/" + departmentGroupId + "/posts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
                 .with(csrf()));
@@ -171,17 +159,9 @@ class PostControllerTest {
 
     private List<PostListResponse> getPostListResponses() {
         var responses = new ArrayList<PostListResponse>();
-        var images = new ArrayList<byte[]>();
-        String image1 = "image1";
-        String image2 = "image2";
-        String image3 = "image3";
-        images.add(image1.getBytes());
-        images.add(image2.getBytes());
-        images.add(image3.getBytes());
-
-        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", images, null, null));
-        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과", images, null, null));
-        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과", images, null, null));
+        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", getImages(), null, null));
+        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과", getImages(), null, null));
+        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과", getImages(), null, null));
         return responses;
     }
 
@@ -232,22 +212,16 @@ class PostControllerTest {
         //given
         var departmentGroupId = 1L;
         var postId = 1L;
-        var postRequest = new PostRequest("수정된 제목", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
-        var imageFiles = new MockMultipartFile("image", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
+        var postRequest = new PostRequest("수정된 제목", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT, getImages());
         //when
-        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
-                .file(imageFiles)
+        var perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
-                .with(csrf())
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                }));
+                .with(csrf()));
 
         //then
         perform.andExpect(status().isNoContent());
-        verify(postService, times(1)).updatePost(any(), any(), any());
+        verify(postService, times(1)).updatePost(any(), any());
     }
 
     @Test
@@ -256,7 +230,7 @@ class PostControllerTest {
         //given
         var departmentGroupId = 1L;
         var postId = 1L;
-        var postRequest = new PostRequest("", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var postRequest = new PostRequest("", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT, getImages());
         //when
         var perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -272,7 +246,7 @@ class PostControllerTest {
         //given
         var departmentGroupId = 1L;
         var postId = 1L;
-        var postRequest = new PostRequest("", "수정된 내용", null, PostType.DEFAULT);
+        var postRequest = new PostRequest("", "수정된 내용", null, PostType.DEFAULT, getImages());
         //when
         var perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -295,5 +269,16 @@ class PostControllerTest {
         //then
         perform.andExpect(status().isNoContent());
         verify(postService, times(1)).deletePost(1L);
+    }
+
+    private List<String> getImages() {
+        var images = new ArrayList<String>();
+        String image1 = "image1.jpg";
+        String image2 = "image2.jpg";
+        String image3 = "image3.jpg";
+        images.add(image1);
+        images.add(image2);
+        images.add(image3);
+        return images;
     }
 }
