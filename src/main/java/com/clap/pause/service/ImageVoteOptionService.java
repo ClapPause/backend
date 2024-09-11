@@ -1,6 +1,5 @@
 package com.clap.pause.service;
 
-import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.ImageVoteOption;
 import com.clap.pause.model.Post;
 import com.clap.pause.repository.ImageVoteOptionRepository;
@@ -23,8 +22,7 @@ public class ImageVoteOptionService {
      */
     @Transactional(readOnly = true)
     public List<ImageVoteOption> getImageVoteOptionList(Post post) {
-        return imageVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("해당 글의 이미지 투표가 존재하지 않습니다."));
+        return imageVoteOptionRepository.findAllByPost(post);
     }
 
     /**
