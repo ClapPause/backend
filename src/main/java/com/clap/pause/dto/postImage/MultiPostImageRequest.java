@@ -4,7 +4,7 @@ import com.clap.pause.model.Post;
 
 import java.util.List;
 
-public record PostImagesRequest(
+public record MultiPostImageRequest(
         Post post,
         List<String> images
 ) {

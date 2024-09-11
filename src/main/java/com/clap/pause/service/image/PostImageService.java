@@ -1,9 +1,9 @@
 package com.clap.pause.service.image;
 
+import com.clap.pause.dto.postImage.MultiPostImageRequest;
+import com.clap.pause.dto.postImage.MultiPostImageResponse;
 import com.clap.pause.dto.postImage.PostImageRequest;
 import com.clap.pause.dto.postImage.PostImageResponse;
-import com.clap.pause.dto.postImage.PostImagesRequest;
-import com.clap.pause.dto.postImage.PostImagesResponse;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.PostImage;
 import com.clap.pause.repository.PostImageRepository;
@@ -20,21 +20,21 @@ public class PostImageService {
     private final PostImageRepository postImageRepository;
 
     public PostImageResponse savePostImage(PostImageRequest postImageRequest) {
-        var postImage = savePostImageWithPostAndImage(postImageRequest);
+        var postImage = savePostImageWithPostImageRequest(postImageRequest);
         return getPostImageResponseWithPostImage(postImage);
     }
 
-    public PostImagesResponse savePostImages(PostImagesRequest postImagesRequest) {
-        var postImages = savePostImagesWithPostAndImage(postImagesRequest);
-        return getPostImagesResponseWithPostImageList(postImagesRequest.post(), postImages);
+    public MultiPostImageResponse saveMultiPostImage(MultiPostImageRequest multiPostImageRequest) {
+        var postImages = saveMultiPostImageWithMultiPostImageRequest(multiPostImageRequest);
+        return getMultiPostImageResponseWithPostAndPostImages(multiPostImageRequest.post(), postImages);
     }
 
-    private PostImage savePostImageWithPostAndImage(PostImageRequest postImageRequest) {
+    private PostImage savePostImageWithPostImageRequest(PostImageRequest postImageRequest) {
         var postImage = new PostImage(postImageRequest.post(), postImageRequest.image());
         return postImageRepository.save(postImage);
     }
 
-    private List<PostImage> savePostImagesWithPostAndImage(PostImagesRequest postImagesRequest) {
+    private List<PostImage> saveMultiPostImageWithMultiPostImageRequest(MultiPostImageRequest postImagesRequest) {
         var result = new ArrayList<PostImage>();
 
         for (var image : postImagesRequest.images()) {
@@ -50,10 +50,10 @@ public class PostImageService {
         return PostImageResponse.of(postImage.getPost().getId(), postImage.getImage());
     }
 
-    private PostImagesResponse getPostImagesResponseWithPostImageList(Post post, List<PostImage> postImages) {
+    private MultiPostImageResponse getMultiPostImageResponseWithPostAndPostImages(Post post, List<PostImage> postImages) {
         var result = postImages.stream()
                 .map(PostImage::getImage)
                 .toList();
-        return PostImagesResponse.of(post.getId(), result);
+        return MultiPostImageResponse.of(post.getId(), result);
     }
 }
