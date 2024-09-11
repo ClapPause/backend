@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -16,15 +17,16 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "image_vote_option")
 @Getter
 @SQLDelete(sql = "update image_vote_option set deleted = true where id = ?")
-@SQLRestriction("deleted is false")
+@SQLRestriction("deleted = false")
 public class ImageVoteOption extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
     @NotNull
-    @Column(name = "image_url")
-    private String imageUrl;
+    @OneToOne
+    @JoinColumn(name = "post_image_id", referencedColumnName = "id")
+    private PostImage postImage;
     @NotNull
     @Column(name = "description")
     private String description;
@@ -36,9 +38,9 @@ public class ImageVoteOption extends BaseEntity {
     protected ImageVoteOption() {
     }
 
-    public ImageVoteOption(Post post, String imageUrl, String description) {
+    public ImageVoteOption(Post post, PostImage postImage, String description) {
         this.post = post;
-        this.imageUrl = imageUrl;
+        this.postImage = postImage;
         this.description = description;
     }
 }

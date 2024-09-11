@@ -6,18 +6,17 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "member")
 @Getter
 @SQLDelete(sql = "update member set deleted = true where id = ?")
-@SQLRestriction("deleted is false")
+@SQLRestriction("deleted = false")
 public class Member extends BaseEntity {
     @NotNull
     @Column(name = "name")
