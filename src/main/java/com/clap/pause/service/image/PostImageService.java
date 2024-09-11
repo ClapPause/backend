@@ -29,6 +29,10 @@ public class PostImageService {
         return getMultiPostImageResponseWithPostAndPostImages(multiPostImageRequest.post(), postImages);
     }
 
+    public void deleteAllByPost(Post post) {
+        postImageRepository.deleteAllByPost(post);
+    }
+
     private PostImage savePostImageWithPostImageRequest(PostImageRequest postImageRequest) {
         var postImage = new PostImage(postImageRequest.post(), postImageRequest.image());
         return postImageRepository.save(postImage);
