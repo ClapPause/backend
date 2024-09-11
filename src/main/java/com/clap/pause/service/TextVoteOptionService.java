@@ -1,6 +1,5 @@
 package com.clap.pause.service;
 
-import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.TextVoteOptionRepository;
@@ -31,8 +30,7 @@ public class TextVoteOptionService {
      * @return
      */
     public List<TextVoteOption> getTextVoteOptionList(Post post) {
-        return textVoteOptionRepository.findAllByPost(post)
-                .orElseThrow(() -> new NotFoundElementException("해당 글의 텍스트 투표가 존재하지 않습니다."));
+        return textVoteOptionRepository.findAllByPost(post);
     }
 
     /**
