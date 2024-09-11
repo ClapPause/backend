@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
@@ -42,6 +43,9 @@ public class Post extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "post_type")
     private PostType postType;
+    @NotNull
+    @Column(name = "images")
+    private List<String> images;
     @NotNull
     @Column(name = "deleted")
     @Getter(AccessLevel.PRIVATE)

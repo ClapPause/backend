@@ -19,7 +19,6 @@ import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
 import com.clap.pause.service.image.ImageService;
-import com.clap.pause.service.image.PostImageService;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,6 @@ public class PostService {
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
     private final ImageVoteOptionService imageVoteOptionService;
     private final TextVoteOptionService textVoteOptionService;
-    private final PostImageService postImageService;
     private final ImageService imageService;
 
     /**
@@ -47,12 +45,9 @@ public class PostService {
      * @param departmentGroupId
      * @return postResponse
      */
-    public PostIdResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId, List<MultipartFile> imageFiles) {
+    public PostIdResponse saveDefaultPost(Long memberId, PostRequest postRequest, Long departmentGroupId) {
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
-        //이미지들이 null이 아니면 이미지 저장
-        if (Objects.nonNull(imageFiles)) {
-            ImageService.save(post, imageFiles);
-        }
+        
         return getPostIdResponse(post);
     }
 

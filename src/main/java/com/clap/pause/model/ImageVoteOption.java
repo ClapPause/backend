@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -24,9 +23,8 @@ public class ImageVoteOption extends BaseEntity {
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
     @NotNull
-    @OneToOne
-    @JoinColumn(name = "post_image_id", referencedColumnName = "id")
-    private PostImage postImage;
+    @Column(name = "image")
+    private String image;
     @NotNull
     @Column(name = "description")
     private String description;
@@ -38,9 +36,9 @@ public class ImageVoteOption extends BaseEntity {
     protected ImageVoteOption() {
     }
 
-    public ImageVoteOption(Post post, PostImage postImage, String description) {
+    public ImageVoteOption(Post post, String image, String description) {
         this.post = post;
-        this.postImage = postImage;
+        this.image = image;
         this.description = description;
     }
 }
