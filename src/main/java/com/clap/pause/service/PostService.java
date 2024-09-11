@@ -5,8 +5,10 @@ import com.clap.pause.dto.post.request.ImageVoteRequest;
 import com.clap.pause.dto.post.request.PostRequest;
 import com.clap.pause.dto.post.request.TextVoteOptionRequest;
 import com.clap.pause.dto.post.request.TextVoteRequest;
+import com.clap.pause.dto.post.response.ImageVoteOptionResponse;
 import com.clap.pause.dto.post.response.PostIdResponse;
 import com.clap.pause.dto.post.response.PostListResponse;
+import com.clap.pause.dto.post.response.TextVoteOptionResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.model.ImageVoteOption;
@@ -16,10 +18,10 @@ import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
+import com.clap.pause.service.image.ImageService;
 import com.clap.pause.service.image.PostImageService;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ public class PostService {
     private final ImageVoteOptionService imageVoteOptionService;
     private final TextVoteOptionService textVoteOptionService;
     private final PostImageService postImageService;
+    private final ImageService imageService;
 
     /**
      * @param memberId
@@ -163,7 +166,7 @@ public class PostService {
                     var memberInfo = getMemberInfo(post, memberUniversityDepartmentResponses);
                     return getPostResponseForType(post, memberInfo);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -215,7 +218,7 @@ public class PostService {
     private PostListResponse getDefaultPostResponse(Post post, MemberUniversityDepartmentResponse response) {
         //post 로 이미지를 불러옴
         var images = postImageService.getImages(post);
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), null, images);
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), images, null, null);
     }
 
     /**
@@ -226,14 +229,16 @@ public class PostService {
      * @return
      */
     private PostListResponse getTextVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
-        var textVoteOptions = textVoteOptionService.getTextVoteOptionList(post);
+        List<TextVoteOption> textVoteOptions = textVoteOptionService.getTextVoteOptionList(post);
         //텍스트 투표 선택지를 불러옴
-        List<String> texts = textVoteOptions.stream()
-                .map(TextVoteOption::getText)
-                .collect(Collectors.toList());
+        List<TextVoteOptionResponse> textVoteOptionResponses = textVoteOptions.stream()
+                .map(textVoteOption -> {
+                    return TextVoteOptionResponse.of(textVoteOption.getId(), textVoteOption.getText());
+                })
+                .toList();
         //post로 이미지를 불러옴
-        var images = postImageService.getImages(post);
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), texts, images);
+        var image = postImageService.getImages(post);
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), image, textVoteOptionResponses, null);
     }
 
     /**
@@ -246,12 +251,10 @@ public class PostService {
     private PostListResponse getImageVotePostResponse(Post post, MemberUniversityDepartmentResponse response) {
         List<ImageVoteOption> imageVoteOptions = imageVoteOptionService.getImageVoteOptionList(post);
         //이미지 투표 사진의 부연설명을 불러옴
-        List<String> descriptions = imageVoteOptions.stream()
-                .map(ImageVoteOption::getDescription)
-                .collect(Collectors.toList());
-        //이미지 투표글의 이미지들을 불러옴
-        var images = postImageService.getImages(post);
-        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), descriptions, images);
+        List<ImageVoteOptionResponse> imageVoteOptionResponses = imageVoteOptions.stream()
+                .map(imageVoteOption -> ImageVoteOptionResponse.of(imageVoteOption.getId(), imageService.getImage(imageVoteOption.getPostImage().getImage()), imageVoteOption.getDescription()))
+                .toList();
+        return PostListResponse.of(post.getId(), post.getDepartmentGroup().getId(), post.getTitle(), post.getContents(), post.getPostCategory(), post.getPostType(), post.getCreatedAt(), post.getMember().getName(), response.university(), response.department(), null, null, imageVoteOptionResponses);
     }
 
     /**
@@ -263,8 +266,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostListResponse getPost(Long postId) {
         var post = getPostById(postId);
-        var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
-                .getId());
+        var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
         var memberInfo = getMemberInfo(post, memberUniversityDepartments);
         return getPostResponseForType(post, memberInfo);
     }

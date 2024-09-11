@@ -17,8 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.clap.pause.config.security.JwtAuthFilter;
 import com.clap.pause.config.security.MockMember;
 import com.clap.pause.dto.post.request.PostRequest;
+import com.clap.pause.dto.post.response.PostIdResponse;
 import com.clap.pause.dto.post.response.PostListResponse;
-import com.clap.pause.dto.post.response.PostResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
@@ -64,7 +64,7 @@ class PostControllerTest {
         //given
         var departmentGroupId = 1;
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
-        var response = new PostResponse(1L, "제목", "내용", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        var response = new PostIdResponse(1L);
         var imageFiles = new MockMultipartFile("imageFiles", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         when(postService.saveDefaultPost(any(), any(), any(), any())).thenReturn(response);
         //when
@@ -145,6 +145,7 @@ class PostControllerTest {
         perform.andExpect(status().isBadRequest());
     }
 
+
     @Test
     @DisplayName("모든 게시글 불러오기에 성공한다")
     void getAllPosts_success() throws Exception {
@@ -170,9 +171,17 @@ class PostControllerTest {
 
     private List<PostListResponse> getPostListResponses() {
         var responses = new ArrayList<PostListResponse>();
-        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", null));
-        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과", null));
-        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과", null));
+        var images = new ArrayList<byte[]>();
+        String image1 = "image1";
+        String image2 = "image2";
+        String image3 = "image3";
+        images.add(image1.getBytes());
+        images.add(image2.getBytes());
+        images.add(image3.getBytes());
+
+        responses.add(new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", images, null, null));
+        responses.add(new PostListResponse(2L, 1L, "제목2", "내용2", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 3, 2, 24), "가회원", "충남대", "정보통신학과", images, null, null));
+        responses.add(new PostListResponse(3L, 1L, "제목3", "내용3", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 1, 0, 0, 0), "다회원", "충남대", "정보통신학과", images, null, null));
         return responses;
     }
 
@@ -203,8 +212,8 @@ class PostControllerTest {
         //given
         var departmentGroupId = 1L;
         var postId = 1L;
-        var response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", null);
-        when(postService.getPostResponse(any())).thenReturn(response);
+        var response = new PostListResponse(1L, 1L, "제목1", "내용1", PostCategory.CONCERN, PostType.DEFAULT, LocalDateTime.of(2000, 1, 12, 2, 24), "나회원", "고려대학교", "정보통신학과", null, null, null);
+        when(postService.getPost(any())).thenReturn(response);
         //when
         ResultActions perform =
                 mockMvc.perform(get("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
@@ -224,14 +233,21 @@ class PostControllerTest {
         var departmentGroupId = 1L;
         var postId = 1L;
         var postRequest = new PostRequest("수정된 제목", "수정된 내용", PostCategory.CONCERN, PostType.DEFAULT);
+        var imageFiles = new MockMultipartFile("image", "postImage.jpg", "multipart/form-data", "uploadFile".getBytes(StandardCharsets.UTF_8));
         //when
-        var perform = mockMvc.perform(put("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+        var perform = mockMvc.perform(multipart("/api/department-groups/" + departmentGroupId + "/posts/" + postId)
+                .file(imageFiles)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postRequest))
-                .with(csrf()));
+                .with(csrf())
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                }));
+
         //then
         perform.andExpect(status().isNoContent());
-        verify(postService, times(1)).updatePost(1L, postRequest);
+        verify(postService, times(1)).updatePost(any(), any(), any());
     }
 
     @Test
