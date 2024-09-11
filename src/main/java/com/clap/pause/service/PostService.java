@@ -51,7 +51,7 @@ public class PostService {
         var post = savePostWithPostRequest(memberId, postRequest, departmentGroupId);
         //이미지들이 null이 아니면 이미지 저장
         if (Objects.nonNull(imageFiles)) {
-            postImageService.savePostImages(post, imageFiles);
+            ImageService.save(post, imageFiles);
         }
         return getPostIdResponse(post);
     }
