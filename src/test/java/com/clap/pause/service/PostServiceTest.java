@@ -1,5 +1,12 @@
 package com.clap.pause.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
 import com.clap.pause.dto.post.request.PostRequest;
@@ -15,7 +22,11 @@ import com.clap.pause.model.PostType;
 import com.clap.pause.repository.DepartmentGroupRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
-import com.clap.pause.service.image.ImageService;
+import com.clap.pause.service.image.PostImageService;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,18 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PostServiceTest {
@@ -52,16 +51,17 @@ public class PostServiceTest {
     private DepartmentGroup departmentGroup;
     @Mock
     private List<MultipartFile> imageFiles;
-    @Mock
-    List<String> imageUrl;
 
     @Mock
-    private ImageService imageService;
+    private PostImageService postImageService;
+
+    @Mock
+    private Post post;
 
 
     @Test
     @DisplayName("글을 저장한다")
-    void savePost_success() throws Exception {
+    void saveDefaultPost_success() throws Exception {
         //given
         var memberId = 1L;
         var departmentGroupId = 1L;
@@ -69,18 +69,18 @@ public class PostServiceTest {
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(memberRepository.findById(any())).thenReturn(Optional.of(getMember()));
         when(departmentGroupRepository.findById(any())).thenReturn(Optional.of(getDepartmentGroup()));
-        when(postRepository.save(any(Post.class))).thenReturn(getPost(departmentGroup));
+        when(postRepository.save(any(Post.class))).thenReturn(post);
+        when(post.getId()).thenReturn(1L);
         //when
         var response = postService.saveDefaultPost(memberId, postRequest, departmentGroupId, imageFiles);
         //then
         assertThat(response).isNotNull();
-        assertThat(response.title()).isEqualTo("제목");
-        assertThat(response.postType()).isEqualTo(PostType.DEFAULT);
+        assertThat(response.id()).isEqualTo(1L);
     }
 
     @Test
     @DisplayName("멤버가 존재하지 않으면 글 생성에 실패한다")
-    void savePost_fail_MemberNotFound() {
+    void saveDefaultPost_fail_MemberNotFound() throws Exception {
         //given
         var memberId = 1L;
         var departmentGroupId = 1L;
@@ -93,7 +93,7 @@ public class PostServiceTest {
 
     @Test
     @DisplayName("학과그룹이 존재하지 않으면 글 생성에 실패한다")
-    void savePost_fail_departmentGroupIsNotFound() throws Exception {
+    void saveDefaultPost_fail_departmentGroupIsNotFound() throws Exception {
         //given
         var memberId = 1L;
         var departmentGroupId = 1L;
@@ -152,15 +152,16 @@ public class PostServiceTest {
 
     @Test
     @DisplayName("게시글을 조회한다")
-    void getPostResponse_success() throws Exception {
+    void getPost_success() throws Exception {
         //given
         var postId = 1L;
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
         when(memberUniversityDepartmentService.getMemberUniversityDepartments(any())).thenReturn(
                 getMemberUniversityDepartmentResponse());
         when(departmentGroup.getId()).thenReturn(2L);
+        when(postImageService.getImages(any())).thenReturn(getImages());
         //when
-        var postResponse = postService.getPostResponse(postId);
+        var postResponse = postService.getPost(postId);
         //then
         assertThat(postResponse.title()).isEqualTo("제목");
         assertThat(postResponse.memberName()).isEqualTo("가회원");
@@ -169,7 +170,7 @@ public class PostServiceTest {
 
     @Test
     @DisplayName("멤버가 해당 학과그룹에 권한이 없으면 게시글 조회에 실패한다")
-    void getPostResponse_fail_postNotAccess() throws Exception {
+    void getPost_fail_postNotAccess() throws Exception {
         //given
         var postId = 1L;
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
@@ -177,18 +178,18 @@ public class PostServiceTest {
                 getMemberUniversityDepartmentResponse());
         when(departmentGroup.getId()).thenReturn(3L);
         //when & then
-        assertThatThrownBy(() -> postService.getPostResponse(postId))
+        assertThatThrownBy(() -> postService.getPost(postId))
                 .isInstanceOf(PostAccessException.class);
     }
 
     @Test
     @DisplayName("해당 post가 없다면 게시글 조회에 실패한다")
-    void getPostResponse_fail_postIsNotFound() throws Exception {
+    void getPost_fail_postIsNotFound() throws Exception {
         //given
         var postId = 1L;
         when(postRepository.findById(any())).thenThrow(new NotFoundElementException("글이 존재하지 않습니다."));
         //when & then
-        assertThatThrownBy(() -> postService.getPostResponse(postId))
+        assertThatThrownBy(() -> postService.getPost(postId))
                 .isInstanceOf(NotFoundElementException.class);
     }
 
@@ -200,7 +201,7 @@ public class PostServiceTest {
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(postRepository.findById(any())).thenReturn(Optional.of(getPost(departmentGroup)));
         //when
-        postService.updatePost(postId, postRequest);
+        postService.updatePost(postId, postRequest, imageFiles);
         //then
         verify(postRepository, times(1)).save(any());
     }
@@ -213,7 +214,7 @@ public class PostServiceTest {
         var postRequest = new PostRequest("제목", "내용", PostCategory.CONCERN, PostType.DEFAULT);
         when(postRepository.findById(any())).thenThrow(new NotFoundElementException("글이 존재하지 않습니다."));
         //when & then
-        assertThatThrownBy(() -> postService.updatePost(postId, postRequest))
+        assertThatThrownBy(() -> postService.updatePost(postId, postRequest, imageFiles))
                 .isInstanceOf(NotFoundElementException.class);
     }
 
@@ -265,5 +266,16 @@ public class PostServiceTest {
         responses.add(new MemberUniversityDepartmentResponse(1L, new DepartmentGroupResponse(1L, "IT"), "충남대학교", "컴퓨터공학과", DepartmentType.MAJOR));
         responses.add(new MemberUniversityDepartmentResponse(2L, new DepartmentGroupResponse(2L, "전자"), "충남대학교", "전자공학과", DepartmentType.MINOR));
         return responses;
+    }
+
+    private List<byte[]> getImages() {
+        var images = new ArrayList<byte[]>();
+        String image1 = "image1";
+        String image2 = "image2";
+        String image3 = "image3";
+        images.add(image1.getBytes());
+        images.add(image2.getBytes());
+        images.add(image3.getBytes());
+        return images;
     }
 }

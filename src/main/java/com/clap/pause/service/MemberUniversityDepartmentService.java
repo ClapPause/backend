@@ -8,11 +8,10 @@ import com.clap.pause.model.MemberUniversityDepartment;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.MemberUniversityDepartmentRepository;
 import com.clap.pause.repository.UniversityDepartmentRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -31,8 +30,7 @@ public class MemberUniversityDepartmentService {
      * @return memberUniversityDepartment
      */
     public MemberUniversityDepartmentResponse saveMemberUniversityDepartment(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
-        var memberUniversityDepartment = saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(memberId,
-                memberUniversityDepartmentRequest);
+        var memberUniversityDepartment = saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(memberId, memberUniversityDepartmentRequest);
         return getMemberUniversityDepartmentResponse(memberUniversityDepartment);
     }
 

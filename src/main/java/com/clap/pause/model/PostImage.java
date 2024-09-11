@@ -16,7 +16,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "post_image")
 @Getter
 @SQLDelete(sql = "update post_image set deleted = true where id = ?")
-@SQLRestriction("deleted is false")
+@SQLRestriction("deleted = false")
 public class PostImage extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
