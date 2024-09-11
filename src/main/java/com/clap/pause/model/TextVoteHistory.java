@@ -16,7 +16,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "text_vote_history")
 @Getter
 @SQLDelete(sql = "update text_vote_history set deleted = true where id = ?")
-@SQLRestriction("deleted is false")
+@SQLRestriction("deleted = false")
 public class TextVoteHistory extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

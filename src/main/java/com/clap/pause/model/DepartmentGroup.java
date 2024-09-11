@@ -13,7 +13,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "department_group")
 @Getter
 @SQLDelete(sql = "update department_group set deleted = true where id = ?")
-@SQLRestriction("deleted is false")
+@SQLRestriction("deleted = false")
 public class DepartmentGroup extends BaseEntity {
     @NotNull
     @Column(name = "name", unique = true)

@@ -18,7 +18,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "post")
 @Getter
 @SQLDelete(sql = "update post set deleted = true where id = ?")
-@SQLRestriction("deleted is false")
+@SQLRestriction("deleted = false")
 public class Post extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,7 +51,7 @@ public class Post extends BaseEntity {
     }
 
     public Post(Member member, DepartmentGroup departmentGroup, String title, String contents,
-                PostCategory postCategory, PostType postType) {
+            PostCategory postCategory, PostType postType) {
         this.member = member;
         this.departmentGroup = departmentGroup;
         this.title = title;
