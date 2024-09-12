@@ -2,12 +2,14 @@ package com.clap.pause.service;
 
 import com.clap.pause.dto.post.request.ImageVoteOptionRequest;
 import com.clap.pause.dto.post.response.ImageVoteOptionResponse;
+import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.ImageVoteOption;
 import com.clap.pause.model.Post;
 import com.clap.pause.repository.ImageVoteOptionRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -22,7 +24,7 @@ public class ImageVoteOptionService {
      * @param post
      * @return
      */
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public List<ImageVoteOption> getImageVoteOptionList(Post post) {
         return imageVoteOptionRepository.findAllByPost(post);
     }
@@ -60,5 +62,11 @@ public class ImageVoteOptionService {
         ImageVoteOption imageVoteOption = new ImageVoteOption(post, imageVoteOptionRequest.image(), imageVoteOptionRequest.description());
         ImageVoteOption saved = imageVoteOptionRepository.save(imageVoteOption);
         return new ImageVoteOptionResponse(saved.getId(), saved.getImage(), saved.getDescription());
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
+    public ImageVoteOption getImageVoteOptionById(Long optionId) {
+        return imageVoteOptionRepository.findById(optionId)
+                .orElseThrow(() -> new NotFoundElementException("해당 이미지 투표 선택지가 존재하지 않습니다."));
     }
 }

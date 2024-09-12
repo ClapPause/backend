@@ -86,7 +86,6 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
