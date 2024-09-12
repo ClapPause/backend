@@ -3,15 +3,17 @@ package com.clap.pause.service;
 import com.clap.pause.dto.departmentGroup.DepartmentGroupResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentRequest;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityDepartmentResponse;
+import com.clap.pause.exception.InvalidRequestException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.MemberUniversityDepartment;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.MemberUniversityDepartmentRepository;
 import com.clap.pause.repository.UniversityDepartmentRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -69,6 +71,16 @@ public class MemberUniversityDepartmentService {
             throw new NotFoundElementException("존재하지 않는 이용자의 학과 정보 입니다.");
         }
         memberUniversityDepartmentRepository.deleteById(id);
+    }
+
+    public MemberUniversityDepartment findProperMemberUniversityDepartment(Long memberId, Long departmentGroupId) {
+        var memberUniversityDepartments = memberUniversityDepartmentRepository.findAllByMemberId(memberId);
+        for (var memberUniversityDepartment : memberUniversityDepartments) {
+            if (memberUniversityDepartment.getUniversityDepartment().getDepartmentGroup().getId().equals(departmentGroupId)) {
+                return memberUniversityDepartment;
+            }
+        }
+        throw new InvalidRequestException("해당 학과 그룹에 접근할 수 있는 이용자의 학과 정보가 존재하지 않습니다.");
     }
 
     /**

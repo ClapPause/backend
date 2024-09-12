@@ -1,6 +1,5 @@
 package com.clap.pause.exception;
 
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -37,8 +36,8 @@ public class GlobalExceptionHandler {
         return getExceptionResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = BadRequestException.class)
-    public ResponseEntity<ExceptionResponse> badRequestExceptionHandling(BadRequestException exception) {
+    @ExceptionHandler(value = InvalidRequestException.class)
+    public ResponseEntity<ExceptionResponse> invalidRequestExceptionHandling(InvalidRequestException exception) {
         return getExceptionResponse(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
