@@ -10,13 +10,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "comments")
 @Getter
 @SQLDelete(sql = "update comments set deleted = true where id = ?")
-@SQLRestriction("deleted = false")
 public class Comment extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,5 +49,9 @@ public class Comment extends BaseEntity {
         this.post = post;
         this.parentComment = parentComment;
         this.contents = contents;
+    }
+
+    public void updateContents(String newContents) {
+        this.contents = newContents;
     }
 }
