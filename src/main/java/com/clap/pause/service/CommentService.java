@@ -24,48 +24,47 @@ public class CommentService {
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
     private final PostRepository postRepository;
 
-    public CommentResponse saveComment(Long memberId, CommentRequest commentRequest) {
-        var comment = saveCommentWithCommentRequest(memberId, commentRequest);
+    public CommentResponse saveComment(Long memberId, Long postId, CommentRequest commentRequest) {
+        var comment = saveCommentWithCommentRequest(memberId, postId, commentRequest);
         return getCommentResponse(memberId, comment);
     }
 
-    public void updateComment(Long id, CommentUpdateRequest commentUpdateRequest) {
+    public CommentResponse saveReply(Long memberId, Long postId, ReplyRequest replyRequest) {
+        var comment = saveReplyWithReplyRequest(memberId, postId, replyRequest);
+        return getCommentResponse(memberId, comment);
+    }
+
+    // 조회 기능 구현
+
+    public void updateComment(Long id, Long postId, CommentUpdateRequest commentUpdateRequest) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다."));
         updateCommentWithCommentUpdateRequest(comment, commentUpdateRequest);
     }
 
-    public void deleteComment(Long id) {
+    public void deleteComment(Long postId, Long id) {
         if (!commentRepository.existsById(id)) {
             throw new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다.");
         }
         commentRepository.deleteById(id);
     }
 
-    // 대댓글 생성
-    public CommentResponse saveReply(Long memberId, ReplyRequest replyRequest) {
-        var comment = saveReplyWithReplyRequest(memberId, replyRequest);
-        return getCommentResponse(memberId, comment);
-    }
-    // 대댓글 수정
-    // 대댓글 삭제
-
-    private Comment saveCommentWithCommentRequest(Long memberId, CommentRequest commentRequest) {
+    private Comment saveCommentWithCommentRequest(Long memberId, Long postId, CommentRequest commentRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
-        var post = postRepository.findById(commentRequest.postId())
-                .orElseThrow(() -> new NotFoundElementException(commentRequest.postId() + "를 가진 게시글이 존재하지 않습니다."));
+        var post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundElementException(postId + "를 가진 게시글이 존재하지 않습니다."));
         var comment = new Comment(member, post, commentRequest.contents());
         return commentRepository.save(comment);
     }
 
-    private Comment saveReplyWithReplyRequest(Long memberId, ReplyRequest replyRequest) {
+    private Comment saveReplyWithReplyRequest(Long memberId, Long postId, ReplyRequest replyRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
         var parentComment = commentRepository.findById(replyRequest.parentCommentId())
                 .orElseThrow(() -> new NotFoundElementException(replyRequest.parentCommentId() + "를 가진 댓글이 존재하지 않습니다."));
-        var post = postRepository.findById(replyRequest.postId())
-                .orElseThrow(() -> new NotFoundElementException(replyRequest.postId() + "를 가진 게시글이 존재하지 않습니다."));
+        var post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundElementException(postId + "를 가진 게시글이 존재하지 않습니다."));
         var comment = new Comment(member, post, parentComment, replyRequest.contents());
         return commentRepository.save(comment);
     }
