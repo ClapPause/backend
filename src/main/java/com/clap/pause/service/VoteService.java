@@ -31,6 +31,10 @@ public class VoteService {
      */
     public void voteOption(VoteRequest voteRequest, Long memberId) {
         var post = postService.getPostById(voteRequest.postId());
+        //글 타입이 디폴트 이면
+        if (post.getPostType().equals(PostType.DEFAULT)) {
+            throw new VoteNotAllowException("투표 글이 아니므로 투표가 불가합니다.");
+        }
         //텍스트 투표면
         if (post.getPostType().equals(PostType.TEXT_VOTE)) {
             voteTextOption(post, voteRequest.optionId(), memberId);
@@ -39,7 +43,6 @@ public class VoteService {
         if (post.getPostType().equals(PostType.IMAGE_VOTE)) {
             voteImageOption(post, voteRequest.optionId(), memberId);
         }
-        throw new VoteNotAllowException("투표 글이 아니므로 투표가 불가합니다.");
     }
 
     private void voteTextOption(Post post, Long optionId, Long memberId) {
