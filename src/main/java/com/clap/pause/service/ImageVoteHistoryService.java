@@ -23,14 +23,19 @@ public class ImageVoteHistoryService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveImageVoteHistory(ImageVoteOption imageVoteOption, Long memberId) {
-        var member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException("해당 멤버가 존재하지 않습니다."));
+        var member = getMember(memberId);
+        if (existsByMember(member)) {
+            throw new VoteNotAllowException("이미 투표가 완료되었습니다. 재투표 기능을 이용해주세요.");
+        }
         imageVoteHistoryRepository.save(new ImageVoteHistory(imageVoteOption, member));
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteImageVoteHistory(Long postId, Long memberId) {
         var member = getMember(memberId);
+        if (!existsByMember(member)) {
+            throw new VoteNotAllowException("투표 기록이 없어 재투표가 불가합니다.");
+        }
         List<ImageVoteHistory> imageVoteHistories = imageVoteHistoryRepository.findAllByMember(member);
         ImageVoteHistory imageVoteHistory = findImageVoteHistoryByPostId(imageVoteHistories, postId);
         imageVoteHistoryRepository.deleteById(imageVoteHistory.getId());
@@ -55,4 +60,9 @@ public class ImageVoteHistoryService {
         Long count = imageVoteHistoryRepository.countByImageVoteOption(ImageVoteOption);
         return VoteOptionCount.of(ImageVoteOption.getId(), count);
     }
+
+    private boolean existsByMember(Member member) {
+        return imageVoteHistoryRepository.existsByMember(member);
+    }
+
 }

@@ -39,6 +39,7 @@ public class VoteService {
         if (post.getPostType().equals(PostType.IMAGE_VOTE)) {
             voteImageOption(post, voteRequest.optionId(), memberId);
         }
+        throw new VoteNotAllowException("투표 글이 아니므로 투표가 불가합니다.");
     }
 
     private void voteTextOption(Post post, Long optionId, Long memberId) {

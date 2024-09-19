@@ -10,4 +10,6 @@ public interface TextVoteHistoryRepository extends JpaRepository<TextVoteHistory
     List<TextVoteHistory> findAllByMember(Member member);
 
     Long countByTextVoteOption(TextVoteOption textVoteOption);
+
+    boolean existsByMember(Member member);
 }

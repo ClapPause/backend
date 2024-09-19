@@ -23,12 +23,19 @@ public class TextVoteHistoryService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveTextVoteHistory(TextVoteOption textVoteOption, Long memberId) {
-        textVoteHistoryRepository.save(new TextVoteHistory(textVoteOption, getMember(memberId)));
+        var member = getMember(memberId);
+        if (textVoteHistoryRepository.existsByMember(member)) {
+            throw new VoteNotAllowException("이미 투표가 완료되었습니다. 재투표 기능을 이용해주세요.");
+        }
+        textVoteHistoryRepository.save(new TextVoteHistory(textVoteOption, member));
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteTextVoteHistory(Long postId, Long memberId) {
         var member = getMember(memberId);
+        if (!existsByMember(member)) {
+            throw new VoteNotAllowException("투표 기록이 없어 재투표가 불가합니다.");
+        }
         List<TextVoteHistory> textVoteHistories = textVoteHistoryRepository.findAllByMember(member);
         TextVoteHistory textVoteHistory = findTextVoteHistoryByPostId(textVoteHistories, postId);
         textVoteHistoryRepository.deleteById(textVoteHistory.getId());
@@ -52,5 +59,9 @@ public class TextVoteHistoryService {
     public VoteOptionCount getCountOfVoteOption(TextVoteOption textVoteOption) {
         Long count = textVoteHistoryRepository.countByTextVoteOption(textVoteOption);
         return VoteOptionCount.of(textVoteOption.getId(), count);
+    }
+
+    private boolean existsByMember(Member member) {
+        return textVoteHistoryRepository.existsByMember(member);
     }
 }

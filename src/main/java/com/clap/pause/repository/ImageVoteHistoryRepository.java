@@ -10,4 +10,6 @@ public interface ImageVoteHistoryRepository extends JpaRepository<ImageVoteHisto
     List<ImageVoteHistory> findAllByMember(Member member);
 
     Long countByImageVoteOption(ImageVoteOption imageVoteOption);
+
+    boolean existsByMember(Member member);
 }
