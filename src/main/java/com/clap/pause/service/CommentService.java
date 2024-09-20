@@ -63,6 +63,7 @@ public class CommentService {
         if (!comment.getPost().getId().equals(postId)) {
             throw new InvalidRequestException(postId + "를 가진 게시글에 존재하지 않는 댓글입니다.");
         }
+        commentRepository.deleteAllByParentCommentId(id);
         commentRepository.deleteById(id);
     }
 
