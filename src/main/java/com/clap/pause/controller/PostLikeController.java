@@ -6,6 +6,7 @@ import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,12 @@ public class PostLikeController {
     public ResponseEntity<PostLikeResponse> getLike(@PathVariable(name = "postId") Long postId) {
         PostLikeResponse response = postLikeService.getLike(postId, getMemberId());
         return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> dislike(@PathVariable(name = "postId") Long postId) {
+        postLikeService.dislike(postId, getMemberId());
+        return ResponseEntity.noContent().build();
     }
 
     private Long getMemberId() {

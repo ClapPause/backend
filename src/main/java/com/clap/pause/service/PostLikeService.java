@@ -88,4 +88,12 @@ public class PostLikeService {
                 .orElseThrow(() -> new NotFoundElementException("해당 회원를 찾을 수 없습니다."));
     }
 
+    public void dislike(Long postId, Long memberId) {
+        var post = getPost(postId);
+        var member = getMember(memberId);
+        var postLike = postLikeRepository.findByPostAndMember(post, member)
+                .orElseThrow(() -> new NotFoundElementException("해당 글과 회원에 해당하는 글 좋아요가 존재하지 않습니다."));
+        postLikeRepository.delete(postLike);
+    }
+
 }
