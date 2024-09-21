@@ -39,17 +39,19 @@ public class PostLikeService {
     }
 
     /**
-     * 좋아요 체크를 해서 postLikeResponse를 형성해 반환하는 메소드
+     * 해당 글의 좋아요 갯수와 멤버가 좋아요 눌렀는지를 반환하는 메소드
      *
      * @param postId
      * @param memberId
      * @return
      */
     @Transactional(readOnly = true)
-    public PostLikeResponse getLikeByMember(Long postId, Long memberId) {
+    public PostLikeResponse getLike(Long postId, Long memberId) {
         var post = getPost(postId);
         var member = getMember(memberId);
-        return PostLikeResponse.of(checkPostLikeByMember(post, member));
+        int likeCount = postLikeRepository.countByPost(post);
+        boolean liked = checkPostLikeByMember(post, member);
+        return PostLikeResponse.of(likeCount, liked);
     }
 
     /**
@@ -64,11 +66,23 @@ public class PostLikeService {
         return postLikeRepository.existsByMemberAndPost(member, post);
     }
 
+    /**
+     * 글을 가져오는 메소드
+     *
+     * @param postId
+     * @return
+     */
     private Post getPost(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException("해당 글을 찾을 수 없습니다."));
     }
 
+    /**
+     * 회원을 가져오는 메소드
+     *
+     * @param memberId
+     * @return
+     */
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException("해당 회원를 찾을 수 없습니다."));

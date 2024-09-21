@@ -27,10 +27,9 @@ public class PostLikeController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostLikeResponse> getLike(@PathVariable(name = "postId") Long postId) {
-        PostLikeResponse response = postLikeService.getLikeByMember(postId, getMemberId());
+        PostLikeResponse response = postLikeService.getLike(postId, getMemberId());
         return ResponseEntity.ok().body(response);
     }
-
 
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
