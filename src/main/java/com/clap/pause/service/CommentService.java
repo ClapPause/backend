@@ -115,7 +115,12 @@ public class CommentService {
                 .getId();
         var memberUniversityDepartment = memberUniversityDepartmentService.findProperMemberUniversityDepartment(memberId, departmentGroupId);
         var universityDepartment = memberUniversityDepartment.getUniversityDepartment();
-        var memberUniversityInfo = new MemberUniversityInfo(memberUniversityDepartment.getId(), memberUniversityDepartment.getMember().getName(), universityDepartment.getUniversity(), universityDepartment.getDepartment());
+        var memberUniversityInfo = new MemberUniversityInfo(
+                memberUniversityDepartment.getId(),
+                memberUniversityDepartment.getMember().getName(),
+                universityDepartment.getUniversity(),
+                universityDepartment.getDepartment()
+        );
         var replies = commentRepository.findAllByParentCommentId(comment.getId())
                 .stream()
                 .map(reply -> getReplyResponse(memberId, reply))
