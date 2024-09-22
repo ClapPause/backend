@@ -2,7 +2,6 @@ package com.clap.pause.service;
 
 import com.clap.pause.dto.comment.CommentRequest;
 import com.clap.pause.dto.comment.CommentResponse;
-import com.clap.pause.dto.comment.CommentUpdateRequest;
 import com.clap.pause.dto.comment.ReplyRequest;
 import com.clap.pause.dto.comment.ReplyResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityInfo;
@@ -42,13 +41,13 @@ public class CommentService {
     }
 
     // 조회 기능 구현
-    public void updateComment(Long id, Long postId, CommentUpdateRequest commentUpdateRequest) {
+    public void updateComment(Long id, Long postId, CommentRequest commentRequest) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다."));
         if (!comment.getPost().getId().equals(postId)) {
             throw new InvalidRequestException(postId + "를 가진 게시글에 존재하지 않는 댓글입니다.");
         }
-        updateCommentWithCommentUpdateRequest(comment, commentUpdateRequest);
+        updateCommentWithCommentUpdateRequest(comment, commentRequest);
     }
 
     @Transactional(readOnly = true)
@@ -134,8 +133,8 @@ public class CommentService {
         return new ReplyResponse(comment.getId(), memberUniversityInfo, comment.getContents(), comment.getCreatedAt());
     }
 
-    private void updateCommentWithCommentUpdateRequest(Comment comment, CommentUpdateRequest commentUpdateRequest) {
-        comment.updateContents(commentUpdateRequest.contents());
+    private void updateCommentWithCommentUpdateRequest(Comment comment, CommentRequest commentRequest) {
+        comment.updateContents(commentRequest.contents());
         commentRepository.save(comment);
     }
 }

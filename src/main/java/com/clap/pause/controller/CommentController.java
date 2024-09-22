@@ -43,6 +43,15 @@ public class CommentController {
                 .build();
     }
 
+    @PostMapping("/{commentId}")
+    public ResponseEntity<Void> updateComment(@PathVariable Long postId,
+                                              @PathVariable Long commentId,
+                                              @Valid @RequestBody CommentRequest commentRequest) {
+        commentService.updateComment(commentId, postId, commentRequest);
+        return ResponseEntity.noContent()
+                .build();
+    }
+
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
