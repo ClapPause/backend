@@ -36,8 +36,8 @@ public class CommentService {
         return getCommentResponse(memberId, comment);
     }
 
-    public CommentResponse saveReply(Long memberId, Long postId, ReplyRequest replyRequest) {
-        var comment = saveReplyWithReplyRequest(memberId, postId, replyRequest);
+    public CommentResponse saveReply(Long memberId, Long postId, Long parentCommentId, ReplyRequest replyRequest) {
+        var comment = saveReplyWithReplyRequest(memberId, postId, parentCommentId, replyRequest);
         return getCommentResponse(memberId, comment);
     }
 
@@ -76,11 +76,11 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    private Comment saveReplyWithReplyRequest(Long memberId, Long postId, ReplyRequest replyRequest) {
+    private Comment saveReplyWithReplyRequest(Long memberId, Long postId, Long parentCommentId, ReplyRequest replyRequest) {
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
-        var parentComment = commentRepository.findById(replyRequest.parentCommentId())
-                .orElseThrow(() -> new NotFoundElementException(replyRequest.parentCommentId() + "를 가진 댓글이 존재하지 않습니다."));
+        var parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new NotFoundElementException(parentCommentId + "를 가진 댓글이 존재하지 않습니다."));
         var post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException(postId + "를 가진 게시글이 존재하지 않습니다."));
         var comment = new Comment(member, post, parentComment, replyRequest.contents());
