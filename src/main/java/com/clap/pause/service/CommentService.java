@@ -2,6 +2,7 @@ package com.clap.pause.service;
 
 import com.clap.pause.dto.comment.CommentRequest;
 import com.clap.pause.dto.comment.CommentResponse;
+import com.clap.pause.dto.comment.CommentSaveResponse;
 import com.clap.pause.dto.comment.ReplyRequest;
 import com.clap.pause.dto.comment.ReplyResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityInfo;
@@ -16,9 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,14 +31,14 @@ public class CommentService {
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
     private final PostRepository postRepository;
 
-    public CommentResponse saveComment(Long memberId, Long postId, CommentRequest commentRequest) {
+    public CommentSaveResponse saveComment(Long memberId, Long postId, CommentRequest commentRequest) {
         var comment = saveCommentWithCommentRequest(memberId, postId, commentRequest);
-        return getCommentResponse(memberId, comment);
+        return getCommentSaveResponseWithComment(comment);
     }
 
-    public CommentResponse saveReply(Long memberId, Long postId, Long parentCommentId, ReplyRequest replyRequest) {
-        var comment = saveReplyWithReplyRequest(memberId, postId, parentCommentId, replyRequest);
-        return getCommentResponse(memberId, comment);
+    public CommentSaveResponse saveReply(Long memberId, Long postId, Long parentCommentId, ReplyRequest replyRequest) {
+        var reply = saveReplyWithReplyRequest(memberId, postId, parentCommentId, replyRequest);
+        return getCommentSaveResponseWithComment(reply);
     }
 
     // 조회 기능 구현
@@ -86,30 +87,35 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    private CommentSaveResponse getCommentSaveResponseWithComment(Comment comment) {
+        return new CommentSaveResponse(comment.getId(), comment.getContents());
+    }
+
     private List<CommentResponse> getCommentResponses(List<Comment> comments) {
-        var commentResponseMap = getCommentResponseMap(comments);
+        var queue = new LinkedList<>(comments);
+        var commentResponseMap = new HashMap<Long, CommentResponse>();
+        while (!queue.isEmpty()) {
+            var comment = queue.poll();
+            if (comment.getParentComment() == null) {
+                var commentResponse = getCommentResponseWithComment(comment.getMember().getId(), comment);
+                commentResponseMap.put(comment.getId(), commentResponse);
+                continue;
+            }
+            if (commentResponseMap.containsKey(comment.getParentComment().getId())) {
+                var response = commentResponseMap.get(comment.getParentComment().getId());
+                response.replies().add(getReplyResponseWithComment(comment.getMember().getId(), comment));
+                commentResponseMap.put(comment.getParentComment().getId(), response);
+                continue;
+            }
+            queue.add(comment);
+        }
+
         var result = new ArrayList<>(commentResponseMap.values());
         result.sort((a, b) -> b.createdAt().compareTo(a.createdAt()));
         return result;
     }
 
-    private Map<Long, CommentResponse> getCommentResponseMap(List<Comment> comments) {
-        var commentResponseMap = comments.stream()
-                .filter(comment -> comment.getParentComment() == null)
-                .map(comment -> getCommentResponse(comment.getMember().getId(), comment))
-                .collect(Collectors.toMap(CommentResponse::id, commentResponse -> commentResponse));
-
-        comments.stream()
-                .filter(comment -> comment.getParentComment() != null)
-                .forEach(reply -> {
-                    var commentResponse = commentResponseMap.get(reply.getParentComment().getId());
-                    commentResponse.replies()
-                            .add(getReplyResponse(reply.getMember().getId(), reply));
-                });
-        return commentResponseMap;
-    }
-
-    private CommentResponse getCommentResponse(Long memberId, Comment comment) {
+    private CommentResponse getCommentResponseWithComment(Long memberId, Comment comment) {
         var departmentGroupId = comment.getPost()
                 .getDepartmentGroup()
                 .getId();
@@ -123,12 +129,12 @@ public class CommentService {
         );
         var replies = commentRepository.findAllByParentCommentId(comment.getId())
                 .stream()
-                .map(reply -> getReplyResponse(memberId, reply))
+                .map(reply -> getReplyResponseWithComment(memberId, reply))
                 .toList();
         return new CommentResponse(comment.getId(), memberUniversityInfo, comment.getContents(), comment.getCreatedAt(), replies);
     }
 
-    private ReplyResponse getReplyResponse(Long memberId, Comment comment) {
+    private ReplyResponse getReplyResponseWithComment(Long memberId, Comment comment) {
         var departmentGroupId = comment.getPost()
                 .getDepartmentGroup()
                 .getId();
