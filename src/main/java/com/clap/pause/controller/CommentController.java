@@ -2,7 +2,6 @@ package com.clap.pause.controller;
 
 import com.clap.pause.dto.comment.CommentRequest;
 import com.clap.pause.dto.comment.CommentResponse;
-import com.clap.pause.dto.comment.ReplyRequest;
 import com.clap.pause.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,20 +29,18 @@ public class CommentController {
     public ResponseEntity<Void> saveComment(@PathVariable Long postId,
                                             @Valid @RequestBody CommentRequest commentRequest) {
         var memberId = getMemberId();
-        var comment = commentService.saveComment(memberId, postId, commentRequest);
-        var location = String.format("/api/posts/%s/comments/%s", postId, comment.id());
-        return ResponseEntity.created(URI.create(location))
+        commentService.saveComment(memberId, postId, commentRequest);
+        return ResponseEntity.ok()
                 .build();
     }
 
     @PostMapping("/{parentCommentId}")
     public ResponseEntity<Void> saveReply(@PathVariable Long postId,
                                           @PathVariable Long parentCommentId,
-                                          @Valid @RequestBody ReplyRequest replyRequest) {
+                                          @Valid @RequestBody CommentRequest commentRequest) {
         var memberId = getMemberId();
-        var comment = commentService.saveReply(memberId, postId, parentCommentId, replyRequest);
-        var location = String.format("/api/posts/%s/comments/%s", postId, comment.id());
-        return ResponseEntity.created(URI.create(location))
+        commentService.saveReply(memberId, postId, parentCommentId, commentRequest);
+        return ResponseEntity.ok()
                 .build();
     }
 

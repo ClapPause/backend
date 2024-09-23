@@ -7,7 +7,6 @@ import com.clap.pause.model.Post;
 import com.clap.pause.repository.CommentRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +18,8 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,10 +50,9 @@ class CommentServiceTest {
         when(commentRepository.save(any(Comment.class)))
                 .thenReturn(comment);
         //when
-        var savedComment = commentService.saveComment(1L, 1L, commentRequest);
+        commentService.saveComment(1L, 1L, commentRequest);
         //then
-        Assertions.assertThat(savedComment.contents())
-                .isEqualTo("댓글");
+        verify(commentRepository, times(1)).save(any());
     }
 
     private CommentRequest getCommentRequest() {

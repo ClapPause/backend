@@ -10,9 +10,9 @@ public record CommentResponse(
         MemberUniversityInfo memberUniversityInfo,
         String contents,
         LocalDateTime createdAt,
-        List<ReplyResponse> replies
+        List<CommentResponse> replies
 ) {
-    public static CommentResponse of(Long id, MemberUniversityInfo memberUniversityInfo, String contents, LocalDateTime createdAt, List<ReplyResponse> replies) {
+    public static CommentResponse of(Long id, MemberUniversityInfo memberUniversityInfo, String contents, LocalDateTime createdAt, List<CommentResponse> replies) {
         return new CommentResponse(id, memberUniversityInfo, contents, createdAt, replies);
     }
 }
