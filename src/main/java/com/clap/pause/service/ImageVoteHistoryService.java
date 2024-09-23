@@ -36,8 +36,8 @@ public class ImageVoteHistoryService {
         if (!existsByMember(member)) {
             throw new VoteNotAllowException("투표 기록이 없어 재투표가 불가합니다.");
         }
-        List<ImageVoteHistory> imageVoteHistories = imageVoteHistoryRepository.findAllByMember(member);
-        ImageVoteHistory imageVoteHistory = findImageVoteHistoryByPostId(imageVoteHistories, postId);
+        var imageVoteHistories = imageVoteHistoryRepository.findAllByMember(member);
+        var imageVoteHistory = findImageVoteHistoryByPostId(imageVoteHistories, postId);
         imageVoteHistoryRepository.deleteById(imageVoteHistory.getId());
     }
 
@@ -57,12 +57,11 @@ public class ImageVoteHistoryService {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public VoteOptionCount getCountOfImageOption(ImageVoteOption ImageVoteOption) {
-        Long count = imageVoteHistoryRepository.countByImageVoteOption(ImageVoteOption);
+        var count = imageVoteHistoryRepository.countByImageVoteOption(ImageVoteOption);
         return VoteOptionCount.of(ImageVoteOption.getId(), count);
     }
 
     private boolean existsByMember(Member member) {
         return imageVoteHistoryRepository.existsByMember(member);
     }
-
 }
