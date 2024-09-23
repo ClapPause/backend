@@ -34,7 +34,7 @@ public class PostController {
                 .build();
     }
 
-    @PostMapping("/textvote")
+    @PostMapping("/text-vote")
     public ResponseEntity<Void> saveTextVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestBody TextVoteRequest textVoteRequest) {
         var memberId = getMemberId();
         var post = postService.saveTextVote(memberId, textVoteRequest, departmentGroupId);
@@ -42,7 +42,7 @@ public class PostController {
                 .build();
     }
 
-    @PostMapping("/imageVote")
+    @PostMapping("/image-vote")
     public ResponseEntity<Void> saveImageVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @Valid @RequestBody ImageVoteRequest imageVoteRequest) {
         var memberId = getMemberId();
         var post = postService.saveImageVote(memberId, imageVoteRequest, departmentGroupId);
@@ -68,13 +68,13 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/textvote/{postId}")
+    @PutMapping("/text-vote/{postId}")
     public ResponseEntity<Void> updateTextVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody TextVoteRequest textVoteRequest) {
         postService.updateTextVote(postId, textVoteRequest);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/imageVote/{postId}")
+    @PutMapping("/image-vote/{postId}")
     public ResponseEntity<Void> updateImageVote(@PathVariable(name = "departmentGroupId") Long departmentGroupId, @PathVariable(name = "postId") Long postId, @Valid @RequestBody ImageVoteRequest imageVoteRequest) {
         postService.updateImageVote(postId, imageVoteRequest);
         return ResponseEntity.noContent().build();
@@ -85,7 +85,6 @@ public class PostController {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
-
 
     private Long getMemberId() {
         var authentication = SecurityContextHolder.getContext()
