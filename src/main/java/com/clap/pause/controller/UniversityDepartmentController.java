@@ -33,7 +33,8 @@ public class UniversityDepartmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUniversityDepartment(@PathVariable Long id, @Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
+    public ResponseEntity<Void> updateUniversityDepartment(@PathVariable Long id,
+                                                           @Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
         universityDepartmentService.updateUniversityDepartment(id, universityDepartmentRequest);
         return ResponseEntity.noContent()
                 .build();

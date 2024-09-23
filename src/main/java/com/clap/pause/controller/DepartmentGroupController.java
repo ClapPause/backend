@@ -32,7 +32,8 @@ public class DepartmentGroupController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateDepartmentGroup(@PathVariable Long id, @Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
+    public ResponseEntity<Void> updateDepartmentGroup(@PathVariable Long id,
+                                                      @Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
         departmentGroupService.updateDepartmentGroup(id, departmentGroupRequest);
         return ResponseEntity.noContent()
                 .build();
