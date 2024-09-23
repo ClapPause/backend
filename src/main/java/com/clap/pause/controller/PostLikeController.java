@@ -15,24 +15,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/post-like")
+@RequestMapping("/api/posts/{postId}/like")
 public class PostLikeController {
     private final PostLikeService postLikeService;
 
-    @PostMapping("/{postId}")
+    @PostMapping()
     public ResponseEntity<Void> like(@PathVariable(name = "postId") Long postId) {
         postLikeService.like(postId, getMemberId());
         return ResponseEntity.created(URI.create("/api/post-like/" + postId))
                 .build();
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping()
     public ResponseEntity<PostLikeResponse> getLike(@PathVariable(name = "postId") Long postId) {
         PostLikeResponse response = postLikeService.getLike(postId, getMemberId());
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping()
     public ResponseEntity<Void> dislike(@PathVariable(name = "postId") Long postId) {
         postLikeService.dislike(postId, getMemberId());
         return ResponseEntity.noContent().build();
