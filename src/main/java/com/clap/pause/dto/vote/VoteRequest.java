@@ -1,7 +1,7 @@
 package com.clap.pause.dto.vote;
 
 public record VoteRequest(
-        Long postId
-
+        Long postId,
+        Long optionId
 ) {
 }

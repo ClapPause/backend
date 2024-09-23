@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -248,7 +249,8 @@ public class PostService {
         return getPostResponseForType(post, memberInfo);
     }
 
-    private Post getPostById(Long postId) {
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
+    public Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundElementException("글이 존재하지 않습니다."));
     }
