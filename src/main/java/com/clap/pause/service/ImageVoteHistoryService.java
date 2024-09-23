@@ -64,5 +64,4 @@ public class ImageVoteHistoryService {
     private boolean existsByMember(Member member) {
         return imageVoteHistoryRepository.existsByMember(member);
     }
-
 }
