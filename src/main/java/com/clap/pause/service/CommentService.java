@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class CommentService {
         var reply = new Comment(member, post, parentComment, commentRequest.contents());
         commentRepository.save(reply);
     }
-    
+
     public void updateComment(Long id, Long postId, CommentRequest commentRequest) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다."));
@@ -69,15 +70,15 @@ public class CommentService {
         if (!comment.getPost().getId().equals(postId)) {
             throw new InvalidRequestException(postId + "를 가진 게시글에 존재하지 않는 댓글입니다.");
         }
-        commentRepository.deleteAllByParentCommentId(id);
-        commentRepository.deleteById(id);
+        commentRepository.deleteAllByParentComment(comment);
+        commentRepository.delete(comment);
     }
 
     private List<CommentResponse> getCommentResponses(List<Comment> comments) {
         var commentResponseMap = getCommentResponseMap(comments);
 
         var result = new ArrayList<>(commentResponseMap.values());
-        result.sort((a, b) -> b.createdAt().compareTo(a.createdAt()));
+        result.sort(Comparator.comparing(CommentResponse::createdAt));
         return result;
     }
 
