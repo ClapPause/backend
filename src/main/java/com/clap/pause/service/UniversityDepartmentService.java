@@ -26,9 +26,11 @@ public class UniversityDepartmentService {
      * @param universityDepartmentRequest
      * @return universityDepartment
      */
-    public UniversityDepartmentResponse saveUniversityDepartment(UniversityDepartmentRequest universityDepartmentRequest) {
-        var universityDepartment = saveUniversityDepartmentWithUniversityDepartmentRequest(universityDepartmentRequest);
-        return getUniversityDepartmentResponse(universityDepartment);
+    public void saveUniversityDepartment(UniversityDepartmentRequest universityDepartmentRequest) {
+        var departmentGroup = departmentGroupRepository.findById(universityDepartmentRequest.departmentGroupId())
+                .orElseThrow(() -> new NotFoundElementException(universityDepartmentRequest.departmentGroupId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
+        var universityDepartment = new UniversityDepartment(departmentGroup, universityDepartmentRequest.university(), universityDepartmentRequest.department());
+        universityDepartmentRepository.save(universityDepartment);
     }
 
     /**
@@ -66,19 +68,6 @@ public class UniversityDepartmentService {
         return universityDepartments.stream()
                 .map(this::getUniversityDepartmentResponse)
                 .toList();
-    }
-
-    /**
-     * RequestDTO 를 사용하여 학과 정보를 저장하는 메서드
-     *
-     * @param universityDepartmentRequest
-     * @return universityDepartment
-     */
-    private UniversityDepartment saveUniversityDepartmentWithUniversityDepartmentRequest(UniversityDepartmentRequest universityDepartmentRequest) {
-        var departmentGroup = departmentGroupRepository.findById(universityDepartmentRequest.departmentGroupId())
-                .orElseThrow(() -> new NotFoundElementException(universityDepartmentRequest.departmentGroupId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
-        var universityDepartment = new UniversityDepartment(departmentGroup, universityDepartmentRequest.university(), universityDepartmentRequest.department());
-        return universityDepartmentRepository.save(universityDepartment);
     }
 
     /**
