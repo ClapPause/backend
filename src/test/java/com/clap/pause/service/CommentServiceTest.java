@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,8 @@ class CommentServiceTest {
     private CommentRepository commentRepository;
     @Mock
     private MemberUniversityDepartmentService memberUniversityDepartmentService;
+    @Mock
+    private CommentLikeService commentLikeService;
     @InjectMocks
     private CommentService commentService;
 
@@ -119,6 +122,10 @@ class CommentServiceTest {
     @DisplayName("댓글과 대댓글에 대한 조회를 요청하면 계층형 구조로 결과를 반환한다.")
     void getComments_success() {
         //given
+        var map = new HashMap<Long, Integer>();
+        map.put(1L, 3);
+        when(commentLikeService.getCommentLikeCount(any(Long.class)))
+                .thenReturn(map);
         var comment1 = EntityProvider.getComment(1L);
         var comment2 = EntityProvider.getComment(2L, 1L);
         var comment3 = EntityProvider.getComment(3L, 1L);
@@ -133,12 +140,36 @@ class CommentServiceTest {
         //then
         Assertions.assertThat(result.size())
                 .isEqualTo(2);
+        Assertions.assertThat(result.get(0).likeCount())
+                .isEqualTo(3);
         Assertions.assertThat(result.get(0).replies().size())
                 .isEqualTo(2);
     }
 
     @Test
-    @DisplayName("댓글과 대댓글에 대한 조회를 요청하면 계층형 구조로 결과를 반환한다.")
+    @DisplayName("댓글을 조회하면 댓글의 좋아요 수도 확인할 수 있다.")
+    void getComments_success_likeCount() {
+        //given
+        var comment = EntityProvider.getComment(1L);
+        var comments = List.of(comment);
+        var memberUniversityDepartment = EntityProvider.getMemberUniversityDepartment(1L);
+        var map = new HashMap<Long, Integer>();
+        map.put(1L, 3);
+
+        when(commentLikeService.getCommentLikeCount(any(Long.class))).thenReturn(map);
+        when(commentRepository.findAllByPostIdOrderByCreatedAt(any(Long.class))).thenReturn(comments);
+        when(memberUniversityDepartmentService.findProperMemberUniversityDepartment(any(Long.class), any(Long.class))).thenReturn(memberUniversityDepartment);
+        //when
+        var result = commentService.getComments(1L);
+        //then
+        Assertions.assertThat(result.size())
+                .isEqualTo(1);
+        Assertions.assertThat(result.get(0).likeCount())
+                .isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("댓글에 대한 삭제를 요청하면 성공한다.")
     void deleteComment_success() {
         //given
         var comment = EntityProvider.getComment(1L);
@@ -153,7 +184,7 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글과 대댓글에 대한 조회를 요청하면 계층형 구조로 결과를 반환한다.")
+    @DisplayName("존재하지 않는 Post ID 로 삭제를 요청하면 실패한다.")
     void deleteComment_fail_invalidPostId() {
         //given
         var comment = EntityProvider.getComment(1L);

@@ -28,6 +28,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final MemberUniversityDepartmentService memberUniversityDepartmentService;
     private final PostRepository postRepository;
+    private final CommentLikeService commentLikeService;
 
     public void saveComment(Long memberId, Long postId, CommentRequest commentRequest) {
         var member = memberRepository.findById(memberId)
@@ -61,7 +62,11 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(Long postId) {
         var comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId);
-        return getCommentResponses(comments);
+        var commentResponseMap = getCommentResponseMap(postId, comments);
+
+        var result = new ArrayList<>(commentResponseMap.values());
+        result.sort(Comparator.comparing(CommentResponse::createdAt));
+        return result;
     }
 
     public void deleteComment(Long postId, Long id) {
@@ -74,19 +79,13 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    private List<CommentResponse> getCommentResponses(List<Comment> comments) {
-        var commentResponseMap = getCommentResponseMap(comments);
-
-        var result = new ArrayList<>(commentResponseMap.values());
-        result.sort(Comparator.comparing(CommentResponse::createdAt));
-        return result;
-    }
-
-    private Map<Long, CommentResponse> getCommentResponseMap(List<Comment> comments) {
+    private Map<Long, CommentResponse> getCommentResponseMap(Long postId, List<Comment> comments) {
         var commentMap = new HashMap<Long, CommentResponse>();
+        var commentLikeCountMap = commentLikeService.getCommentLikeCount(postId);
 
         for (var comment : comments) {
-            var commentResponse = getCommentResponseWithComment(comment.getMember().getId(), comment);
+            var likeCount = commentLikeCountMap.getOrDefault(comment.getId(), 0);
+            var commentResponse = getCommentResponseWithComment(comment.getMember().getId(), comment, likeCount);
             if (comment.getParentComment() == null) {
                 commentMap.put(comment.getId(), commentResponse);
                 continue;
@@ -99,7 +98,7 @@ public class CommentService {
         return commentMap;
     }
 
-    private CommentResponse getCommentResponseWithComment(Long memberId, Comment comment) {
+    private CommentResponse getCommentResponseWithComment(Long memberId, Comment comment, Integer likeCount) {
         var departmentGroupId = comment.getPost()
                 .getDepartmentGroup()
                 .getId();
@@ -111,7 +110,7 @@ public class CommentService {
                 universityDepartment.getUniversity(),
                 universityDepartment.getDepartment()
         );
-        return CommentResponse.of(comment.getId(), memberUniversityInfo, comment.getContents(), comment.getCreatedAt(), new ArrayList<>());
+        return CommentResponse.of(comment.getId(), memberUniversityInfo, comment.getContents(), likeCount, comment.getCreatedAt(), new ArrayList<>());
     }
 
     private void updateCommentWithCommentUpdateRequest(Comment comment, CommentRequest commentRequest) {
