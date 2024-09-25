@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,7 +33,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
@@ -60,16 +58,15 @@ class DepartmentGroupControllerTest {
         var departmentGroupRequest = new DepartmentGroupRequest("테스트");
         var departmentGroupResponse = new DepartmentGroupResponse(1L, "테스트");
 
-        when(departmentGroupService.saveDepartmentGroup(any(DepartmentGroupRequest.class)))
-                .thenReturn(departmentGroupResponse);
+        doNothing().when(departmentGroupService)
+                .saveDepartmentGroup(any(DepartmentGroupRequest.class));
         //when
         var result = mockMvc.perform(post("/api/department-groups")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(departmentGroupRequest))
                 .with(csrf()));
         //then
-        result.andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.LOCATION, "/api/department-groups/1"));
+        result.andExpect(status().isOk());
     }
 
     @Test

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,13 +26,14 @@ public class UniversityDepartmentController {
 
     @PostMapping
     public ResponseEntity<Void> saveUniversityDepartment(@Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
-        var universityDepartment = universityDepartmentService.saveUniversityDepartment(universityDepartmentRequest);
-        return ResponseEntity.created(URI.create("/api/university-departments/" + universityDepartment.id()))
+        universityDepartmentService.saveUniversityDepartment(universityDepartmentRequest);
+        return ResponseEntity.ok()
                 .build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUniversityDepartment(@PathVariable Long id, @Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
+    public ResponseEntity<Void> updateUniversityDepartment(@PathVariable Long id,
+                                                           @Valid @RequestBody UniversityDepartmentRequest universityDepartmentRequest) {
         universityDepartmentService.updateUniversityDepartment(id, universityDepartmentRequest);
         return ResponseEntity.noContent()
                 .build();

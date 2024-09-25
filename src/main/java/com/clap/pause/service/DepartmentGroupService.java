@@ -23,12 +23,10 @@ public class DepartmentGroupService {
      * 학과 그룹을 생성하는 메서드
      *
      * @param departmentGroupRequest
-     * @return departmentGroup
      */
-    public DepartmentGroupResponse saveDepartmentGroup(DepartmentGroupRequest departmentGroupRequest) {
+    public void saveDepartmentGroup(DepartmentGroupRequest departmentGroupRequest) {
         nameValidation(departmentGroupRequest.name());
-        var departmentGroup = saveDepartmentGroupWithDepartmentGroupRequest(departmentGroupRequest);
-        return getDepartmentGroupResponse(departmentGroup);
+        saveDepartmentGroupWithDepartmentGroupRequest(departmentGroupRequest);
     }
 
     /**

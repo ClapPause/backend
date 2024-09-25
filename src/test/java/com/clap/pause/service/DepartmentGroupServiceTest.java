@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,10 +41,9 @@ class DepartmentGroupServiceTest {
         when(departmentGroupRepository.save(any(DepartmentGroup.class)))
                 .thenReturn(savedDepartmentGroup);
         //when
-        var departmentGroupResponse = departmentGroupService.saveDepartmentGroup(departmentGroupRequest);
+        departmentGroupService.saveDepartmentGroup(departmentGroupRequest);
         // then
-        Assertions.assertThat(departmentGroupResponse.name())
-                .isEqualTo("테스트 학과그룹");
+        verify(departmentGroupRepository, times(1)).save(any());
     }
 
     @Test
