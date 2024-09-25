@@ -105,13 +105,13 @@ public class CommentService {
                 .getId();
         var memberUniversityDepartment = memberUniversityDepartmentService.findProperMemberUniversityDepartment(memberId, departmentGroupId);
         var universityDepartment = memberUniversityDepartment.getUniversityDepartment();
-        var memberUniversityInfo = new MemberUniversityInfo(
+        var memberUniversityInfo = MemberUniversityInfo.of(
                 memberUniversityDepartment.getId(),
                 memberUniversityDepartment.getMember().getName(),
                 universityDepartment.getUniversity(),
                 universityDepartment.getDepartment()
         );
-        return new CommentResponse(comment.getId(), memberUniversityInfo, comment.getContents(), comment.getCreatedAt(), new ArrayList<>());
+        return CommentResponse.of(comment.getId(), memberUniversityInfo, comment.getContents(), comment.getCreatedAt(), new ArrayList<>());
     }
 
     private void updateCommentWithCommentUpdateRequest(Comment comment, CommentRequest commentRequest) {
