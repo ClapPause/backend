@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -28,8 +27,8 @@ public class MemberUniversityDepartmentController {
     @PostMapping
     public ResponseEntity<Void> saveMemberUniversityDepartment(@Valid @RequestBody MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
         var memberId = getMemberId();
-        var memberUniversityDepartment = memberUniversityDepartmentService.saveMemberUniversityDepartment(memberId, memberUniversityDepartmentRequest);
-        return ResponseEntity.created(URI.create("/api/member-university-departments/" + memberUniversityDepartment.id()))
+        memberUniversityDepartmentService.saveMemberUniversityDepartment(memberId, memberUniversityDepartmentRequest);
+        return ResponseEntity.ok()
                 .build();
     }
 

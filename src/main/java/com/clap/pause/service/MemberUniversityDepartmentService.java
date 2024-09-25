@@ -31,9 +31,13 @@ public class MemberUniversityDepartmentService {
      * @param memberUniversityDepartmentRequest
      * @return memberUniversityDepartment
      */
-    public MemberUniversityDepartmentResponse saveMemberUniversityDepartment(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
-        var memberUniversityDepartment = saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(memberId, memberUniversityDepartmentRequest);
-        return getMemberUniversityDepartmentResponse(memberUniversityDepartment);
+    public void saveMemberUniversityDepartment(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
+        var member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
+        var universityDepartment = universityDepartmentRepository.findById(memberUniversityDepartmentRequest.universityDepartmentId())
+                .orElseThrow(() -> new NotFoundElementException(memberUniversityDepartmentRequest.universityDepartmentId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
+        var memberUniversityDepartment = new MemberUniversityDepartment(member, universityDepartment, memberUniversityDepartmentRequest.departmentType());
+        memberUniversityDepartmentRepository.save(memberUniversityDepartment);
     }
 
     /**
@@ -81,22 +85,6 @@ public class MemberUniversityDepartmentService {
             }
         }
         throw new InvalidRequestException("해당 학과 그룹에 접근할 수 있는 이용자의 학과 정보가 존재하지 않습니다.");
-    }
-
-    /**
-     * 이용자의 학과 정보를 memberId 와 RequestDTO 를 사용하여 저장하는 메서드
-     *
-     * @param memberId
-     * @param memberUniversityDepartmentRequest
-     * @return memberUniversityDepartment
-     */
-    private MemberUniversityDepartment saveMemberUniversityDepartmentWithMemberUniversityDepartmentRequest(Long memberId, MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
-        var member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
-        var universityDepartment = universityDepartmentRepository.findById(memberUniversityDepartmentRequest.universityDepartmentId())
-                .orElseThrow(() -> new NotFoundElementException(memberUniversityDepartmentRequest.universityDepartmentId() + "를 가진 대학교의 학과가 존재하지 않습니다."));
-        var memberUniversityDepartment = new MemberUniversityDepartment(member, universityDepartment, memberUniversityDepartmentRequest.departmentType());
-        return memberUniversityDepartmentRepository.save(memberUniversityDepartment);
     }
 
     /**
