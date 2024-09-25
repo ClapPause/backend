@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -26,8 +25,8 @@ public class DepartmentGroupController {
 
     @PostMapping
     public ResponseEntity<Void> saveDepartmentGroup(@Valid @RequestBody DepartmentGroupRequest departmentGroupRequest) {
-        var departmentGroup = departmentGroupService.saveDepartmentGroup(departmentGroupRequest);
-        return ResponseEntity.created(URI.create("/api/department-groups/" + departmentGroup.id()))
+        departmentGroupService.saveDepartmentGroup(departmentGroupRequest);
+        return ResponseEntity.ok()
                 .build();
     }
 
