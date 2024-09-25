@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -35,5 +38,14 @@ public class CommentLikeService {
             throw new InvalidRequestException("좋아요 하지 않은 댓글입니다.");
         }
         commentLikeRepository.deleteAllByCommentIdAndMemberId(commentId, memberId);
+    }
+
+    public Map<Long, Integer> getCommentLikeCount(Long postId) {
+        var result = new HashMap<Long, Integer>();
+        var commentLikeQueryResults = commentLikeRepository.getCommentLikeQueryResults(postId);
+        for (var query : commentLikeQueryResults) {
+            result.put(query.commentId(), query.likeCount());
+        }
+        return result;
     }
 }
