@@ -13,11 +13,11 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "post_scrap")
+@Table(name = "scrap")
 @Getter
-@SQLDelete(sql = "update post_scrap set deleted = true where id = ?")
+@SQLDelete(sql = "update scrap set deleted = true where id = ?")
 @SQLRestriction("deleted = false")
-public class PostScrap extends BaseEntity {
+public class Scrap extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id")
@@ -31,10 +31,10 @@ public class PostScrap extends BaseEntity {
     @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
 
-    protected PostScrap() {
+    protected Scrap() {
     }
 
-    public PostScrap(Post post, Member member) {
+    public Scrap(Post post, Member member) {
         this.post = post;
         this.member = member;
     }
