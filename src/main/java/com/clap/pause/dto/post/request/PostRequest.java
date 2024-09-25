@@ -4,6 +4,7 @@ import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public record PostRequest(
