@@ -2,7 +2,6 @@ package com.clap.pause.controller;
 
 import com.clap.pause.dto.postlike.PostLikeResponse;
 import com.clap.pause.service.PostLikeService;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,8 +21,7 @@ public class PostLikeController {
     @PostMapping()
     public ResponseEntity<Void> like(@PathVariable(name = "postId") Long postId) {
         postLikeService.like(postId, getMemberId());
-        return ResponseEntity.created(URI.create("/api/post-like/" + postId))
-                .build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping()
