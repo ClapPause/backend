@@ -28,8 +28,7 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<Void> saveComment(@PathVariable Long postId,
                                             @Valid @RequestBody CommentRequest commentRequest) {
-        var memberId = getMemberId();
-        commentService.saveComment(memberId, postId, commentRequest);
+        commentService.saveComment(getMemberId(), postId, commentRequest);
         return ResponseEntity.ok()
                 .build();
     }
@@ -38,8 +37,7 @@ public class CommentController {
     public ResponseEntity<Void> saveReply(@PathVariable Long postId,
                                           @PathVariable Long parentCommentId,
                                           @Valid @RequestBody CommentRequest commentRequest) {
-        var memberId = getMemberId();
-        commentService.saveReply(memberId, postId, parentCommentId, commentRequest);
+        commentService.saveReply(getMemberId(), postId, parentCommentId, commentRequest);
         return ResponseEntity.ok()
                 .build();
     }

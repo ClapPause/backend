@@ -26,8 +26,7 @@ public class MemberUniversityDepartmentController {
 
     @PostMapping
     public ResponseEntity<Void> saveMemberUniversityDepartment(@Valid @RequestBody MemberUniversityDepartmentRequest memberUniversityDepartmentRequest) {
-        var memberId = getMemberId();
-        memberUniversityDepartmentService.saveMemberUniversityDepartment(memberId, memberUniversityDepartmentRequest);
+        memberUniversityDepartmentService.saveMemberUniversityDepartment(getMemberId(), memberUniversityDepartmentRequest);
         return ResponseEntity.ok()
                 .build();
     }
@@ -40,8 +39,7 @@ public class MemberUniversityDepartmentController {
 
     @GetMapping
     public ResponseEntity<List<MemberUniversityDepartmentResponse>> getMemberUniversityDepartments() {
-        var memberId = getMemberId();
-        var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(memberId);
+        var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(getMemberId());
         return ResponseEntity.ok(memberUniversityDepartments);
     }
 
