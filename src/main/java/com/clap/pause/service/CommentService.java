@@ -2,6 +2,7 @@ package com.clap.pause.service;
 
 import com.clap.pause.dto.comment.CommentRequest;
 import com.clap.pause.dto.comment.CommentResponse;
+import com.clap.pause.dto.comment.MemberCommentResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityInfo;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Comment;
@@ -66,6 +67,15 @@ public class CommentService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<MemberCommentResponse> getCommentsWithMember(Long memberId) {
+        var comments = commentRepository.findAllByMemberIdOrderByCreatedAt(memberId);
+
+        return comments.stream()
+                .map(this::getMemberCommentResponse)
+                .toList();
+    }
+
     public void deleteComment(Long postId, Long id) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다."));
@@ -106,6 +116,10 @@ public class CommentService {
                 universityDepartment.getDepartment()
         );
         return CommentResponse.of(comment.getId(), memberUniversityInfo, comment.getContents(), likeCount, comment.getCreatedAt(), new ArrayList<>());
+    }
+
+    private MemberCommentResponse getMemberCommentResponse(Comment comment) {
+        return MemberCommentResponse.of(comment.getId(), comment.getContents(), comment.getCreatedAt());
     }
 
     private void updateCommentWithCommentUpdateRequest(Comment comment, CommentRequest commentRequest) {
