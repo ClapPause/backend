@@ -87,7 +87,7 @@ public class CommentService {
      */
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(Long postId) {
-        var comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId);
+        var comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(postId);
         var commentResponseMap = getCommentResponseMap(postId, comments);
 
         var result = new ArrayList<>(commentResponseMap.values());
@@ -102,7 +102,7 @@ public class CommentService {
      */
     @Transactional(readOnly = true)
     public List<MemberCommentResponse> getCommentsWithMember(Long memberId) {
-        var comments = commentRepository.findAllByMemberIdOrderByCreatedAt(memberId);
+        var comments = commentRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId);
 
         return comments.stream()
                 .map(this::getMemberCommentResponse)
