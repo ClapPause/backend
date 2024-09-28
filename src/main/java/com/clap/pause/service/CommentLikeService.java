@@ -21,6 +21,12 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
+    /**
+     * 댓글 좋아요 하는 기능
+     *
+     * @param commentId
+     * @param memberId
+     */
     public void like(Long commentId, Long memberId) {
         if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
             throw new InvalidRequestException("이미 좋아요 한 댓글입니다.");
@@ -33,6 +39,12 @@ public class CommentLikeService {
         commentLikeRepository.save(commentLike);
     }
 
+    /**
+     * 댓글 좋아요 취소하는 기능
+     *
+     * @param commentId
+     * @param memberId
+     */
     public void dislike(Long commentId, Long memberId) {
         if (!commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
             throw new InvalidRequestException("좋아요 하지 않은 댓글입니다.");
@@ -40,6 +52,12 @@ public class CommentLikeService {
         commentLikeRepository.deleteAllByCommentIdAndMemberId(commentId, memberId);
     }
 
+    /**
+     * 입력된 Post Id 에 해당하는 댓글 및 대댓글의 좋아요 수를 (ID : 좋아요 수) 형태로 저장하여 Map 형태로 반환하는 메서드
+     *
+     * @param postId
+     * @return result
+     */
     public Map<Long, Integer> getCommentLikeCount(Long postId) {
         var result = new HashMap<Long, Integer>();
         var commentLikeQueryResults = commentLikeRepository.getCommentLikeQueryResults(postId);
