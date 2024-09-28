@@ -57,6 +57,11 @@ public class AuthService {
         return AuthResponse.of(jwtProvider.generateToken(member));
     }
 
+    /**
+     * 입력된 값에 대한 비즈니스 로직 검증 수행하는 메서드
+     *
+     * @param registerRequest
+     */
     private void validate(RegisterRequest registerRequest) {
         emailValidation(registerRequest.email());
         nameValidation(registerRequest.name());
