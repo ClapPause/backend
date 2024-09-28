@@ -79,7 +79,7 @@ public class AuthService {
     }
 
     /**
-     * 중복된 이메일을 검증하는 메서드
+     * 중복된 닉네임을 검증하는 메서드
      *
      * @param name
      */
