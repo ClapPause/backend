@@ -3,7 +3,6 @@ package com.clap.pause.service;
 import com.clap.pause.dto.comment.CommentRequest;
 import com.clap.pause.dto.comment.CommentResponse;
 import com.clap.pause.dto.memberUniversityDepartment.MemberUniversityInfo;
-import com.clap.pause.exception.InvalidRequestException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Comment;
 import com.clap.pause.repository.CommentRepository;
@@ -53,9 +52,7 @@ public class CommentService {
     public void updateComment(Long id, Long postId, CommentRequest commentRequest) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다."));
-        if (!comment.getPost().getId().equals(postId)) {
-            throw new InvalidRequestException(postId + "를 가진 게시글에 존재하지 않는 댓글입니다.");
-        }
+        comment.validatePost(postId);
         updateCommentWithCommentUpdateRequest(comment, commentRequest);
     }
 
@@ -72,9 +69,7 @@ public class CommentService {
     public void deleteComment(Long postId, Long id) {
         var comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 댓글이 존재하지 않습니다."));
-        if (!comment.getPost().getId().equals(postId)) {
-            throw new InvalidRequestException(postId + "를 가진 게시글에 존재하지 않는 댓글입니다.");
-        }
+        comment.validatePost(postId);
         commentRepository.deleteAllByParentComment(comment);
         commentRepository.delete(comment);
     }

@@ -1,5 +1,6 @@
 package com.clap.pause.model;
 
+import com.clap.pause.exception.InvalidRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -53,5 +54,11 @@ public class Comment extends BaseEntity {
 
     public void updateContents(String newContents) {
         this.contents = newContents;
+    }
+
+    public void validatePost(Long postId) {
+        if (!this.post.getId().equals(postId)) {
+            throw new InvalidRequestException(postId + "를 가진 게시글에 존재하지 않는 댓글입니다.");
+        }
     }
 }
