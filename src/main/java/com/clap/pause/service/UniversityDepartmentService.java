@@ -42,19 +42,7 @@ public class UniversityDepartmentService {
     public void updateUniversityDepartment(Long id, UniversityDepartmentRequest universityDepartmentRequest) {
         var universityDepartment = universityDepartmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundElementException(id + "를 가진 대학교의 학과가 존재하지 않습니다."));
-        updateUniversityDepartmentWithUniversityDepartmentRequest(universityDepartment, universityDepartmentRequest);
-    }
-
-    /**
-     * id 를 사용하여 학과정보를 조회하는 메서드
-     *
-     * @param id
-     * @return universityDepartmentResponse
-     */
-    public UniversityDepartmentResponse getUniversityDepartment(Long id) {
-        var universityDepartment = universityDepartmentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundElementException(id + "를 가진 대학교의 학과가 존재하지 않습니다."));
-        return getUniversityDepartmentResponse(universityDepartment);
+        updateAndSaveUniversityDepartment(universityDepartment, universityDepartmentRequest);
     }
 
     /**
@@ -63,8 +51,8 @@ public class UniversityDepartmentService {
      * @param university
      * @return universityDepartments
      */
-    public List<UniversityDepartmentResponse> getUniversityDepartments(String university) {
-        var universityDepartments = universityDepartmentRepository.findAllByUniversity(university);
+    public List<UniversityDepartmentResponse> getUniversityDepartmentResponses(String university, String department) {
+        var universityDepartments = getUniversityDepartments(university, department);
         return universityDepartments.stream()
                 .map(this::getUniversityDepartmentResponse)
                 .toList();
@@ -76,9 +64,16 @@ public class UniversityDepartmentService {
      * @param universityDepartment
      * @param universityDepartmentRequest
      */
-    private void updateUniversityDepartmentWithUniversityDepartmentRequest(UniversityDepartment universityDepartment, UniversityDepartmentRequest universityDepartmentRequest) {
+    private void updateAndSaveUniversityDepartment(UniversityDepartment universityDepartment, UniversityDepartmentRequest universityDepartmentRequest) {
         universityDepartment.updateUniversityDepartment(universityDepartmentRequest.university(), universityDepartmentRequest.department());
         universityDepartmentRepository.save(universityDepartment);
+    }
+
+    private List<UniversityDepartment> getUniversityDepartments(String university, String department) {
+        if (department == null || department.isEmpty()) {
+            return universityDepartmentRepository.findAllByUniversityContains(university);
+        }
+        return universityDepartmentRepository.findAllByUniversityContainsAndDepartmentContains(university, department);
     }
 
     /**

@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface UniversityDepartmentRepository extends JpaRepository<UniversityDepartment, Long> {
-    List<UniversityDepartment> findAllByUniversity(String university);
+    List<UniversityDepartment> findAllByUniversityContains(String university);
+
+    List<UniversityDepartment> findAllByUniversityContainsAndDepartmentContains(String university, String department);
 }
