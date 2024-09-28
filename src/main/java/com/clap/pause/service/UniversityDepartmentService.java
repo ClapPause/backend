@@ -69,6 +69,13 @@ public class UniversityDepartmentService {
         universityDepartmentRepository.save(universityDepartment);
     }
 
+    /**
+     * 학교와 학과를 사용하여 해당 학교의 학과를 조회하는 메서드
+     *
+     * @param university
+     * @param department
+     * @return
+     */
     private List<UniversityDepartment> getUniversityDepartments(String university, String department) {
         if (department == null || department.isEmpty()) {
             return universityDepartmentRepository.findAllByUniversityContains(university);
