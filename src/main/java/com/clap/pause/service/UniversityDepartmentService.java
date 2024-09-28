@@ -77,7 +77,7 @@ public class UniversityDepartmentService {
      * @return
      */
     private List<UniversityDepartment> getUniversityDepartments(String university, String department) {
-        if (department == null || department.isEmpty()) {
+        if (department.isEmpty()) {
             return universityDepartmentRepository.findAllByUniversityContains(university);
         }
         return universityDepartmentRepository.findAllByUniversityContainsAndDepartmentContains(university, department);
