@@ -174,12 +174,10 @@ class CommentServiceTest {
         //given
         var comment = EntityProvider.getComment(1L);
         when(commentRepository.findById(any(Long.class))).thenReturn(Optional.of(comment));
-        doNothing().when(commentRepository).deleteAllByParentComment(any(Comment.class));
         doNothing().when(commentRepository).delete(any(Comment.class));
         //when
         commentService.deleteComment(1000L, 1L);
         //then
-        verify(commentRepository, times(1)).deleteAllByParentComment(any(Comment.class));
         verify(commentRepository, times(1)).delete(any(Comment.class));
     }
 
