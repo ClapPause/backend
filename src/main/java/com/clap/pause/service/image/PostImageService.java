@@ -7,10 +7,11 @@ import com.clap.pause.dto.postImage.PostImageResponse;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.PostImage;
 import com.clap.pause.repository.PostImageRepository;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

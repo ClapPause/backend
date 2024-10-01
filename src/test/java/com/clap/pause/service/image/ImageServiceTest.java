@@ -1,18 +1,7 @@
 package com.clap.pause.service.image;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
-
 import com.clap.pause.config.properties.ImageProperties;
 import com.clap.pause.exception.ImageProcessingFailedException;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.imageio.ImageIO;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,17 +11,29 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class ImageServiceTest {
 
+    static byte[] imageBytes;
+    static BufferedImage image;
     @InjectMocks
     private ImageService imageService;
     @Mock
     private StorageService storageService;
     @Mock
     private ImageProperties imageProperties;
-    static byte[] imageBytes;
-    static BufferedImage image;
 
     @BeforeAll
     static void setUp() throws IOException {

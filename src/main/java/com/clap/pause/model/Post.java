@@ -51,7 +51,7 @@ public class Post extends BaseEntity {
     }
 
     public Post(Member member, DepartmentGroup departmentGroup, String title, String contents,
-            PostCategory postCategory, PostType postType) {
+                PostCategory postCategory, PostType postType) {
         this.member = member;
         this.departmentGroup = departmentGroup;
         this.title = title;

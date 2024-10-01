@@ -6,8 +6,6 @@ import com.clap.pause.dto.post.request.TextVoteRequest;
 import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.service.PostService;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +17,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/department-groups/{departmentGroupId}/posts")
