@@ -24,4 +24,22 @@ public class MemberService {
         }
         memberRepository.deleteById(memberId);
     }
+
+    /**
+     * 중복된 이메일인지 확인하는 메서드
+     *
+     * @param email
+     */
+    public Boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
+    /**
+     * 중복된 닉네임인지 확인하는 메서드
+     *
+     * @param name
+     */
+    public Boolean existsByName(String name) {
+        return memberRepository.existsByName(name);
+    }
 }

@@ -1,16 +1,18 @@
 package com.clap.pause.model;
 
+import com.clap.pause.exception.InvalidLoginInfoException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "member")
@@ -75,5 +77,11 @@ public class Member extends BaseEntity {
         this.job = job;
         this.phoneNumber = phoneNumber;
         this.memberRole = MemberRole.MEMBER;
+    }
+
+    public void validatePassword(String password) {
+        if (!this.password.equals(password)) {
+            throw new InvalidLoginInfoException("로그인 정보가 유효하지 않습니다.");
+        }
     }
 }
