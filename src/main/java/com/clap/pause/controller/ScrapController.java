@@ -1,7 +1,8 @@
 package com.clap.pause.controller;
 
-import com.clap.pause.dto.postlike.PostLikeResponse;
-import com.clap.pause.service.PostLikeService;
+import com.clap.pause.dto.scrap.ScrapResponse;
+import com.clap.pause.service.ScrapService;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,25 +15,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts/{postId}/like")
-public class PostLikeController {
-    private final PostLikeService postLikeService;
+@RequestMapping("api/posts/{postId}/scrap")
+public class ScrapController {
+    private final ScrapService scrapService;
 
-    @PostMapping()
-    public ResponseEntity<Void> like(@PathVariable(name = "postId") Long postId) {
-        postLikeService.like(postId, getMemberId());
-        return ResponseEntity.ok().build();
+    @PostMapping
+    public ResponseEntity<Void> scrapPost(@PathVariable(name = "postId") Long postId) {
+        scrapService.scarpPost(postId, getMemberId());
+        return ResponseEntity.created(URI.create("api/posts/" + postId + "/scrap"))
+                .build();
     }
 
-    @GetMapping()
-    public ResponseEntity<PostLikeResponse> getLike(@PathVariable(name = "postId") Long postId) {
-        PostLikeResponse response = postLikeService.getLike(postId, getMemberId());
+    @GetMapping
+    public ResponseEntity<ScrapResponse> getScrap(@PathVariable(name = "postId") Long postId) {
+        var response = scrapService.getScrap(postId, getMemberId());
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping()
-    public ResponseEntity<Void> dislike(@PathVariable(name = "postId") Long postId) {
-        postLikeService.dislike(postId, getMemberId());
+    @DeleteMapping
+    public ResponseEntity<Void> deleteScrap(@PathVariable(name = "postId") Long postId) {
+        scrapService.deleteScrap(postId, getMemberId());
         return ResponseEntity.noContent().build();
     }
 
