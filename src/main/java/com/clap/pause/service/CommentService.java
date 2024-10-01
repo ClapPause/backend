@@ -135,7 +135,6 @@ public class CommentService {
         var commentLikeCountMap = commentLikeService.getCommentLikeCount(postId);
 
         for (var comment : comments) {
-            System.out.println(comment.getId());
             var likeCount = commentLikeCountMap.getOrDefault(comment.getId(), 0);
             var commentResponse = getCommentResponseWithComment(comment.getMember().getId(), comment, likeCount);
             if (comment.getParentComment() == null) {
