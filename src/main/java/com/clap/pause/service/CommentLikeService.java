@@ -28,13 +28,13 @@ public class CommentLikeService {
      * @param memberId
      */
     public void like(Long commentId, Long memberId) {
-        if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
-            throw new InvalidRequestException("이미 좋아요 한 댓글입니다.");
-        }
         var comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundElementException(commentId + "를 가진 댓글이 존재하지 않습니다."));
         var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
+        if (commentLikeRepository.existsByCommentAndMember(comment, member)) {
+            throw new InvalidRequestException("이미 좋아요 한 댓글입니다.");
+        }
         var commentLike = new CommentLike(comment, member);
         commentLikeRepository.save(commentLike);
     }
@@ -46,10 +46,14 @@ public class CommentLikeService {
      * @param memberId
      */
     public void dislike(Long commentId, Long memberId) {
-        if (!commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
+        var comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundElementException(commentId + "를 가진 댓글이 존재하지 않습니다."));
+        var member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundElementException(memberId + "를 가진 이용자가 존재하지 않습니다."));
+        if (!commentLikeRepository.existsByCommentAndMember(comment, member)) {
             throw new InvalidRequestException("좋아요 하지 않은 댓글입니다.");
         }
-        commentLikeRepository.deleteAllByCommentIdAndMemberId(commentId, memberId);
+        commentLikeRepository.deleteAllByCommentAndMember(comment, member);
     }
 
     /**
