@@ -87,6 +87,9 @@ public class CommentService {
      */
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new NotFoundElementException("존재하지 않는 게시글에 대한 댓글 조회 요청입니다.");
+        }
         var comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId);
         var commentResponseMap = getCommentResponseMap(postId, comments);
 
