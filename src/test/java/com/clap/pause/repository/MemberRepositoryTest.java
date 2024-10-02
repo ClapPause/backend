@@ -1,5 +1,6 @@
 package com.clap.pause.repository;
 
+import com.clap.pause.config.QueryDSLConfig;
 import com.clap.pause.model.Gender;
 import com.clap.pause.model.Member;
 import org.assertj.core.api.Assertions;
@@ -8,11 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import java.time.LocalDate;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(QueryDSLConfig.class)
 class MemberRepositoryTest {
 
     @Autowired

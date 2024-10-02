@@ -8,11 +8,12 @@ import com.clap.pause.model.TextVoteHistory;
 import com.clap.pause.model.TextVoteOption;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.TextVoteHistoryRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

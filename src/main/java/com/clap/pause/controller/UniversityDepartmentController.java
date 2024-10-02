@@ -39,15 +39,10 @@ public class UniversityDepartmentController {
                 .build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UniversityDepartmentResponse> getUniversityDepartment(@PathVariable Long id) {
-        var universityDepartment = universityDepartmentService.getUniversityDepartment(id);
-        return ResponseEntity.ok(universityDepartment);
-    }
-
     @GetMapping
-    public ResponseEntity<List<UniversityDepartmentResponse>> getUniversityDepartments(@RequestParam String university) {
-        var universityDepartments = universityDepartmentService.getUniversityDepartments(university);
+    public ResponseEntity<List<UniversityDepartmentResponse>> getUniversityDepartments(@RequestParam String university,
+                                                                                       @RequestParam String department) {
+        var universityDepartments = universityDepartmentService.getUniversityDepartmentResponses(university, department);
         return ResponseEntity.ok(universityDepartments);
     }
 }

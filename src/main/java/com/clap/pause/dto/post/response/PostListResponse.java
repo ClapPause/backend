@@ -3,6 +3,7 @@ package com.clap.pause.dto.post.response;
 import com.clap.pause.model.PostCategory;
 import com.clap.pause.model.PostType;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
