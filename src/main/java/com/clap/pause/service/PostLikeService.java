@@ -3,9 +3,11 @@ package com.clap.pause.service;
 import com.clap.pause.dto.postlike.PostLikeResponse;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostLikeFailException;
+import com.clap.pause.model.BestPost;
 import com.clap.pause.model.Member;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.PostLike;
+import com.clap.pause.repository.BestPostRepository;
 import com.clap.pause.repository.MemberRepository;
 import com.clap.pause.repository.PostLikeRepository;
 import com.clap.pause.repository.PostRepository;
@@ -20,6 +22,7 @@ public class PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final BestPostRepository bestPostRepository;
 
     /**
      * 글에 좋아요를 하는 메소드
@@ -36,6 +39,19 @@ public class PostLikeService {
         }
         //존재하지 않으면, postLike를 저장함
         postLikeRepository.save(new PostLike(post, member));
+        if (getLikeCountByPost(post) >= 10) {
+            saveBestPost(post);
+        }
+    }
+
+    private int getLikeCountByPost(Post post) {
+        return postLikeRepository.countByPost(post);
+    }
+
+    private void saveBestPost(Post post) {
+        if (!bestPostRepository.existsById(post.getId())) {
+            bestPostRepository.save(new BestPost(post));
+        }
     }
 
     /**
