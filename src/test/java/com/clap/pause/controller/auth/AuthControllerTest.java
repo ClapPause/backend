@@ -51,7 +51,7 @@ class AuthControllerTest {
     @DisplayName("안내에 맞게 회원가입을 요청하면 성공한다")
     void register_success() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        var registerRequest = new RegisterRequest("테스트", "010-1234-1234", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
         var auth = new AuthResponse("mockedJwtToken");
 
         when(authService.register(any(RegisterRequest.class)))
@@ -69,7 +69,7 @@ class AuthControllerTest {
     @DisplayName("이름의 길이가 8글자를 넘어가면 회원가입을 실패한다.")
     void register_fail_nameLengthOver() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트테스트테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        var registerRequest = new RegisterRequest("테스트테스트테스트", "010-1234-1234", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
         //when
         var result = mockMvc.perform(post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -87,10 +87,10 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("허용되지 않는 형식의 이메일로 회원가입을 요청하면 회원가입을 실패한다.")
-    void register_fail_invalidEmail() throws Exception {
+    @DisplayName("허용되지 않는 형식의 연락처로 회원가입을 요청하면 회원가입을 실패한다.")
+    void register_fail_invalidPhoneNumber() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@test", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        var registerRequest = new RegisterRequest("테스트", "010111111", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
         //when
         var result = mockMvc.perform(post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -104,14 +104,14 @@ class AuthControllerTest {
         Assertions.assertThat(response.status())
                 .isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message())
-                .isEqualTo("허용되지 않은 형식의 이메일입니다.");
+                .isEqualTo("허용되지 않은 형식의 연락처입니다.");
     }
 
     @Test
     @DisplayName("허용되지 않는 형식의 패스워드로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidPassword() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "wrongpw", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        var registerRequest = new RegisterRequest("테스트", "010-1234-1234", "wrongpw", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
         //when
         var result = mockMvc.perform(post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +132,7 @@ class AuthControllerTest {
     @DisplayName("유효하지 않은 생일로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidBirth() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(2099, 12, 25), Gender.MALE, "직업", "010-1234-1234");
+        var registerRequest = new RegisterRequest("테스트", "010-1234-1234", "testPassword", LocalDate.of(2099, 12, 25), Gender.MALE, "직업");
         //when
         var result = mockMvc.perform(post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -153,7 +153,7 @@ class AuthControllerTest {
     @DisplayName("직업이 비어있는 상태로 회원가입을 요청하면 회원가입을 실패한다.")
     void register_fail_invalidGender() throws Exception {
         //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "", "010-1234-1234");
+        var registerRequest = new RegisterRequest("테스트", "010-1234-1234", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "");
         //when
         var result = mockMvc.perform(post("/api/members/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -171,31 +171,10 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("연락처가 잘못된 형식으로 회원가입을 요청하면 회원가입을 실패한다.")
-    void register_fail_invalidPhone() throws Exception {
-        //given
-        var registerRequest = new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234");
-        //when
-        var result = mockMvc.perform(post("/api/members/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest))
-                .with(csrf()));
-        //then
-        var postResult = result.andExpect(status().isBadRequest())
-                .andReturn();
-        var response = getExceptionResponseMessage(postResult);
-
-        Assertions.assertThat(response.status())
-                .isEqualTo(HttpStatus.BAD_REQUEST.value());
-        Assertions.assertThat(response.message())
-                .isEqualTo("허용되지 않은 형식의 연락처입니다.");
-    }
-
-    @Test
     @DisplayName("안내에 맞게 회원가입을 요청하면 성공한다")
     void login_success() throws Exception {
         //given
-        var loginRequest = new LoginRequest("test@naver.com", "testPassword");
+        var loginRequest = new LoginRequest("010-1234-1234", "testPassword");
         var auth = new AuthResponse("mockedJwtToken");
 
         when(authService.login(any(LoginRequest.class)))
@@ -210,10 +189,10 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("허용되지 않는 형식의 이메일로 로그인을 요청하면 실패한다.")
-    void login_fail_invalidEmail() throws Exception {
+    @DisplayName("허용되지 않는 형식의 연락처로 로그인을 요청하면 실패한다.")
+    void login_fail_invalidPhoneNumber() throws Exception {
         //given
-        var loginRequest = new LoginRequest("test@test", "testPassword");
+        var loginRequest = new LoginRequest("010-111111", "testPassword");
         //when
         var result = mockMvc.perform(post("/api/members/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -227,14 +206,14 @@ class AuthControllerTest {
         Assertions.assertThat(response.status())
                 .isEqualTo(HttpStatus.BAD_REQUEST.value());
         Assertions.assertThat(response.message())
-                .isEqualTo("허용되지 않은 형식의 이메일입니다.");
+                .isEqualTo("허용되지 않은 형식의 연락처입니다.");
     }
 
     @Test
     @DisplayName("허용되지 않는 형식의 패스워드로 로그인을 요청하면 실패한다.")
     void login_fail_invalidPassword() throws Exception {
         //given
-        var loginRequest = new LoginRequest("test@naver.com", "wrongpw");
+        var loginRequest = new LoginRequest("010-1234-1234", "wrongpw");
         //when
         var result = mockMvc.perform(post("/api/members/login")
                 .contentType(MediaType.APPLICATION_JSON)

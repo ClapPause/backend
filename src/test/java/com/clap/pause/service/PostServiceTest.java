@@ -258,7 +258,7 @@ public class PostServiceTest {
     }
 
     private Member getMember() {
-        return new Member("가회원", "test@naver.com", "password1234", LocalDate.now(), Gender.valueOf("FEMALE"), "student", "010-1234-1234");
+        return new Member("가회원", "010-1234-1234", "password1234", LocalDate.now(), Gender.valueOf("FEMALE"), "student");
     }
 
     private DepartmentGroup getDepartmentGroup() {

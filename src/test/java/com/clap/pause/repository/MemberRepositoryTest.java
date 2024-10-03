@@ -42,7 +42,7 @@ class MemberRepositoryTest {
         var member = getMember();
         memberRepository.save(member);
         //when
-        var foundMember = memberRepository.findByEmail("test@naver.com");
+        var foundMember = memberRepository.findByPhoneNumber("010-1234-1234");
         // Then
         Assertions.assertThat(foundMember)
                 .isPresent();
@@ -52,7 +52,7 @@ class MemberRepositoryTest {
     @DisplayName("존재하지 않는 이메일로 회원을 찾으면 실패한다.")
     void findByEmail_fail_notExists() {
         //given, when
-        var foundMember = memberRepository.findByEmail("noExistEmail");
+        var foundMember = memberRepository.findByPhoneNumber("010-1234-1111");
         // Then
         Assertions.assertThat(foundMember)
                 .isNotPresent();
@@ -65,7 +65,7 @@ class MemberRepositoryTest {
         var member = getMember();
         memberRepository.save(member);
         //when
-        var founded = memberRepository.existsByEmail("test@naver.com");
+        var founded = memberRepository.existsByPhoneNumber("010-1234-1234");
         // Then
         Assertions.assertThat(founded)
                 .isTrue();
@@ -75,13 +75,13 @@ class MemberRepositoryTest {
     @DisplayName("존재하지 않는 이메일로 존재하는지 찾으면 False 를 반환한다.")
     void existsByEmail_fail_notExists() {
         //given, when
-        var founded = memberRepository.existsByEmail("noExistEmail");
+        var founded = memberRepository.existsByPhoneNumber("010-1234-1111");
         // Then
         Assertions.assertThat(founded)
                 .isFalse();
     }
 
     private Member getMember() {
-        return new Member("테스트", "test@naver.com", "tessPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        return new Member("테스트", "010-1234-1234", "tessPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
     }
 }

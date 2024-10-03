@@ -22,7 +22,7 @@ public class EntityProvider {
     private final static Long ID = 1000L;
 
     public static Member getMember(Long id) {
-        var member = spy(new Member("이름", "이메일", "비밀번호", LocalDate.of(1999, 1, 16), Gender.MALE, "학생", "010-1234-1234"));
+        var member = spy(new Member("이름", "010-1234-1234", "비밀번호", LocalDate.of(1999, 1, 16), Gender.MALE, "학생"));
         lenient().when(member.getId()).thenReturn(id);
         lenient().when(member.getCreatedAt()).thenReturn(LocalDateTime.now());
         lenient().when(member.getLastModifiedAt()).thenReturn(LocalDateTime.now());

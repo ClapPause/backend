@@ -28,10 +28,10 @@ public class MemberService {
     /**
      * 중복된 이메일인지 확인하는 메서드
      *
-     * @param email
+     * @param phoneNumber
      */
-    public Boolean existsByEmail(String email) {
-        return memberRepository.existsByEmail(email);
+    public Boolean existsByPhoneNumber(String phoneNumber) {
+        return memberRepository.existsByPhoneNumber(phoneNumber);
     }
 
     /**

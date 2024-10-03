@@ -43,7 +43,7 @@ class AuthServiceTest {
         var registerRequest = getRegisterRequest();
         var savedMember = getSavedMember();
 
-        when(memberRepository.existsByEmail(any(String.class)))
+        when(memberRepository.existsByPhoneNumber(any(String.class)))
                 .thenReturn(false);
         when(memberRepository.save(any(Member.class)))
                 .thenReturn(savedMember);
@@ -57,12 +57,12 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("중복된 이메일로 회원가입을 요청하면 실패한다")
-    void register_fail_duplicatedEmail() {
+    @DisplayName("중복된 연락처로 회원가입을 요청하면 실패한다")
+    void register_fail_duplicatedPhoneNumber() {
         //given
         var registerRequest = getRegisterRequest();
 
-        when(memberRepository.existsByEmail(any(String.class)))
+        when(memberRepository.existsByPhoneNumber(any(String.class)))
                 .thenReturn(true);
         //when, then
         Assertions.assertThatThrownBy(() -> authService.register(registerRequest))
@@ -76,7 +76,7 @@ class AuthServiceTest {
         var loginRequest = getLoginRequest();
         var member = getSavedMember();
 
-        when(memberRepository.findByEmail(any(String.class)))
+        when(memberRepository.findByPhoneNumber(any(String.class)))
                 .thenReturn(Optional.of(member));
         when(jwtProvider.generateToken(any(Member.class)))
                 .thenReturn("mockedJwtToken");
@@ -88,13 +88,13 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 이메일로 로그인을 요청하면 실패한다")
-    void login_fail_noExistEmail() {
+    @DisplayName("존재하지 않는 연락처로 로그인을 요청하면 실패한다")
+    void login_fail_noExistPhoneNumber() {
         //given
         var loginRequest = getLoginRequest();
 
-        when(memberRepository.findByEmail(any(String.class)))
-                .thenThrow(new NotFoundElementException("존재하지 않는 이메일입니다."));
+        when(memberRepository.findByPhoneNumber(any(String.class)))
+                .thenThrow(new NotFoundElementException("존재하지 않는 연락처입니다."));
         //when, then
         Assertions.assertThatThrownBy(() -> authService.login(loginRequest))
                 .isInstanceOf(NotFoundElementException.class);
@@ -107,7 +107,7 @@ class AuthServiceTest {
         var loginRequest = getErrorLoginRequest();
         var member = getSavedMember();
 
-        when(memberRepository.findByEmail(any(String.class)))
+        when(memberRepository.findByPhoneNumber(any(String.class)))
                 .thenReturn(Optional.of(member));
         //when, then
         Assertions.assertThatThrownBy(() -> authService.login(loginRequest))
@@ -115,19 +115,19 @@ class AuthServiceTest {
     }
 
     private RegisterRequest getRegisterRequest() {
-        return new RegisterRequest("테스트", "test@naver.com", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        return new RegisterRequest("테스트", "010-1234-1234", "testPassword", LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
     }
 
     private LoginRequest getLoginRequest() {
-        return new LoginRequest("test@naver.com", "testPassword");
+        return new LoginRequest("010-1234-1234", "testPassword");
     }
 
     private LoginRequest getErrorLoginRequest() {
-        return new LoginRequest("test@naver.com", "errorPassword");
+        return new LoginRequest("010-1234-1234", "errorPassword");
     }
 
     private Member getSavedMember() {
         var encryptedPassword = passwordEncoder.encode("testPassword");
-        return new Member("테스트", "test@naver.com", encryptedPassword, LocalDate.of(1999, 1, 16), Gender.MALE, "직업", "010-1234-1234");
+        return new Member("테스트", "010-1234-1234", encryptedPassword, LocalDate.of(1999, 1, 16), Gender.MALE, "직업");
     }
 }

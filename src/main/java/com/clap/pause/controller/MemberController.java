@@ -24,9 +24,9 @@ public class MemberController {
                 .build();
     }
 
-    @GetMapping("/validate-email")
-    public ResponseEntity<Boolean> existsByEmail(@RequestParam String email) {
-        var result = memberService.existsByEmail(email);
+    @GetMapping("/validate-phone-number")
+    public ResponseEntity<Boolean> existsByPhoneNumber(@RequestParam String phoneNumber) {
+        var result = memberService.existsByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(result);
     }
 

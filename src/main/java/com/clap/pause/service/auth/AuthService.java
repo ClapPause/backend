@@ -4,6 +4,7 @@ import com.clap.pause.dto.auth.AuthResponse;
 import com.clap.pause.dto.auth.LoginRequest;
 import com.clap.pause.dto.auth.RegisterRequest;
 import com.clap.pause.exception.DuplicatedException;
+import com.clap.pause.exception.InvalidLoginInfoException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Member;
 import com.clap.pause.repository.MemberRepository;
@@ -40,10 +41,11 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest loginRequest) {
-        var member = memberRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new NotFoundElementException(loginRequest.email() + "를 가진 이용자가 존재하지 않습니다."));
-
-        member.validatePassword(passwordEncoder.encode(loginRequest.password()));
+        var member = memberRepository.findByPhoneNumber(loginRequest.phoneNumber())
+                .orElseThrow(() -> new NotFoundElementException(loginRequest.phoneNumber() + "를 가진 이용자가 존재하지 않습니다."));
+        if (!passwordEncoder.matches(loginRequest.password(), member.getPassword())) {
+            throw new InvalidLoginInfoException("로그인 정보가 유효하지 않습니다.");
+        }
         return createAuthResponseWithMember(member);
     }
 
@@ -63,18 +65,18 @@ public class AuthService {
      * @param registerRequest
      */
     private void validate(RegisterRequest registerRequest) {
-        emailValidation(registerRequest.email());
+        phoneNumberValidation(registerRequest.phoneNumber());
         nameValidation(registerRequest.name());
     }
 
     /**
      * 중복된 이메일을 검증하는 메서드
      *
-     * @param email
+     * @param phoneNumber
      */
-    private void emailValidation(String email) {
-        if (memberRepository.existsByEmail(email)) {
-            throw new DuplicatedException("이미 존재하는 이메일입니다.");
+    private void phoneNumberValidation(String phoneNumber) {
+        if (memberRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new DuplicatedException("이미 존재하는 연락처입니다.");
         }
     }
 
@@ -97,7 +99,7 @@ public class AuthService {
      */
     private Member saveMemberWithMemberRequest(RegisterRequest registerRequest) {
         var encodedPassword = passwordEncoder.encode(registerRequest.password());
-        var member = new Member(registerRequest.name(), registerRequest.email(), encodedPassword, registerRequest.birth(), registerRequest.gender(), registerRequest.job(), registerRequest.phoneNumber());
+        var member = new Member(registerRequest.name(), registerRequest.phoneNumber(), encodedPassword, registerRequest.birth(), registerRequest.gender(), registerRequest.job());
         return memberRepository.save(member);
     }
 }

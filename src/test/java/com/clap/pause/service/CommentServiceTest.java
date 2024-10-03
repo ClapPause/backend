@@ -135,6 +135,7 @@ class CommentServiceTest {
 
         when(commentRepository.findAllByPostIdOrderByCreatedAt(any(Long.class))).thenReturn(comments);
         when(memberUniversityDepartmentService.findProperMemberUniversityDepartment(any(Long.class), any(Long.class))).thenReturn(memberUniversityDepartment);
+        when(postRepository.existsById(any(Long.class))).thenReturn(true);
         //when
         var result = commentService.getComments(1L);
         //then
@@ -159,6 +160,7 @@ class CommentServiceTest {
         when(commentLikeService.getCommentLikeCount(any(Long.class))).thenReturn(map);
         when(commentRepository.findAllByPostIdOrderByCreatedAt(any(Long.class))).thenReturn(comments);
         when(memberUniversityDepartmentService.findProperMemberUniversityDepartment(any(Long.class), any(Long.class))).thenReturn(memberUniversityDepartment);
+        when(postRepository.existsById(any(Long.class))).thenReturn(true);
         //when
         var result = commentService.getComments(1L);
         //then
