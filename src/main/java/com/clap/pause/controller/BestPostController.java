@@ -17,7 +17,7 @@ import java.util.List;
 public class BestPostController {
     private final BestPostFacadeService bestPostFacadeService;
 
-    @GetMapping
+    @GetMapping("/sort")
     public ResponseEntity<List<PostListResponse>> getBestPosts(@RequestParam(name = "sortType") String sortType) {
         //sortType이 popularity면 인기순, recent면 최신순으로 정렬된다
         var responses = bestPostFacadeService.getBestPosts(sortType);
