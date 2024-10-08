@@ -43,6 +43,9 @@ public class Post extends BaseEntity {
     @Column(name = "post_type")
     private PostType postType;
     @NotNull
+    @Column(name = "hot_posted")
+    private Boolean hotPosted;
+    @NotNull
     @Column(name = "deleted")
     @Getter(AccessLevel.PRIVATE)
     private Boolean deleted = Boolean.FALSE;
@@ -58,6 +61,7 @@ public class Post extends BaseEntity {
         this.contents = contents;
         this.postCategory = postCategory;
         this.postType = postType;
+        this.hotPosted = false;
     }
 
     public void updatePost(String title, String contents) {
