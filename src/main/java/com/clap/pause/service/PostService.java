@@ -245,6 +245,16 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostListResponse getPost(Long postId) {
         var post = getPostById(postId);
+        return getPostListResponse(post);
+    }
+
+    /**
+     * post로 postListResponse 만드는 메소드
+     *
+     * @param post
+     * @return
+     */
+    private PostListResponse getPostListResponse(Post post) {
         var memberUniversityDepartments = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember().getId());
         var memberInfo = getMemberInfo(post, memberUniversityDepartments);
         return getPostResponseForType(post, memberInfo);
@@ -346,5 +356,23 @@ public class PostService {
     private void deleteTextVoteOption(Post post) {
         List<TextVoteOption> textVoteOptions = textVoteOptionService.getTextVoteOptionList(post);
         textVoteOptionService.deleteTextVoteOptionList(textVoteOptions);
+    }
+
+    /**
+     * 3일전 부터 현재까지의 좋아요수가 높은 post 3개를 hotPost로 등재하는 메소드
+     *
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<PostListResponse> registerHotPost() {
+        List<Post> hotPosts = postRepository.getTop3HotPostByLike();
+        return hotPosts.stream()
+                .map(hotPost -> {
+                    //해당 post의 hotposted를 true로 바꿈
+                    hotPost.updateHotPosted();
+                    //post로 postListResponse를 만듬
+                    return getPostListResponse(hotPost);
+                })
+                .toList();
     }
 }

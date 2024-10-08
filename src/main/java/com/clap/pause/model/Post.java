@@ -68,4 +68,8 @@ public class Post extends BaseEntity {
         this.title = title;
         this.contents = contents;
     }
+
+    public void updateHotPosted() {
+        this.hotPosted = true;
+    }
 }
