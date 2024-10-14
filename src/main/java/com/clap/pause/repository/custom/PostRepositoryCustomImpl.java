@@ -23,7 +23,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .leftJoin(postLike).on(post.eq(postLike.post))
                 .where(postLike.createdAt.between(LocalDateTime.now().minusDays(3), LocalDateTime.now()))
                 .groupBy(post)
-                .orderBy(postLike.count().desc())
+                .orderBy(postLike.count().desc(), post.createdAt.desc())
                 .limit(3)
                 .fetch();
     }
