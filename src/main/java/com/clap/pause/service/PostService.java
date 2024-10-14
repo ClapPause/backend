@@ -372,6 +372,12 @@ public class PostService {
                 .toList();
     }
 
+    /**
+     * 정렬기준(인기순, 최신순)에 따라 핫포스트 등재된 게시글 모두를 불러오는 메소드
+     *
+     * @param sortType
+     * @return
+     */
     @Transactional(readOnly = true)
     public List<PostListResponse> getHotposts(String sortType) {
         if (sortType.equals("popularity")) {
@@ -387,6 +393,5 @@ public class PostService {
                     .toList();
         }
         throw new FailElementException("해당 정렬기준은 존재하지 않아 핫포스트 조회가 불가합니다. 다시 시도해주세요.");
-
     }
 }
