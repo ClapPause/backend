@@ -1,8 +1,8 @@
 package com.clap.pause.service;
 
 import com.clap.pause.dto.scrap.ScrapResponse;
+import com.clap.pause.exception.FailElementException;
 import com.clap.pause.exception.NotFoundElementException;
-import com.clap.pause.exception.ScrapFailException;
 import com.clap.pause.model.Member;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.Scrap;
@@ -31,7 +31,7 @@ public class ScrapService {
         var post = getPost(postId);
         var member = getMember(memberId);
         if (checkScrap(post, member)) {
-            throw new ScrapFailException("이미 스크랩이 되어있습니다");
+            throw new FailElementException("이미 스크랩이 되어있습니다");
         }
         scrapRepository.save(new Scrap(post, member));
     }

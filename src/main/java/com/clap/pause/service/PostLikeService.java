@@ -1,8 +1,8 @@
 package com.clap.pause.service;
 
 import com.clap.pause.dto.postlike.PostLikeResponse;
+import com.clap.pause.exception.FailElementException;
 import com.clap.pause.exception.NotFoundElementException;
-import com.clap.pause.exception.PostLikeFailException;
 import com.clap.pause.model.Member;
 import com.clap.pause.model.Post;
 import com.clap.pause.model.PostLike;
@@ -32,7 +32,7 @@ public class PostLikeService {
         var member = getMember(memberId);
         //이미 좋아요 했는지 체크함
         if (checkPostLikeByMember(post, member)) {
-            throw new PostLikeFailException("이미 해당 글을 좋아요한 상태입니다.");
+            throw new FailElementException("이미 해당 글을 좋아요한 상태입니다.");
         }
         //존재하지 않으면, postLike를 저장함
         postLikeRepository.save(new PostLike(post, member));
