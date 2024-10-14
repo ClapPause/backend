@@ -7,5 +7,9 @@ import java.util.List;
 
 @Repository
 public interface PostRepositoryCustom {
-    public List<Post> getTop3HotPostByLike();
+    List<Post> getTop3HotPostByLike();
+
+    List<Post> getHotPostsByCreatedAt();
+
+    List<Post> getHotPostsByLike();
 }

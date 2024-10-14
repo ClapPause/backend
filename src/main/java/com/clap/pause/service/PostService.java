@@ -11,6 +11,7 @@ import com.clap.pause.dto.post.response.PostListResponse;
 import com.clap.pause.dto.post.response.TextVoteOptionResponse;
 import com.clap.pause.dto.postImage.MultiPostImageRequest;
 import com.clap.pause.dto.postImage.PostImageRequest;
+import com.clap.pause.exception.FailElementException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.exception.PostAccessException;
 import com.clap.pause.model.ImageVoteOption;
@@ -139,12 +140,7 @@ public class PostService {
         var postList = postRepository.findByDepartmentGroupOrderByCreatedAtDesc(departmentGroup);
         //각 post에 대한 멤버정보를 가져옴
         return postList.stream()
-                .map(post -> {
-                    var memberUniversityDepartmentResponses = memberUniversityDepartmentService.getMemberUniversityDepartments(post.getMember()
-                            .getId());
-                    var memberInfo = getMemberInfo(post, memberUniversityDepartmentResponses);
-                    return getPostResponseForType(post, memberInfo);
-                })
+                .map(this::getPostListResponse)
                 .toList();
     }
 
@@ -363,16 +359,34 @@ public class PostService {
      *
      * @return
      */
-    @Transactional(readOnly = true)
     public List<PostListResponse> registerHotPost() {
         List<Post> hotPosts = postRepository.getTop3HotPostByLike();
         return hotPosts.stream()
                 .map(hotPost -> {
                     //해당 post의 hotposted를 true로 바꿈
                     hotPost.updateHotPosted();
+                    postRepository.save(hotPost);
                     //post로 postListResponse를 만듬
                     return getPostListResponse(hotPost);
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostListResponse> getHotposts(String sortType) {
+        if (sortType.equals("popularity")) {
+            var hotPostsByLike = postRepository.getHotPostsByLike();
+            return hotPostsByLike.stream()
+                    .map(this::getPostListResponse)
+                    .toList();
+        }
+        if (sortType.equals("recent")) {
+            var hotPostsByCreatedAt = postRepository.getHotPostsByCreatedAt();
+            return hotPostsByCreatedAt.stream()
+                    .map(this::getPostListResponse)
+                    .toList();
+        }
+        throw new FailElementException("해당 정렬기준은 존재하지 않아 핫포스트 조회가 불가합니다. 다시 시도해주세요.");
+
     }
 }

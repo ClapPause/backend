@@ -28,4 +28,27 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public List<Post> getHotPostsByCreatedAt() {
+        QPost post = QPost.post;
+
+        return jpaQueryFactory.selectFrom(post)
+                .where(post.hotPosted.eq(true))
+                .orderBy(post.createdAt.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<Post> getHotPostsByLike() {
+        var post = QPost.post;
+        var postLike = QPostLike.postLike;
+
+        return jpaQueryFactory.selectFrom(post)
+                .leftJoin(postLike).on(postLike.post.eq(post))
+                .where(post.hotPosted.eq(true))
+                .groupBy(post)
+                .orderBy(postLike.count().desc(), post.createdAt.desc())
+                .fetch();
+    }
+
 }
