@@ -38,7 +38,7 @@ public class BestPostRepositoryCustomImpl implements BestPostRepositoryCustom {
                 .join(post).on(post.eq(bestPost.post))
                 .leftJoin(postLike).on(postLike.post.eq(post))
                 .groupBy(post)
-                .orderBy(postLike.count().desc())
+                .orderBy(postLike.count().desc(), post.createdAt.desc())
                 .fetch();
     }
 
