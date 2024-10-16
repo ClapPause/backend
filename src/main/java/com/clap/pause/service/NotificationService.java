@@ -5,6 +5,7 @@ import com.clap.pause.exception.InvalidRequestException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Member;
 import com.clap.pause.model.Notification;
+import com.clap.pause.model.NotificationField;
 import com.clap.pause.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,24 @@ public class NotificationService {
         var notification = notificationRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new NotFoundElementException("해당 이용자의 알림 정보가 존재하지 않습니다."));
         return getNotificationResponse(notification);
+    }
+
+    public void updateAll(Long memberId, Boolean value) {
+        var notification = notificationRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundElementException("해당 이용자의 알림 정보가 존재하지 않습니다."));
+        notification.updateAll(memberId, value);
+    }
+
+    public void updateCommunity(Long memberId, Boolean value) {
+        var notification = notificationRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundElementException("해당 이용자의 알림 정보가 존재하지 않습니다."));
+        notification.updateCommunity(memberId, value);
+    }
+
+    public void updateField(Long memberId, NotificationField field, Boolean value) {
+        var notification = notificationRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundElementException("해당 이용자의 알림 정보가 존재하지 않습니다."));
+        notification.updateField(memberId, field, value);
     }
 
     private NotificationResponse getNotificationResponse(Notification notification) {

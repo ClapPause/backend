@@ -51,7 +51,7 @@ public class Notification extends BaseEntity {
         this.member = member;
     }
 
-    public void updateAll(Boolean value) {
+    public void updateAll(Long memberId, Boolean value) {
         this.ballooningTime = value;
         this.simulation = value;
         this.event = value;
@@ -62,42 +62,37 @@ public class Notification extends BaseEntity {
         this.activity = value;
     }
 
-    public void updateCommunity(Boolean value) {
+    public void updateCommunity(Long memberId, Boolean value) {
         this.recommendPost = value;
         this.newComment = value;
         this.selectedHotPost = value;
         this.activity = value;
     }
 
-    public void updateBallooningTime(Boolean ballooningTime) {
-        this.ballooningTime = ballooningTime;
-    }
-
-    public void updateSimulation(Boolean simulation) {
-        this.simulation = simulation;
-    }
-
-    public void updateEvent(Boolean event) {
-        this.event = event;
-    }
-
-    public void updateServiceUse(Boolean serviceUse) {
-        this.serviceUse = serviceUse;
-    }
-
-    public void updateRecommendPost(Boolean recommendPost) {
-        this.recommendPost = recommendPost;
-    }
-
-    public void updateNewComment(Boolean newComment) {
-        this.newComment = newComment;
-    }
-
-    public void updateActivity(Boolean activity) {
-        this.activity = activity;
-    }
-
-    public void updateSelectedHotPost(Boolean selectedHotPost) {
-        this.selectedHotPost = selectedHotPost;
+    public void updateField(Long memberId, NotificationField field, Boolean value) {
+        if (field.equals(NotificationField.BALLOONING_TIME)) {
+            this.ballooningTime = value;
+        }
+        if (field.equals(NotificationField.SIMULATION)) {
+            this.simulation = value;
+        }
+        if (field.equals(NotificationField.EVENT)) {
+            this.event = value;
+        }
+        if (field.equals(NotificationField.SERVICE_USE)) {
+            this.serviceUse = value;
+        }
+        if (field.equals(NotificationField.RECOMMEND_POST)) {
+            this.recommendPost = value;
+        }
+        if (field.equals(NotificationField.NEW_COMMENT)) {
+            this.newComment = value;
+        }
+        if (field.equals(NotificationField.SELECTED_HOT_POST)) {
+            this.selectedHotPost = value;
+        }
+        if (field.equals(NotificationField.ACTIVITY)) {
+            this.activity = value;
+        }
     }
 }
