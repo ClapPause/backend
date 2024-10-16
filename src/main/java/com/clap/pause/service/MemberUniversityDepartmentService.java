@@ -77,6 +77,10 @@ public class MemberUniversityDepartmentService {
         memberUniversityDepartmentRepository.deleteById(id);
     }
 
+    public void deleteAllByMemberId(Long memberId) {
+        memberUniversityDepartmentRepository.deleteAllByMemberId(memberId);
+    }
+
     public MemberUniversityDepartment findProperMemberUniversityDepartment(Long memberId, Long departmentGroupId) {
         var memberUniversityDepartments = memberUniversityDepartmentRepository.findAllByMemberId(memberId);
         for (var memberUniversityDepartment : memberUniversityDepartments) {

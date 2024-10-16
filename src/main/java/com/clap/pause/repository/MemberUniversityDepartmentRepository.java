@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MemberUniversityDepartmentRepository extends JpaRepository<MemberUniversityDepartment, Long> {
     List<MemberUniversityDepartment> findAllByMemberId(Long memberId);
+
+    void deleteAllByMemberId(Long memberId);
 }

@@ -10,4 +10,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Optional<Notification> findByMemberId(Long memberId);
 
     boolean existsByMember(Member member);
+
+    void deleteByMemberId(Long memberId);
 }

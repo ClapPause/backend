@@ -50,6 +50,10 @@ public class NotificationService {
         notification.updateField(memberId, field, value);
     }
 
+    public void deleteNotification(Long memberId) {
+        notificationRepository.deleteByMemberId(memberId);
+    }
+
     private NotificationResponse getNotificationResponse(Notification notification) {
         return NotificationResponse.of(
                 notification.getBallooningTime(),
