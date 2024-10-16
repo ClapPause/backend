@@ -8,6 +8,7 @@ import com.clap.pause.exception.InvalidLoginInfoException;
 import com.clap.pause.exception.NotFoundElementException;
 import com.clap.pause.model.Member;
 import com.clap.pause.repository.MemberRepository;
+import com.clap.pause.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class AuthService {
+
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     /**
      * 회원가입을 처리하는 메서드
@@ -30,6 +33,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest registerRequest) {
         validate(registerRequest);
         var member = saveMemberWithMemberRequest(registerRequest);
+        notificationService.saveNotification(member);
         return createAuthResponseWithMember(member);
     }
 
